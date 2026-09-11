@@ -79,6 +79,11 @@
     position:fixed; bottom:0; right:15%; width:200px; height:200px;
     pointer-events:none; z-index:5; image-rendering:pixelated;
   }
+  #loading {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    color:#fff; font-size:20px; text-shadow:2px 2px 0 #000; z-index:20;
+    display:none;
+  }
 </style>
 </head>
 <body>
@@ -94,6 +99,7 @@
 <div id="chat"></div>
 <div id="hotbar"></div>
 <canvas id="hand" width="200" height="200"></canvas>
+<div id="loading">Generando mundo...</div>
 
 <div id="menu">
   <h1>MINICRAFT</h1>
@@ -114,7 +120,7 @@
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
 // ============================================================
-// MINICRAFT P2P v2 - Juego tipo Minecraft con Three.js + PeerJS
+// MINICRAFT P2P v2 - VERSIÓN ARREGLADA
 // ============================================================
 
 // ---------- Constantes ----------
@@ -137,7 +143,7 @@ const BLOCK = {
   PLANKS: 12, CRAFTING: 13, GLASS: 14, BEDROCK: 15, SNOW: 16, ICE: 17
 };
 
-// ============ AUDIO (Web Audio API, sin archivos) ============
+// ============ AUDIO ============
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 function initAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
@@ -153,7 +159,7 @@ function playSound(type) {
   else if (type === 'jump') { osc.type='sine'; osc.frequency.setValueAtTime(300,t); osc.frequency.exponentialRampToValueAtTime(500,t+0.1); gain.gain.setValueAtTime(0.05,t); gain.gain.exponentialRampToValueAtTime(0.001,t+0.12); osc.start(t); osc.stop(t+0.12); }
 }
 
-// ============ TEXTURAS PROCEDURALES ============
+// ============ TEXTURAS ============
 function noiseCanvas(baseColor, noiseColors, density = 60) {
   const c = document.createElement('canvas'); c.width = c.height = 16;
   const ctx = c.getContext('2d');
@@ -166,7 +172,6 @@ function noiseCanvas(baseColor, noiseColors, density = 60) {
   t.magFilter = t.minFilter = THREE.NearestFilter;
   return t;
 }
-
 function grassTopTex() { return noiseCanvas('#4a9e3f', ['#3d8a34','#5cb850','#2f6e29','#6cc55e'], 90); }
 function grassSideTex() {
   const c = document.createElement('canvas'); c.width = c.height = 16;
@@ -204,8 +209,6 @@ const TEX = {
   snow: noiseCanvas('#f0f8ff', ['#e0e8ff','#ffffff'], 40),
   ice: noiseCanvas('#a0d0f0', ['#90c0e0','#b0e0ff'], 50)
 };
-
-// Canvas con transparencia para cristal
 (function(){
   const c = document.createElement('canvas'); c.width = c.height = 16;
   const ctx = c.getContext('2d');
@@ -216,7 +219,6 @@ const TEX = {
 })();
 
 function mkMat(tex) { return new THREE.MeshLambertMaterial({ map: tex }); }
-
 function blockMaterials(type) {
   const t = TEX;
   switch(type) {
@@ -274,7 +276,6 @@ const world = {
   markDirty(cx, cz) { this.dirtyChunks.add(this.getChunkKey(cx, cz)); }
 };
 
-// PRNG determinista
 function mulberry32(a) {
   return function() {
     a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -289,7 +290,7 @@ function generateChunk(cx, cz, seed = 12345) {
   const chunk = world.getChunk(cx, cz);
   if (chunk.generated) return;
   const rand = mulberry32((cx * 73856093) ^ (cz * 19349663) ^ seed);
-  
+
   for (let lx = 0; lx < CHUNK_SIZE; lx++) {
     for (let lz = 0; lz < CHUNK_SIZE; lz++) {
       const x = cx * CHUNK_SIZE + lx, z = cz * CHUNK_SIZE + lz;
@@ -314,11 +315,9 @@ function generateChunk(cx, cz, seed = 12345) {
         world.setBlock(x, y, z, type);
       }
       
-      if (height > 14) world.setBlock(x, height, z, BLOCK.GRASS);
-      else if (height > 8) world.setBlock(x, height, z, BLOCK.GRASS);
+      if (height > 8) world.setBlock(x, height, z, BLOCK.GRASS);
       else world.setBlock(x, height, z, BLOCK.SAND);
       
-      // Árboles: solo si hay césped y no muy cerca de bordes
       const localEdge = lx < 2 || lx > CHUNK_SIZE-3 || lz < 2 || lz > CHUNK_SIZE-3;
       if (!localEdge && height > 11 && world.getBlock(x, height, z) === BLOCK.GRASS && rand() < 0.012) {
         const treeHeight = 4 + Math.floor(rand() * 3);
@@ -335,9 +334,13 @@ function generateChunk(cx, cz, seed = 12345) {
     }
   }
   chunk.generated = true;
+  // FIX: marcar vecinos para reconstruir sus bordes
+  world.markDirty(cx - 1, cz);
+  world.markDirty(cx + 1, cz);
+  world.markDirty(cx, cz - 1);
+  world.markDirty(cx, cz + 1);
 }
 
-// Culling de caras + construcción del mesh
 function buildChunkMesh(cx, cz) {
   const chunk = world.getChunk(cx, cz);
   if (!chunk.generated) return;
@@ -391,10 +394,12 @@ function buildChunkMesh(cx, cz) {
     geom.setAttribute('normal', new THREE.Float32BufferAttribute(g.normals, 3));
     geom.setAttribute('uv', new THREE.Float32BufferAttribute(g.uvs, 2));
     geom.setIndex(g.indices);
+    geom.computeBoundingSphere();
+    geom.computeBoundingBox();
     const mats = blockMaterials(type);
     const mat = Array.isArray(mats) ? mats[0] : mats;
     const mesh = new THREE.Mesh(geom, mat);
-    mesh.frustumCulled = false; // FIX: evitar que se rasgue
+    mesh.frustumCulled = false;
     group.add(mesh);
   }
   
@@ -421,7 +426,7 @@ scene.add(sun);
 
 // ============ JUGADOR ============
 const player = {
-  position: new THREE.Vector3(8, 22, 8),
+  position: new THREE.Vector3(8, 30, 8),
   velocity: new THREE.Vector3(),
   onGround: false,
   yaw: 0, pitch: 0,
@@ -441,16 +446,13 @@ const player = {
   isSneaking: false
 };
 
-// ============ MANO EN 1RA PERSONA ============
+// ============ MANO ============
 const handCanvas = document.getElementById('hand');
 const handCtx = handCanvas.getContext('2d');
-
 function drawHand() {
   handCtx.clearRect(0, 0, 200, 200);
   const slot = player.inventory[player.selectedSlot];
   if (!slot) return;
-  
-  // Colores por tipo de bloque
   const colors = {
     [BLOCK.GRASS]: '#4a9e3f', [BLOCK.DIRT]: '#8b6b4a', [BLOCK.STONE]: '#7a7a7a',
     [BLOCK.WOOD]: '#6b4a2a', [BLOCK.LEAVES]: '#2d6b2a', [BLOCK.SAND]: '#e8d78a',
@@ -459,8 +461,6 @@ function drawHand() {
     [BLOCK.BEDROCK]: '#2a2a2a'
   };
   const color = colors[slot.type] || '#ff00ff';
-  
-  // Brazo (skin)
   handCtx.fillStyle = '#ffcc99';
   handCtx.save();
   handCtx.translate(100, 200);
@@ -468,14 +468,10 @@ function drawHand() {
   handCtx.fillRect(-35, -180, 70, 180);
   handCtx.strokeStyle = '#c99a70'; handCtx.lineWidth = 3;
   handCtx.strokeRect(-35, -180, 70, 180);
-  
-  // Bloque en la mano
   handCtx.fillStyle = color;
   handCtx.fillRect(-45, -260, 90, 90);
   handCtx.strokeStyle = '#000'; handCtx.lineWidth = 4;
   handCtx.strokeRect(-45, -260, 90, 90);
-  
-  // Ruido de textura
   for (let i = 0; i < 40; i++) {
     handCtx.fillStyle = `rgba(0,0,0,${0.1 + Math.random()*0.2})`;
     handCtx.fillRect(-45 + Math.random()*90, -260 + Math.random()*90, 3, 3);
@@ -483,7 +479,7 @@ function drawHand() {
   handCtx.restore();
 }
 
-// ============ ENTIDADES (MOBS) ============
+// ============ MOBS ============
 const entities = [];
 let entityIdCounter = 0;
 
@@ -503,7 +499,6 @@ class Entity {
     this.mesh.position.copy(this.position);
     scene.add(this.mesh);
   }
-  
   createMesh() {
     const g = new THREE.Group();
     const isHostile = this.type === 'zombie' || this.type === 'creeper';
@@ -516,7 +511,6 @@ class Entity {
       case 'sheep': bodyColor = 0xf0f0f0; headColor = 0xd0d0d0; break;
       default: bodyColor = 0xff00ff; headColor = 0xff00ff;
     }
-    
     if (this.type === 'creeper') {
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), new THREE.MeshLambertMaterial({ color: bodyColor }));
       body.position.y = 0.6; g.add(body);
@@ -535,10 +529,8 @@ class Entity {
     }
     return g;
   }
-  
   update(dt) {
     this.velocity.y += GRAVITY * dt;
-    
     if (this.type === 'zombie' || this.type === 'creeper') {
       const dx = player.position.x - this.position.x;
       const dz = player.position.z - this.position.z;
@@ -548,14 +540,11 @@ class Entity {
         this.velocity.x = (dx / dist) * speed;
         this.velocity.z = (dz / dist) * speed;
         if (dist < 1.2 && this.attackCooldown <= 0) {
-          player.health -= 1;
-          playSound('hurt');
-          this.attackCooldown = 1.5;
-          updateHealthUI();
+          player.health -= 1; playSound('hurt');
+          this.attackCooldown = 1.5; updateHealthUI();
         }
       } else this.wander(dt, 0.8);
     } else this.wander(dt, 1.0);
-    
     const newPos = this.position.clone().addScaledVector(this.velocity, dt);
     this.resolveCollisions(newPos);
     this.mesh.position.copy(this.position);
@@ -565,7 +554,6 @@ class Entity {
     this.attackCooldown -= dt;
     if (this.health <= 0) this.die();
   }
-  
   wander(dt, speed) {
     this.wanderTimer -= dt;
     if (this.wanderTimer <= 0) {
@@ -575,7 +563,6 @@ class Entity {
     this.velocity.x = Math.cos(this.wanderAngle) * speed;
     this.velocity.z = Math.sin(this.wanderAngle) * speed;
   }
-  
   resolveCollisions(newPos) {
     const half = 0.4;
     if (!this.collidesAt(newPos.x, this.position.y, this.position.z, half)) this.position.x = newPos.x;
@@ -585,7 +572,6 @@ class Entity {
     if (!this.collidesAt(this.position.x, newPos.y, this.position.z, half)) { this.position.y = newPos.y; this.onGround = false; }
     else { if (this.velocity.y < 0) this.onGround = true; this.velocity.y = 0; }
   }
-  
   collidesAt(x, y, z, half) {
     const minX = Math.floor(x - half), maxX = Math.floor(x + half);
     const minZ = Math.floor(z - half), maxZ = Math.floor(z + half);
@@ -596,7 +582,6 @@ class Entity {
           if (world.getBlock(bx, by, bz) !== BLOCK.AIR) return true;
     return false;
   }
-  
   die() {
     if (this.mesh.parent) scene.remove(this.mesh);
     const idx = entities.indexOf(this);
@@ -605,11 +590,8 @@ class Entity {
       addInventoryItem(BLOCK.GRASS, 1);
       addChat(`+1 comida de ${this.type}`, 'Sistema');
     }
-    if (network.active && network.isHost) {
-      network.broadcast({ type: 'entity_die', id: this.id });
-    }
+    if (network.active && network.isHost) network.broadcast({ type: 'entity_die', id: this.id });
   }
-  
   takeDamage(dmg) {
     this.health -= dmg;
     this.mesh.traverse(c => { if (c.material && c.material.emissive !== undefined) c.material.emissive = new THREE.Color(0xff0000); });
@@ -638,7 +620,6 @@ function spawnMobsAroundPlayer() {
   const px = player.position.x, pz = player.position.z;
   const pcx = Math.floor(px / CHUNK_SIZE), pcz = Math.floor(pz / CHUNK_SIZE);
   const night = isNight();
-  
   for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
     for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++) {
       const cx = pcx + dx, cz = pcz + dz;
@@ -648,13 +629,11 @@ function spawnMobsAroundPlayer() {
         Math.floor(e.position.x / CHUNK_SIZE) === cx && Math.floor(e.position.z / CHUNK_SIZE) === cz);
       if (chunkEntities.length >= 4) continue;
       if (Math.random() > (night ? 0.06 : 0.02)) continue;
-      
       const x = cx * CHUNK_SIZE + Math.random() * CHUNK_SIZE;
       const z = cz * CHUNK_SIZE + Math.random() * CHUNK_SIZE;
       const y = findSpawnHeight(x, z);
       const distToPlayer = Math.sqrt((x-px)**2 + (z-pz)**2);
       if (distToPlayer < 8) continue;
-      
       let type;
       const r = Math.random();
       if (night) {
@@ -669,32 +648,24 @@ function spawnMobsAroundPlayer() {
         else type = 'sheep';
       }
       const e = spawnEntity(type, new THREE.Vector3(x, y, z));
-      if (network.active && network.isHost) {
-        network.broadcast({ type: 'entity_spawn', id: e.id, etype: type, pos: [x, y, z] });
-      }
+      if (network.active && network.isHost) network.broadcast({ type: 'entity_spawn', id: e.id, etype: type, pos: [x, y, z] });
     }
   }
 }
 
 // ============ DÍA/NOCHE ============
-let dayTime = 0.3; // 0-1, 0.25=amanecer, 0.5=mediodía, 0.75=atardecer, 0=noche
-const DAY_DURATION = 180; // segundos
-
+let dayTime = 0.3;
+const DAY_DURATION = 180;
 function isNight() { return dayTime < 0.22 || dayTime > 0.78; }
-
 function updateDayNight(dt) {
   dayTime = (dayTime + dt / DAY_DURATION) % 1;
   const angle = dayTime * Math.PI * 2 - Math.PI / 2;
   sun.position.set(Math.cos(angle) * 100, Math.sin(angle) * 100, 30);
-  
   let intensity, bgColor;
   if (dayTime > 0.25 && dayTime < 0.75) {
     const t = (dayTime - 0.25) / 0.5;
     intensity = 0.3 + Math.sin(t * Math.PI) * 0.6;
-    const r = 0.53 + Math.sin(t * Math.PI) * 0.2;
-    const g = 0.81 + Math.sin(t * Math.PI) * 0.05;
-    const b = 0.92;
-    bgColor = new THREE.Color(r, g, b);
+    bgColor = new THREE.Color(0.53 + Math.sin(t * Math.PI) * 0.2, 0.81, 0.92);
   } else {
     intensity = 0.15;
     bgColor = new THREE.Color(0.05, 0.05, 0.15);
@@ -703,7 +674,6 @@ function updateDayNight(dt) {
   ambient.intensity = 0.2 + intensity * 0.5;
   scene.background = bgColor;
   scene.fog.color = bgColor;
-  
   const el = document.getElementById('time');
   if (el) el.textContent = isNight() ? '🌙 Noche' : '☀️ Día';
 }
@@ -712,12 +682,10 @@ function updateDayNight(dt) {
 const minimapCanvas = document.getElementById('minimap');
 const mmCtx = minimapCanvas.getContext('2d');
 let minimapTimer = 0;
-
 function updateMinimap() {
   const size = 150, pixels = 30;
   const scale = size / pixels;
   mmCtx.clearRect(0, 0, size, size);
-  
   const px = Math.floor(player.position.x), pz = Math.floor(player.position.z);
   const colors = {
     [BLOCK.GRASS]: '#4a9e3f', [BLOCK.DIRT]: '#8b6b4a', [BLOCK.STONE]: '#7a7a7a',
@@ -726,7 +694,6 @@ function updateMinimap() {
     [BLOCK.GOLD]: '#d4a020', [BLOCK.DIAMOND]: '#5ce6e6', [BLOCK.PLANKS]: '#a8804a',
     [BLOCK.GLASS]: '#aaccff', [BLOCK.BEDROCK]: '#222', [BLOCK.SNOW]: '#f0f8ff'
   };
-  
   for (let x = 0; x < pixels; x++) {
     for (let z = 0; z < pixels; z++) {
       const wx = px - pixels/2 + x, wz = pz - pixels/2 + z;
@@ -739,11 +706,8 @@ function updateMinimap() {
       mmCtx.fillRect(x * scale, z * scale, scale, scale);
     }
   }
-  
-  // Jugador (punto central)
   mmCtx.fillStyle = '#ff0000';
   mmCtx.fillRect(size/2 - 3, size/2 - 3, 6, 6);
-  // Mobs
   for (const e of entities) {
     const dx = e.position.x - px, dz = e.position.z - pz;
     if (Math.abs(dx) < pixels/2 && Math.abs(dz) < pixels/2) {
@@ -752,7 +716,6 @@ function updateMinimap() {
       mmCtx.fillRect(size/2 + dx * scale - 1, size/2 + dz * scale - 1, 3, 3);
     }
   }
-  // Jugadores remotos
   for (const rp of network.remotePlayers.values()) {
     const dx = rp.position.x - px, dz = rp.position.z - pz;
     if (Math.abs(dx) < pixels/2 && Math.abs(dz) < pixels/2) {
@@ -760,7 +723,6 @@ function updateMinimap() {
       mmCtx.fillRect(size/2 + dx * scale - 2, size/2 + dz * scale - 2, 4, 4);
     }
   }
-  
   mmCtx.strokeStyle = '#fff';
   mmCtx.lineWidth = 1;
   mmCtx.strokeRect(0.5, 0.5, size-1, size-1);
@@ -783,7 +745,6 @@ function playerCollides(x, y, z, height = PLAYER_HEIGHT) {
 
 function updatePlayer(dt) {
   player.velocity.y += GRAVITY * dt;
-  
   const forward = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
   const right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
   const move = new THREE.Vector3();
@@ -791,12 +752,10 @@ function updatePlayer(dt) {
   if (keys['KeyS']) move.sub(forward);
   if (keys['KeyD']) move.add(right);
   if (keys['KeyA']) move.sub(right);
-  
   let speed = MOVE_SPEED;
   if (keys['ShiftLeft'] || keys['ShiftRight']) speed *= SPRINT_MULT;
   player.isSneaking = keys['ControlLeft'] || keys['ControlRight'];
   if (player.isSneaking) speed *= SNEAK_MULT;
-  
   if (move.lengthSq() > 0) {
     move.normalize();
     player.velocity.x = move.x * speed;
@@ -805,16 +764,13 @@ function updatePlayer(dt) {
     player.velocity.x *= 0.8;
     player.velocity.z *= 0.8;
   }
-  
   if (keys['Space'] && player.onGround) {
     player.velocity.y = JUMP_SPEED;
     player.onGround = false;
     playSound('jump');
   }
-  
   const height = player.isSneaking ? PLAYER_HEIGHT_SNEAK : PLAYER_HEIGHT;
   const newPos = player.position.clone().addScaledVector(player.velocity, dt);
-  
   if (!playerCollides(newPos.x, player.position.y, player.position.z, height)) player.position.x = newPos.x;
   else player.velocity.x = 0;
   if (!playerCollides(player.position.x, player.position.y, newPos.z, height)) player.position.z = newPos.z;
@@ -826,25 +782,22 @@ function updatePlayer(dt) {
     if (player.velocity.y < 0) player.onGround = true;
     player.velocity.y = 0;
   }
-  
   if (player.position.y < -10) {
-    player.position.set(8, 22, 8);
+    player.position.set(8, 30, 8);
     player.velocity.set(0, 0, 0);
     player.health -= 2; playSound('hurt');
     updateHealthUI();
   }
-  
   const camHeight = player.isSneaking ? 1.3 : 1.65;
   camera.position.copy(player.position);
   camera.position.y += camHeight;
   camera.rotation.order = 'YXZ';
   camera.rotation.y = player.yaw;
   camera.rotation.x = player.pitch;
-  
   if (player.health < player.maxHealth && Math.random() < 0.0008) { player.health++; updateHealthUI(); }
   if (player.health <= 0) {
     player.health = player.maxHealth;
-    player.position.set(8, 22, 8);
+    player.position.set(8, 30, 8);
     player.velocity.set(0, 0, 0);
     updateHealthUI();
     addChat('💀 ¡Has muerto! Respawn...', 'Sistema');
@@ -861,7 +814,6 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
   }
   if (e.code === 'KeyF') {
-    // Comer
     for (let i = 0; i < 9; i++) {
       if (player.inventory[i] && player.inventory[i].type === BLOCK.GRASS && player.health < player.maxHealth) {
         player.inventory[i].count--;
@@ -879,7 +831,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 document.addEventListener('keyup', (e) => { keys[e.code] = false; });
-
 document.addEventListener('mousemove', (e) => {
   if (document.pointerLockElement === renderer.domElement) {
     player.yaw -= e.movementX * 0.002;
@@ -887,12 +838,10 @@ document.addEventListener('mousemove', (e) => {
     player.pitch = Math.max(-Math.PI/2 + 0.01, Math.min(Math.PI/2 - 0.01, player.pitch));
   }
 });
-
 renderer.domElement.addEventListener('click', () => {
   initAudio();
   if (!document.pointerLockElement) renderer.domElement.requestPointerLock();
 });
-
 document.addEventListener('wheel', (e) => {
   player.selectedSlot = (player.selectedSlot + (e.deltaY > 0 ? 1 : -1) + 9) % 9;
   updateHotbar(); drawHand();
@@ -919,7 +868,6 @@ document.addEventListener('mousedown', (e) => {
   if (!document.pointerLockElement) return;
   const target = getTargetBlock();
   if (!target) return;
-  
   if (e.button === 0) {
     if (target.block === BLOCK.BEDROCK) return;
     world.setBlock(target.pos.x, target.pos.y, target.pos.z, BLOCK.AIR);
@@ -929,9 +877,7 @@ document.addEventListener('mousedown', (e) => {
     for (const entity of entities) {
       if (entity.position.distanceTo(target.pos) < 2) {
         entity.takeDamage(5);
-        if (network.active && network.isHost) {
-          network.broadcast({ type: 'entity_hp', id: entity.id, hp: entity.health });
-        }
+        if (network.active && network.isHost) network.broadcast({ type: 'entity_hp', id: entity.id, hp: entity.health });
       }
     }
   } else if (e.button === 2) {
@@ -953,7 +899,7 @@ document.addEventListener('mousedown', (e) => {
 });
 document.addEventListener('contextmenu', e => e.preventDefault());
 
-// ============ INVENTARIO / HOTBAR ============
+// ============ INVENTARIO ============
 function addInventoryItem(type, count) {
   for (const slot of player.inventory) {
     if (slot && slot.type === type && slot.count < 64) { slot.count += count; updateHotbar(); return; }
@@ -962,7 +908,6 @@ function addInventoryItem(type, count) {
     if (!player.inventory[i]) { player.inventory[i] = { type, count }; updateHotbar(); return; }
   }
 }
-
 const BLOCK_COLORS = {
   [BLOCK.GRASS]: '#4a9e3f', [BLOCK.DIRT]: '#8b6b4a', [BLOCK.STONE]: '#7a7a7a',
   [BLOCK.WOOD]: '#6b4a2a', [BLOCK.LEAVES]: '#2d6b2a', [BLOCK.SAND]: '#e8d78a',
@@ -970,7 +915,6 @@ const BLOCK_COLORS = {
   [BLOCK.DIAMOND]: '#5ce6e6', [BLOCK.PLANKS]: '#a8804a', [BLOCK.GLASS]: '#aaccff',
   [BLOCK.BEDROCK]: '#2a2a2a', [BLOCK.SNOW]: '#f0f8ff'
 };
-
 function updateHotbar() {
   const bar = document.getElementById('hotbar');
   bar.innerHTML = '';
@@ -996,7 +940,6 @@ function updateHotbar() {
     bar.appendChild(div);
   }
 }
-
 function updateHealthUI() {
   const h = Math.max(0, player.health);
   document.getElementById('health').textContent = '❤'.repeat(h) + '♡'.repeat(Math.max(0, player.maxHealth - h));
@@ -1014,18 +957,12 @@ function addChat(msg, from = '') {
 
 // ============ RED P2P ============
 const network = {
-  peer: null,
-  conns: [],
-  active: false,
-  isHost: false,
-  remotePlayers: new Map(),
-  
+  peer: null, conns: [], active: false, isHost: false, remotePlayers: new Map(),
   init(isHost, roomId = null) {
     const id = isHost ? roomId : undefined;
     this.peer = new Peer(id, { debug: 1 });
     this.isHost = isHost;
     this.active = true;
-    
     this.peer.on('open', (myId) => {
       document.getElementById('status').textContent = `✅ Sala lista: ${myId}`;
       if (isHost) addChat(`Comparte este ID: ${myId}`, 'Sistema');
@@ -1034,15 +971,12 @@ const network = {
       this.setupConn(conn);
       addChat(`Jugador conectado: ${conn.peer}`, 'Sistema');
     });
-    this.peer.on('error', (err) => {
-      addChat('Error: ' + err.message, 'Sistema');
-    });
+    this.peer.on('error', (err) => { addChat('Error: ' + err.message, 'Sistema'); });
     this.peer.on('disconnected', () => {
       addChat('Reconectando...', 'Sistema');
       setTimeout(() => this.peer.reconnect(), 2000);
     });
   },
-  
   connect(roomId) {
     this.peer = new Peer({ debug: 1 });
     this.isHost = false;
@@ -1052,11 +986,8 @@ const network = {
       const conn = this.peer.connect(roomId, { reliable: true });
       this.setupConn(conn);
     });
-    this.peer.on('error', (err) => {
-      document.getElementById('status').textContent = '❌ Error: ' + err.message;
-    });
+    this.peer.on('error', (err) => { document.getElementById('status').textContent = '❌ Error: ' + err.message; });
   },
-  
   setupConn(conn) {
     conn.on('open', () => {
       this.conns.push(conn);
@@ -1064,7 +995,6 @@ const network = {
       addChat(`Conectado a ${conn.peer}`, 'Sistema');
       this.sendTo(conn, { type: 'init', position: player.position.toArray() });
       if (this.isHost) this.sendWorldTo(conn);
-      
       const mesh = createPlayerMesh(0xef4444);
       mesh.position.copy(player.position);
       scene.add(mesh);
@@ -1072,9 +1002,7 @@ const network = {
     });
     conn.on('data', (data) => {
       this.handleData(conn.peer, data);
-      if (this.isHost) {
-        for (const c of this.conns) if (c !== conn && c.open) c.send(data);
-      }
+      if (this.isHost) for (const c of this.conns) if (c !== conn && c.open) c.send(data);
     });
     conn.on('close', () => {
       addChat(`Desconectado: ${conn.peer}`, 'Sistema');
@@ -1084,7 +1012,6 @@ const network = {
       if (idx >= 0) this.conns.splice(idx, 1);
     });
   },
-  
   sendWorldTo(conn) {
     let count = 0;
     for (const [key, chunk] of world.chunks) {
@@ -1096,10 +1023,8 @@ const network = {
     }
     addChat(`Enviados ${count} chunks`, 'Sistema');
   },
-  
   sendTo(conn, data) { if (conn && conn.open) { try { conn.send(data); } catch(e){} } },
   broadcast(data) { for (const c of this.conns) this.sendTo(c, data); },
-  
   handleData(peerId, data) {
     switch(data.type) {
       case 'init':
@@ -1127,9 +1052,7 @@ const network = {
       }
       case 'chat': addChat(data.msg, peerId.substring(0, 6)); break;
       case 'entity_spawn': {
-        if (!entities.find(e => e.id === data.id)) {
-          spawnEntity(data.etype, new THREE.Vector3().fromArray(data.pos), data.id);
-        }
+        if (!entities.find(e => e.id === data.id)) spawnEntity(data.etype, new THREE.Vector3().fromArray(data.pos), data.id);
         break;
       }
       case 'entity_hp': {
@@ -1169,9 +1092,9 @@ function createPlayerMesh(color) {
 function sendBlockChange(x, y, z, type) { network.broadcast({ type: 'block', x, y, z, type }); }
 function broadcastChat(msg) { addChat(msg, 'Tú'); network.broadcast({ type: 'chat', msg }); }
 
-// ============ LOOP PRINCIPAL ============
+// ============ LOOP ============
 let lastTime = performance.now();
-let sendTimer = 0, mobSpawnTimer = 0, chunkLoadTimer = 0, fpsTimer = 0, fpsCounter = 0, fpsValue = 0;
+let sendTimer = 0, mobSpawnTimer = 0, chunkLoadTimer = 0, fpsTimer = 0, fpsCounter = 0;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -1181,13 +1104,10 @@ function animate() {
   
   updatePlayer(dt);
   updateDayNight(dt);
-  
   for (let i = entities.length - 1; i >= 0; i--) entities[i].update(dt);
   
-  // FPS
-  fpsCounter++;
-  fpsTimer += dt;
-  if (fpsTimer >= 1) { fpsValue = fpsCounter; fpsCounter = 0; fpsTimer = 0; document.getElementById('fps').textContent = fpsValue; }
+  fpsCounter++; fpsTimer += dt;
+  if (fpsTimer >= 1) { document.getElementById('fps').textContent = fpsCounter; fpsCounter = 0; fpsTimer = 0; }
   
   chunkLoadTimer -= dt;
   if (chunkLoadTimer <= 0) {
@@ -1198,7 +1118,7 @@ function animate() {
       for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++)
         generateChunk(pcx + dx, pcz + dz);
     
-    // Reconstruir chunks sucios + vecinos (evita huecos)
+    // Reconstruir chunks sucios + vecinos (fix anti-rasgado)
     if (world.dirtyChunks.size > 0) {
       const toRebuild = new Set();
       for (const key of world.dirtyChunks) {
@@ -1214,7 +1134,6 @@ function animate() {
       world.dirtyChunks.clear();
     }
     
-    // Descargar chunks lejanos
     for (const [key, chunk] of world.chunks) {
       const [cx, cz] = key.split(',').map(Number);
       if (Math.abs(cx - pcx) > RENDER_DISTANCE + 1 || Math.abs(cz - pcz) > RENDER_DISTANCE + 1) {
@@ -1240,7 +1159,6 @@ function animate() {
   
   minimapTimer -= dt;
   if (minimapTimer <= 0) { minimapTimer = 0.3; updateMinimap(); }
-  
   drawHand();
   
   document.getElementById('coords').textContent = 
@@ -1258,12 +1176,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-document.getElementById('btnSolo').onclick = () => {
-  initAudio();
-  document.getElementById('menu').style.display = 'none';
-  startGame();
-};
-
+document.getElementById('btnSolo').onclick = () => { initAudio(); document.getElementById('menu').style.display = 'none'; startGame(); };
 document.getElementById('btnHost').onclick = () => {
   initAudio();
   const roomId = 'craft-' + Math.random().toString(36).substring(2, 8);
@@ -1273,7 +1186,6 @@ document.getElementById('btnHost').onclick = () => {
   startGame();
   setTimeout(() => addChat('Comparte el ID que aparece arriba', 'Sistema'), 1000);
 };
-
 document.getElementById('btnJoin').onclick = () => {
   initAudio();
   const roomId = document.getElementById('roomId').value.trim();
@@ -1289,14 +1201,18 @@ function startGame() {
   for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++)
     for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++)
       generateChunk(pcx + dx, pcz + dz);
+  
+  // Reconstruir todos los chunks generados
   for (const key of world.dirtyChunks) {
     const [cx, cz] = key.split(',').map(Number);
-    buildChunkMesh(cx, cz);
+    if (world.getChunk(cx, cz).generated) buildChunkMesh(cx, cz);
   }
   world.dirtyChunks.clear();
   
+  // FIX: spawn alto y buscar suelo
   const y = findSpawnHeight(player.position.x, player.position.z);
-  player.position.y = y + 1;
+  player.position.y = y + 2;
+  player.velocity.set(0, 0, 0);
   
   updateHotbar(); updateHealthUI(); drawHand();
   addChat('¡Bienvenido a MiniCraft P2P v2!', 'Sistema');
