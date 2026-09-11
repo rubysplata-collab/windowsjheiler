@@ -84,6 +84,35 @@
     color:#fff; font-size:20px; text-shadow:2px 2px 0 #000; z-index:20;
     display:none;
   }
+
+  #mobileControls { display:none; position:fixed; inset:0; z-index:50; pointer-events:none; touch-action:none; }
+  #joystick { position:absolute; left:18px; bottom:105px; width:130px; height:130px; border-radius:50%; background:rgba(0,0,0,.25); border:2px solid rgba(255,255,255,.35); pointer-events:auto; }
+  #stick { position:absolute; left:40px; top:40px; width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.55); border:2px solid rgba(0,0,0,.35); }
+  .mBtn { position:absolute; width:64px; height:64px; border-radius:50%; border:2px solid rgba(255,255,255,.7); background:rgba(0,0,0,.42); color:#fff; font-weight:bold; font-size:24px; pointer-events:auto; user-select:none; -webkit-user-select:none; }
+  #mJump { right:24px; bottom:175px; }
+  #mBreak { right:98px; bottom:92px; }
+  #mPlace { right:24px; bottom:92px; }
+  #mSprint { left:170px; bottom:55px; width:72px; height:44px; border-radius:12px; font-size:14px; }
+  #lookZone { position:absolute; right:0; top:0; width:58%; height:70%; pointer-events:auto; }
+  @media (max-width: 800px), (pointer: coarse) {
+    #mobileControls { display:block; }
+    #ui { top:8px; left:8px; font-size:11px; }
+    #minimap { width:105px; height:105px; top:8px; right:8px; }
+    #peers { top:120px; right:8px; font-size:10px; }
+    #health { bottom:72px; font-size:17px; }
+    #chat { bottom:150px; left:8px; max-width:55%; font-size:10px; }
+    #hand { width:125px; height:125px; right:-5px; }
+    #hotbar { bottom:5px; gap:2px; padding:3px; max-width:96vw; overflow:hidden; }
+    .slot { width:38px; height:38px; border-width:2px; }
+    .slot canvas { width:28px; height:28px; }
+    .slot .count { font-size:9px; bottom:0; right:2px; }
+    #crosshair { width:16px; height:16px; }
+    #crosshair::before { width:16px; top:7px; }
+    #crosshair::after { height:16px; left:7px; }
+    #menu h1 { font-size:38px; }
+    #menu input, #menu button { min-width:260px; width:82vw; max-width:340px; padding:14px 16px; }
+    #menu .info { max-width:88vw; font-size:11px; }
+  }
 </style>
 </head>
 <body>
@@ -100,6 +129,15 @@
 <div id="hotbar"></div>
 <canvas id="hand" width="200" height="200"></canvas>
 <div id="loading">Generando mundo...</div>
+<div id="mobileControls">
+  <div id="lookZone"></div>
+  <div id="joystick"><div id="stick"></div></div>
+  <button class="mBtn" id="mJump">↑</button>
+  <button class="mBtn" id="mBreak">⛏</button>
+  <button class="mBtn" id="mPlace">▣</button>
+  <button class="mBtn" id="mSprint">CORRER</button>
+</div>
+
 
 <div id="menu">
   <h1>MINICRAFT</h1>
@@ -346,81 +384,59 @@ function buildChunkMesh(cx, cz) {
   const chunk = world.getChunk(cx, cz);
   if (!chunk.generated) return;
 
-  // Construcción por caras visibles. Las caras tienen el winding correcto
-  // para evitar polígonos "estirados" y caras desaparecidas.
+  // Voxel mesh seguro: cada cara se escribe como 2 triángulos sin índices.
+  // Esto evita los triángulos gigantes/estirados que aparecían en algunos equipos.
   const byType = new Map();
   const faces = [
-    { dir:[ 1, 0, 0], verts:[[1,0,0],[1,0,1],[1,1,0],[1,1,1]], normal:[ 1,0,0] },
-    { dir:[-1, 0, 0], verts:[[0,0,0],[0,1,0],[0,0,1],[0,1,1]], normal:[-1,0,0] },
-    { dir:[ 0, 1, 0], verts:[[0,1,0],[0,1,1],[1,1,0],[1,1,1]], normal:[0,1,0] },
-    { dir:[ 0,-1, 0], verts:[[0,0,0],[1,0,0],[0,0,1],[1,0,1]], normal:[0,-1,0] },
-    { dir:[ 0, 0, 1], verts:[[0,0,1],[0,1,1],[1,0,1],[1,1,1]], normal:[0,0,1] },
-    { dir:[ 0, 0,-1], verts:[[0,0,0],[1,0,0],[0,1,0],[1,1,0]], normal:[0,0,-1] }
+    { dir:[1,0,0],  verts:[[1,0,0],[1,1,0],[1,1,1],[1,0,1]], normal:[1,0,0] },
+    { dir:[-1,0,0], verts:[[0,0,1],[0,1,1],[0,1,0],[0,0,0]], normal:[-1,0,0] },
+    { dir:[0,1,0],  verts:[[0,1,1],[1,1,1],[1,1,0],[0,1,0]], normal:[0,1,0] },
+    { dir:[0,-1,0], verts:[[0,0,0],[1,0,0],[1,0,1],[0,0,1]], normal:[0,-1,0] },
+    { dir:[0,0,1],  verts:[[1,0,1],[1,1,1],[0,1,1],[0,0,1]], normal:[0,0,1] },
+    { dir:[0,0,-1], verts:[[0,0,0],[0,1,0],[1,1,0],[1,0,0]], normal:[0,0,-1] }
   ];
-
-  const uvsFace = [[0,0],[0,1],[1,0],[1,1]];
 
   for (const [key, type] of chunk.blocks) {
     const [x,y,z] = key.split(',').map(Number);
-
+    if (type === BLOCK.AIR || type === BLOCK.WATER) continue;
     for (const face of faces) {
       const nx=x+face.dir[0], ny=y+face.dir[1], nz=z+face.dir[2];
-      const neighbor = world.getBlock(nx,ny,nz);
-      const transparent = neighbor === BLOCK.AIR || neighbor === BLOCK.WATER ||
-                          neighbor === BLOCK.GLASS || neighbor === BLOCK.LEAVES;
+      const neighbor=world.getBlock(nx,ny,nz);
+      const transparent = neighbor===BLOCK.AIR || neighbor===BLOCK.WATER || neighbor===BLOCK.GLASS || neighbor===BLOCK.LEAVES;
       if (!transparent) continue;
-      if (type === BLOCK.GLASS && neighbor === BLOCK.GLASS) continue;
-      if (type === BLOCK.LEAVES && neighbor === BLOCK.LEAVES) continue;
-
-      if (!byType.has(type)) {
-        byType.set(type,{positions:[],normals:[],uvs:[],indices:[],count:0});
-      }
+      if (type===BLOCK.GLASS && neighbor===BLOCK.GLASS) continue;
+      if (type===BLOCK.LEAVES && neighbor===BLOCK.LEAVES) continue;
+      if (!byType.has(type)) byType.set(type,{positions:[],normals:[],uvs:[]});
       const g=byType.get(type);
-      const base=g.count;
-
-      for (let v=0;v<4;v++) {
-        const vert=face.verts[v];
-        g.positions.push(x+vert[0],y+vert[1],z+vert[2]);
+      const uv=[[0,0],[1,0],[1,1],[0,1]];
+      const order=[0,1,2,0,2,3];
+      for (const i of order) {
+        const v=face.verts[i];
+        g.positions.push(x+v[0],y+v[1],z+v[2]);
         g.normals.push(face.normal[0],face.normal[1],face.normal[2]);
-        g.uvs.push(uvsFace[v][0],uvsFace[v][1]);
+        g.uvs.push(uv[i][0],uv[i][1]);
       }
-
-      g.indices.push(base,base+1,base+2, base+2,base+1,base+3);
-      g.count += 4;
     }
   }
 
   if (chunk.mesh) {
     scene.remove(chunk.mesh);
-    chunk.mesh.traverse(o=>{
-      if (o.geometry) o.geometry.dispose();
-    });
+    chunk.mesh.traverse(o=>{ if(o.geometry) o.geometry.dispose(); });
   }
-
   const group=new THREE.Group();
-
-  for (const [type,g] of byType) {
-    if (!g.count) continue;
+  for(const [type,g] of byType){
+    if(!g.positions.length) continue;
     const geom=new THREE.BufferGeometry();
     geom.setAttribute('position',new THREE.Float32BufferAttribute(g.positions,3));
     geom.setAttribute('normal',new THREE.Float32BufferAttribute(g.normals,3));
     geom.setAttribute('uv',new THREE.Float32BufferAttribute(g.uvs,2));
-    geom.setIndex(g.indices);
     geom.computeBoundingSphere();
-
-    let mat=blockMaterials(type);
-    // La malla actual usa una sola textura por tipo. Para bloques con
-    // varias caras usamos el material lateral como base, evitando mezclar
-    // índices de materiales con un único grupo de geometría.
-    if (Array.isArray(mat)) mat=mat[0];
-    mat.side = (type === BLOCK.LEAVES || type === BLOCK.GLASS)
-      ? THREE.DoubleSide : THREE.FrontSide;
-
+    const mats=blockMaterials(type);
+    const mat=Array.isArray(mats)?mats[0]:mats;
     const mesh=new THREE.Mesh(geom,mat);
     mesh.frustumCulled=true;
     group.add(mesh);
   }
-
   chunk.mesh=group;
   scene.add(group);
 }
@@ -776,6 +792,10 @@ function updatePlayer(dt) {
   if (keys['KeyS']) move.sub(forward);
   if (keys['KeyD']) move.add(right);
   if (keys['KeyA']) move.sub(right);
+  if (Math.abs(touchMoveX)>0.05 || Math.abs(touchMoveY)>0.05) {
+    move.addScaledVector(right, touchMoveX);
+    move.addScaledVector(forward, -touchMoveY);
+  }
   let speed = MOVE_SPEED;
   if (keys['ShiftLeft'] || keys['ShiftRight']) speed *= SPRINT_MULT;
   player.isSneaking = keys['ControlLeft'] || keys['ControlRight'];
@@ -870,6 +890,57 @@ document.addEventListener('wheel', (e) => {
   player.selectedSlot = (player.selectedSlot + (e.deltaY > 0 ? 1 : -1) + 9) % 9;
   updateHotbar(); drawHand();
 });
+
+// ============ CONTROLES TÁCTILES ============
+let touchMoveX=0, touchMoveY=0, sprintTouch=false;
+const mobile = document.getElementById('mobileControls');
+const joystick = document.getElementById('joystick');
+const stick = document.getElementById('stick');
+let joyPointer=null;
+function setJoy(clientX,clientY){
+  const r=joystick.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let dx=clientX-cx, dy=clientY-cy, len=Math.hypot(dx,dy), max=42;
+  if(len>max){dx=dx/len*max;dy=dy/len*max;}
+  stick.style.transform=`translate(${dx}px,${dy}px)`;
+  touchMoveX=dx/max; touchMoveY=dy/max;
+}
+function resetJoy(){joyPointer=null;touchMoveX=touchMoveY=0;stick.style.transform='translate(0,0)';}
+joystick.addEventListener('pointerdown',e=>{joyPointer=e.pointerId;joystick.setPointerCapture(e.pointerId);setJoy(e.clientX,e.clientY);e.preventDefault();});
+joystick.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer)setJoy(e.clientX,e.clientY);});
+joystick.addEventListener('pointerup',resetJoy); joystick.addEventListener('pointercancel',resetJoy);
+function mobileAction(action){
+  const t=getTargetBlock();
+  if(action==='jump'){ keys.Space=true; setTimeout(()=>keys.Space=false,120); return; }
+  if(action==='sprint'){ sprintTouch=!sprintTouch; keys.ShiftLeft=sprintTouch; return; }
+  if(!t)return;
+  if(action==='break'){
+    if(t.block===BLOCK.BEDROCK)return;
+    world.setBlock(t.pos.x,t.pos.y,t.pos.z,BLOCK.AIR); addInventoryItem(t.block,1); playSound('break');
+    if(network.active)sendBlockChange(t.pos.x,t.pos.y,t.pos.z,BLOCK.AIR);
+  } else if(action==='place'){
+    const slot=player.inventory[player.selectedSlot]; if(!slot||slot.count<=0)return;
+    const px=t.prevPos.x,py=t.prevPos.y,pz=t.prevPos.z;
+    if(world.getBlock(px,py,pz)!==BLOCK.AIR)return;
+    world.setBlock(px,py,pz,slot.type); slot.count--; playSound('place');
+    if(network.active)sendBlockChange(px,py,pz,slot.type);
+    if(slot.count<=0)player.inventory[player.selectedSlot]=null;
+  }
+  updateHotbar();drawHand();
+}
+['mJump','mBreak','mPlace','mSprint'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('pointerdown',e=>{e.preventDefault();mobileAction(id==='mJump'?'jump':id==='mBreak'?'break':id==='mPlace'?'place':'sprint');});
+});
+let lookPointer=null,lastLX=0,lastLY=0;
+const lookZone=document.getElementById('lookZone');
+lookZone.addEventListener('pointerdown',e=>{lookPointer=e.pointerId;lastLX=e.clientX;lastLY=e.clientY;lookZone.setPointerCapture(e.pointerId);});
+lookZone.addEventListener('pointermove',e=>{
+  if(e.pointerId!==lookPointer)return;
+  const dx=e.clientX-lastLX,dy=e.clientY-lastLY; lastLX=e.clientX;lastLY=e.clientY;
+  player.yaw-=dx*0.008; player.pitch-=dy*0.008;
+  player.pitch=Math.max(-Math.PI/2+0.01,Math.min(Math.PI/2-0.01,player.pitch));
+});
+lookZone.addEventListener('pointerup',()=>lookPointer=null); lookZone.addEventListener('pointercancel',()=>lookPointer=null);
 
 function getTargetBlock() {
   const dir = new THREE.Vector3();
