@@ -234,6 +234,7 @@ function blockMaterials(type) {
     case BLOCK.DIAMOND: return mkMat(t.diamond);
     case BLOCK.PLANKS: return mkMat(t.planks);
     case BLOCK.GLASS: return new THREE.MeshLambertMaterial({ map: t.glass, transparent: true, opacity: 0.6 });
+    case BLOCK.WATER: return new THREE.MeshLambertMaterial({ color: 0x3090d0, transparent: true, opacity: 0.65 });
     case BLOCK.BEDROCK: return mkMat(t.bedrock);
     case BLOCK.SNOW: return mkMat(t.snow);
     case BLOCK.ICE: return mkMat(t.ice);
@@ -344,66 +345,83 @@ function generateChunk(cx, cz, seed = 12345) {
 function buildChunkMesh(cx, cz) {
   const chunk = world.getChunk(cx, cz);
   if (!chunk.generated) return;
-  
+
+  // Construcción por caras visibles. Las caras tienen el winding correcto
+  // para evitar polígonos "estirados" y caras desaparecidas.
   const byType = new Map();
   const faces = [
-    { dir:[1,0,0], verts:[[1,0,0],[1,1,0],[1,0,1],[1,1,1]], normal:[1,0,0] },
-    { dir:[-1,0,0], verts:[[0,0,0],[0,1,0],[0,0,1],[0,1,1]], normal:[-1,0,0] },
-    { dir:[0,1,0], verts:[[0,1,0],[1,1,0],[0,1,1],[1,1,1]], normal:[0,1,0] },
-    { dir:[0,-1,0], verts:[[0,0,0],[1,0,0],[0,0,1],[1,0,1]], normal:[0,-1,0] },
-    { dir:[0,0,1], verts:[[0,0,1],[1,0,1],[0,1,1],[1,1,1]], normal:[0,0,1] },
-    { dir:[0,0,-1], verts:[[0,0,0],[1,0,0],[0,1,0],[1,1,0]], normal:[0,0,-1] }
+    { dir:[ 1, 0, 0], verts:[[1,0,0],[1,0,1],[1,1,0],[1,1,1]], normal:[ 1,0,0] },
+    { dir:[-1, 0, 0], verts:[[0,0,0],[0,1,0],[0,0,1],[0,1,1]], normal:[-1,0,0] },
+    { dir:[ 0, 1, 0], verts:[[0,1,0],[0,1,1],[1,1,0],[1,1,1]], normal:[0,1,0] },
+    { dir:[ 0,-1, 0], verts:[[0,0,0],[1,0,0],[0,0,1],[1,0,1]], normal:[0,-1,0] },
+    { dir:[ 0, 0, 1], verts:[[0,0,1],[0,1,1],[1,0,1],[1,1,1]], normal:[0,0,1] },
+    { dir:[ 0, 0,-1], verts:[[0,0,0],[1,0,0],[0,1,0],[1,1,0]], normal:[0,0,-1] }
   ];
-  
+
+  const uvsFace = [[0,0],[0,1],[1,0],[1,1]];
+
   for (const [key, type] of chunk.blocks) {
-    const [x, y, z] = key.split(',').map(Number);
-    for (let f = 0; f < 6; f++) {
-      const face = faces[f];
-      const nx = x + face.dir[0], ny = y + face.dir[1], nz = z + face.dir[2];
-      const neighbor = world.getBlock(nx, ny, nz);
-      const isTransparent = neighbor === BLOCK.AIR || neighbor === BLOCK.WATER || neighbor === BLOCK.GLASS || neighbor === BLOCK.LEAVES;
-      if (!isTransparent) continue;
+    const [x,y,z] = key.split(',').map(Number);
+
+    for (const face of faces) {
+      const nx=x+face.dir[0], ny=y+face.dir[1], nz=z+face.dir[2];
+      const neighbor = world.getBlock(nx,ny,nz);
+      const transparent = neighbor === BLOCK.AIR || neighbor === BLOCK.WATER ||
+                          neighbor === BLOCK.GLASS || neighbor === BLOCK.LEAVES;
+      if (!transparent) continue;
       if (type === BLOCK.GLASS && neighbor === BLOCK.GLASS) continue;
       if (type === BLOCK.LEAVES && neighbor === BLOCK.LEAVES) continue;
-      
-      if (!byType.has(type)) byType.set(type, { positions: [], normals: [], uvs: [], indices: [], count: 0 });
-      const g = byType.get(type);
-      const startIdx = g.count;
-      const uvsFace = [[0,0],[1,0],[0,1],[1,1]];
-      for (let v = 0; v < 4; v++) {
-        const vert = face.verts[v];
-        g.positions.push(x + vert[0], y + vert[1], z + vert[2]);
-        g.normals.push(face.normal[0], face.normal[1], face.normal[2]);
-        g.uvs.push(uvsFace[v][0], uvsFace[v][1]);
+
+      if (!byType.has(type)) {
+        byType.set(type,{positions:[],normals:[],uvs:[],indices:[],count:0});
       }
-      g.indices.push(startIdx, startIdx+1, startIdx+2, startIdx+1, startIdx+3, startIdx+2);
+      const g=byType.get(type);
+      const base=g.count;
+
+      for (let v=0;v<4;v++) {
+        const vert=face.verts[v];
+        g.positions.push(x+vert[0],y+vert[1],z+vert[2]);
+        g.normals.push(face.normal[0],face.normal[1],face.normal[2]);
+        g.uvs.push(uvsFace[v][0],uvsFace[v][1]);
+      }
+
+      g.indices.push(base,base+1,base+2, base+2,base+1,base+3);
       g.count += 4;
     }
   }
-  
+
   if (chunk.mesh) {
     scene.remove(chunk.mesh);
-    chunk.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+    chunk.mesh.traverse(o=>{
+      if (o.geometry) o.geometry.dispose();
+    });
   }
-  
-  const group = new THREE.Group();
-  for (const [type, g] of byType) {
-    if (g.count === 0) continue;
-    const geom = new THREE.BufferGeometry();
-    geom.setAttribute('position', new THREE.Float32BufferAttribute(g.positions, 3));
-    geom.setAttribute('normal', new THREE.Float32BufferAttribute(g.normals, 3));
-    geom.setAttribute('uv', new THREE.Float32BufferAttribute(g.uvs, 2));
+
+  const group=new THREE.Group();
+
+  for (const [type,g] of byType) {
+    if (!g.count) continue;
+    const geom=new THREE.BufferGeometry();
+    geom.setAttribute('position',new THREE.Float32BufferAttribute(g.positions,3));
+    geom.setAttribute('normal',new THREE.Float32BufferAttribute(g.normals,3));
+    geom.setAttribute('uv',new THREE.Float32BufferAttribute(g.uvs,2));
     geom.setIndex(g.indices);
     geom.computeBoundingSphere();
-    geom.computeBoundingBox();
-    const mats = blockMaterials(type);
-    const mat = Array.isArray(mats) ? mats[0] : mats;
-    const mesh = new THREE.Mesh(geom, mat);
-    mesh.frustumCulled = false;
+
+    let mat=blockMaterials(type);
+    // La malla actual usa una sola textura por tipo. Para bloques con
+    // varias caras usamos el material lateral como base, evitando mezclar
+    // índices de materiales con un único grupo de geometría.
+    if (Array.isArray(mat)) mat=mat[0];
+    mat.side = (type === BLOCK.LEAVES || type === BLOCK.GLASS)
+      ? THREE.DoubleSide : THREE.FrontSide;
+
+    const mesh=new THREE.Mesh(geom,mat);
+    mesh.frustumCulled=true;
     group.add(mesh);
   }
-  
-  chunk.mesh = group;
+
+  chunk.mesh=group;
   scene.add(group);
 }
 
@@ -415,7 +433,7 @@ scene.fog = new THREE.Fog(0x87CEEB, 40, 90);
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 document.body.appendChild(renderer.domElement);
 
 const ambient = new THREE.AmbientLight(0xffffff, 0.55);
@@ -610,8 +628,14 @@ function spawnEntity(type, position, id = null) {
 }
 
 function findSpawnHeight(x, z) {
-  for (let y = WORLD_HEIGHT - 1; y > 0; y--) {
-    if (world.getBlock(Math.floor(x), y, Math.floor(z)) !== BLOCK.AIR) return y + 1;
+  // No aparezcas encima de hojas o ramas. Buscamos el suelo sólido más alto.
+  const solid = new Set([
+    BLOCK.GRASS, BLOCK.DIRT, BLOCK.STONE, BLOCK.SAND,
+    BLOCK.SNOW, BLOCK.PLANKS, BLOCK.BEDROCK
+  ]);
+  const bx=Math.floor(x), bz=Math.floor(z);
+  for (let y=WORLD_HEIGHT-1;y>0;y--) {
+    if (solid.has(world.getBlock(bx,y,bz))) return y+1;
   }
   return 10;
 }
@@ -1211,7 +1235,7 @@ function startGame() {
   
   // FIX: spawn alto y buscar suelo
   const y = findSpawnHeight(player.position.x, player.position.z);
-  player.position.y = y + 2;
+  player.position.y = y + 0.05;
   player.velocity.set(0, 0, 0);
   
   updateHotbar(); updateHealthUI(); drawHand();
