@@ -1196,9 +1196,13 @@ function findSafeSpawn(world) {
   return spiralSafeSpawnSearch(world, 0, 0);
 }
 
+// Búsqueda en espiral con límite de pasos conservador: encontrar un spawn 100%
+// válido no requiere revisar decenas de miles de columnas (cada una cuesta varias
+// llamadas de ruido FBM); si no se encuentra nada razonable en un radio moderado,
+// es mejor caer al último recurso que arriesgarse a congelar el hilo principal.
 function spiralSafeSpawnSearch(world, ox, oz) {
   let x=0, z=0, dx=0, dz=-1;
-  const maxSteps = 200*200;
+  const maxSteps = 60*60; // radio efectivo ~60 bloques desde el punto de origen: suficiente en la práctica
   for (let i=0; i<maxSteps; i++) {
     const wx = ox+x, wz = oz+z;
     const h = isSpawnCandidateValid(world, wx, wz);
@@ -1429,6 +1433,7 @@ const Engine = {
   // Genera chunks iniciales de forma síncrona alrededor del punto de spawn
   // antes de empezar a jugar, para asegurar que el jugador no caiga al vacío.
   async pregenerateSpawnArea(onProgress) {
+    console.log('[MINICRAFT] Fase 1: generando área inicial alrededor del origen...');
     // primero generamos un área reducida "a ciegas" en el origen para poder buscar spawn seguro,
     // sin construir mallas todavía (solo datos de bloques, mucho más rápido).
     const initialRadius = 2;
@@ -1449,23 +1454,33 @@ const Engine = {
         await frameYield();
       }
     }
+    console.log('[MINICRAFT] Fase 1 completa. Chunks generados:', this.world.chunks.size);
+
+    console.log('[MINICRAFT] Fase 2: buscando spawn seguro...');
     // buscar spawn seguro ahora que hay terreno generado cerca del origen
     const spawn = findSafeSpawnNear(this.world, 0, 0);
     this.physics.pos.copy(spawn);
+    console.log('[MINICRAFT] Spawn encontrado en:', spawn.x.toFixed(1), spawn.y.toFixed(1), spawn.z.toFixed(1));
 
     // regenerar el área realmente alrededor del spawn encontrado (puede no ser exactamente 0,0)
     // radios más conservadores para que la carga inicial sea rápida en cualquier dispositivo;
     // el resto del mundo se sigue cargando en segundo plano durante el juego (chunkManager normal).
     this.chunkManager.renderDistance = this.isMobile ? 2 : 3;
     this.chunkManager.ensureAround(spawn.x, spawn.z);
+    console.log('[MINICRAFT] Fase 3: construyendo mallas de', this.chunkManager.genQueue.length, 'chunks...');
     let guard = 0;
     const maxGuard = 300; // límite de seguridad para nunca quedar colgado indefinidamente
     while (this.chunkManager.genQueue.length > 0 && guard < maxGuard) {
       this.chunkManager.processQueue(2); // menos chunks por frame = UI no se congela y hay más chances de ver progreso
       if (onProgress) onProgress(0.3 + Math.min(0.7, guard/80));
       guard++;
+      if (guard % 20 === 0) console.log('[MINICRAFT] ... progreso mallas: guard=', guard, 'chunks restantes en cola:', this.chunkManager.genQueue.length);
       await frameYield();
     }
+    if (guard >= maxGuard) {
+      console.warn('[MINICRAFT] Se alcanzó el límite de seguridad (maxGuard) con', this.chunkManager.genQueue.length, 'chunks aún en cola. Continuando de todas formas.');
+    }
+    console.log('[MINICRAFT] Fase 3 completa. guard final:', guard);
     if (onProgress) onProgress(1);
   },
 
@@ -2299,6 +2314,344 @@ const UI = {
   }
 };
 
+/* =====================================================================
+   SISTEMA: MOBS
+   Cada mob es un grupo de mallas simples (cabeza, cuerpo, patas) —
+   nunca un único cubo — con textura pixel-art propia y animación básica
+   de caminata. La IA se resuelve con máquinas de estado simples por tipo.
+   ===================================================================== */
+const MOB_TYPE = {
+  ZOMBIE:'zombie', CREEPER:'creeper', SKELETON:'skeleton', SPIDER:'spider',
+  PIG:'pig', COW:'cow', SHEEP:'sheep', CHICKEN:'chicken'
+};
+const HOSTILE_MOBS = [MOB_TYPE.ZOMBIE, MOB_TYPE.CREEPER, MOB_TYPE.SKELETON, MOB_TYPE.SPIDER];
+const ANIMAL_MOBS = [MOB_TYPE.PIG, MOB_TYPE.COW, MOB_TYPE.SHEEP, MOB_TYPE.CHICKEN];
+
+const MobConfig = {
+  [MOB_TYPE.ZOMBIE]:   { maxHealth:20, speed:1.6, damage:3, detectRange:14, attackRange:1.1, bodyColor:'#3a7d44', skinColor:'#4a9d54', drops:[] },
+  [MOB_TYPE.CREEPER]:  { maxHealth:20, speed:1.4, damage:0, detectRange:12, attackRange:2.2, bodyColor:'#4caf50', skinColor:'#5cbf60', drops:[], explodes:true, fuseTime:1.5, explosionRadius:3 },
+  [MOB_TYPE.SKELETON]: { maxHealth:20, speed:1.3, damage:2, detectRange:16, attackRange:8, bodyColor:'#d8d8c8', skinColor:'#e8e8d8', drops:[], ranged:true },
+  [MOB_TYPE.SPIDER]:   { maxHealth:16, speed:2.2, damage:2, detectRange:14, attackRange:1.3, bodyColor:'#2a1a1a', skinColor:'#3a2a2a', drops:[] },
+  [MOB_TYPE.PIG]:      { maxHealth:10, speed:1.0, damage:0, detectRange:0, attackRange:0, bodyColor:'#e8a0a8', skinColor:'#f0b0b8', drops:[{item:ITEM.RAW_PORKCHOP,count:[1,3]}] },
+  [MOB_TYPE.COW]:      { maxHealth:10, speed:0.9, damage:0, detectRange:0, attackRange:0, bodyColor:'#4a3a2a', skinColor:'#5a4a3a', drops:[{item:ITEM.RAW_BEEF,count:[1,3]}] },
+  [MOB_TYPE.SHEEP]:    { maxHealth:8, speed:0.9, damage:0, detectRange:0, attackRange:0, bodyColor:'#e8e8e0', skinColor:'#f0f0e8', drops:[{item:ITEM.WOOL,count:[1,2]}] },
+  [MOB_TYPE.CHICKEN]:  { maxHealth:4, speed:1.1, damage:0, detectRange:0, attackRange:0, bodyColor:'#f0f0f0', skinColor:'#ffffff', drops:[{item:ITEM.RAW_CHICKEN,count:[1,1]}] },
+};
+
+function makeSolidColorTexture(hexColor, seed) {
+  const c = makeCanvas(); const ctx = c.getContext('2d');
+  speckle(ctx, hexColor, [hexColor], seed||1, 0); // color sólido con textura base (sin ruido, pero reutiliza el pipeline pixel-art)
+  return toTexture(c);
+}
+
+class Mob {
+  constructor(scene, type, position) {
+    this.scene = scene;
+    this.type = type;
+    this.cfg = MobConfig[type];
+    this.health = this.cfg.maxHealth;
+    this.pos = position.clone();
+    this.vel = new THREE.Vector3(0,0,0);
+    this.onGround = false;
+    this.yaw = Math.random()*Math.PI*2;
+    this.state = 'idle'; // idle, wander, chase, attack, flee, fuse(creeper)
+    this.stateTimer = 0;
+    this.wanderTarget = null;
+    this.fuseTimer = 0;
+    this.attackCooldown = 0;
+    this.dead = false;
+    this.group = this.buildModel();
+    this.group.position.copy(this.pos);
+    scene.add(this.group);
+  }
+
+  // Construye el modelo en partes: cabeza, cuerpo, 4 patas (o menos para gallina/araña con más patas)
+  buildModel() {
+    const cfg = this.cfg;
+    const group = new THREE.Group();
+    const bodyMat = new THREE.MeshLambertMaterial({ map: makeSolidColorTexture(cfg.bodyColor, 1) });
+    const headMat = new THREE.MeshLambertMaterial({ map: makeSolidColorTexture(cfg.skinColor, 2) });
+    const legMat = new THREE.MeshLambertMaterial({ map: makeSolidColorTexture(cfg.bodyColor, 3) });
+
+    const isSpider = this.type === MOB_TYPE.SPIDER;
+    const isChicken = this.type === MOB_TYPE.CHICKEN;
+    const bodyW = isSpider ? 0.9 : 0.55, bodyH = isSpider?0.35:0.55, bodyD = isSpider?0.7:0.35;
+
+    const bodyGeo = new THREE.BoxGeometry(bodyW, bodyH, bodyD);
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = isSpider ? 0.5 : 0.75;
+    group.add(body);
+    this.bodyMesh = body;
+
+    const headSize = isChicken ? 0.22 : 0.32;
+    const headGeo = new THREE.BoxGeometry(headSize, headSize, headSize);
+    const head = new THREE.Mesh(headGeo, headMat);
+    head.position.set(0, body.position.y + bodyH/2 + headSize/2 - 0.02, bodyD/2 + headSize/2 - 0.05);
+    group.add(head);
+    this.headMesh = head;
+
+    // ojos simples (para dar sensación de rostro sin depender de UV mapping complejo)
+    if (!isSpider) {
+      const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+      const eyeGeo = new THREE.BoxGeometry(0.04,0.04,0.02);
+      const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(-headSize*0.22, head.position.y+0.02, headSize/2+0.01);
+      const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(headSize*0.22, head.position.y+0.02, headSize/2+0.01);
+      group.add(eyeL); group.add(eyeR);
+    }
+
+    // patas
+    this.legMeshes = [];
+    if (isSpider) {
+      for (let i=0;i<8;i++) {
+        const legGeo = new THREE.BoxGeometry(0.06,0.3,0.06);
+        const leg = new THREE.Mesh(legGeo, legMat);
+        const side = i<4 ? -1:1;
+        const idx = i%4;
+        leg.position.set(side*(bodyW/2+0.1), 0.3, (idx-1.5)*0.18);
+        group.add(leg); this.legMeshes.push(leg);
+      }
+    } else {
+      const legCount = isChicken?2:4;
+      const legGeo = new THREE.BoxGeometry(0.12, isChicken?0.35:0.5, 0.12);
+      const positions = isChicken
+        ? [[-0.08,0,0],[0.08,0,0]]
+        : [[-bodyW/2+0.08,0,bodyD/2-0.08],[bodyW/2-0.08,0,bodyD/2-0.08],[-bodyW/2+0.08,0,-bodyD/2+0.08],[bodyW/2-0.08,0,-bodyD/2+0.08]];
+      for (const p of positions) {
+        const leg = new THREE.Mesh(legGeo, legMat);
+        leg.position.set(p[0], (isChicken?0.18:0.25), p[2]);
+        group.add(leg); this.legMeshes.push(leg);
+      }
+    }
+
+    if (this.type===MOB_TYPE.CREEPER) {
+      // creeper no tiene patas visibles separadas (piernas cortas pegadas al cuerpo), ajuste visual simple
+      for (const leg of this.legMeshes) leg.scale.set(1,0.6,1);
+    }
+
+    return group;
+  }
+
+  get height() { return this.type===MOB_TYPE.SPIDER ? 0.6 : (this.type===MOB_TYPE.CHICKEN?0.5:0.9); }
+  get width() { return this.type===MOB_TYPE.SPIDER ? 0.9 : 0.6; }
+
+  isHostile() { return HOSTILE_MOBS.includes(this.type); }
+
+  // === IA ===
+  updateAI(dt, world, playerPos, onExplode, onAttackPlayer) {
+    if (this.dead) return;
+    const dx = playerPos.x-this.pos.x, dz = playerPos.z-this.pos.z;
+    const distToPlayer = Math.sqrt(dx*dx+dz*dz);
+    const cfg = this.cfg;
+
+    if (this.isHostile()) {
+      if (this.type === MOB_TYPE.CREEPER && this.state==='fuse') {
+        this.fuseTimer += dt;
+        if (this.fuseTimer >= cfg.fuseTime) {
+          this.dead = true;
+          if (onExplode) onExplode(this.pos.clone(), cfg.explosionRadius);
+          return;
+        }
+      } else if (distToPlayer < cfg.detectRange) {
+        this.state = 'chase';
+      } else if (this.state==='chase' && distToPlayer > cfg.detectRange*1.5) {
+        this.state = 'wander';
+      }
+
+      if (this.state === 'chase') {
+        if (this.type===MOB_TYPE.CREEPER && distToPlayer < cfg.attackRange) {
+          this.state = 'fuse'; this.fuseTimer = 0;
+        } else if (this.type===MOB_TYPE.SKELETON && distToPlayer < cfg.attackRange && distToPlayer > 3) {
+          // skeleton mantiene distancia: no avanza más si ya está en rango de tiro
+          this.yaw = Math.atan2(dx, dz);
+        } else if (distToPlayer > cfg.attackRange*0.7) {
+          this.yaw = Math.atan2(dx, dz);
+          this.moveForward(dt, world, cfg.speed);
+        }
+        if (distToPlayer < cfg.attackRange && this.type!==MOB_TYPE.CREEPER) {
+          this.attackCooldown -= dt;
+          if (this.attackCooldown <= 0) {
+            this.attackCooldown = 1.0;
+            if (onAttackPlayer) onAttackPlayer(cfg.damage);
+          }
+        }
+      } else {
+        this.wander(dt, world);
+      }
+    } else {
+      // animales: deambulan pasivamente, huyen si el jugador está muy cerca (opcional simple)
+      this.wander(dt, world);
+    }
+
+    this.applyGravityAndCollision(dt, world);
+    this.animateWalk(dt);
+  }
+
+  wander(dt, world) {
+    this.stateTimer -= dt;
+    if (this.stateTimer <= 0 || !this.wanderTarget) {
+      this.stateTimer = 3+Math.random()*4;
+      this.yaw = Math.random()*Math.PI*2;
+    }
+    if (Math.random() < 0.6*dt) this.moveForward(dt, world, this.cfg.speed*0.5);
+  }
+
+  moveForward(dt, world, speed) {
+    const dx = Math.sin(this.yaw)*speed*dt;
+    const dz = Math.cos(this.yaw)*speed*dt;
+    const nx = this.pos.x+dx, nz = this.pos.z+dz;
+    // no caminar hacia un bloque sólido (evita que atraviesen paredes, aunque IA simple)
+    if (!world.isSolidAt(Math.floor(nx), Math.floor(this.pos.y), Math.floor(nz))) {
+      this.pos.x = nx; this.pos.z = nz;
+    } else {
+      this.yaw += Math.PI/2; // gira si choca
+    }
+  }
+
+  applyGravityAndCollision(dt, world) {
+    this.vel.y += GRAVITY*dt;
+    const nextY = this.pos.y + this.vel.y*dt;
+    if (world.isSolidAt(Math.floor(this.pos.x), Math.floor(nextY), Math.floor(this.pos.z))) {
+      if (this.vel.y < 0) { this.onGround = true; this.pos.y = Math.ceil(nextY); }
+      this.vel.y = 0;
+    } else {
+      this.pos.y = nextY;
+      this.onGround = false;
+    }
+  }
+
+  animateWalk(dt) {
+    this._walkCycle = (this._walkCycle||0) + dt*6;
+    const swing = Math.sin(this._walkCycle)*0.4;
+    for (let i=0;i<this.legMeshes.length;i++) {
+      this.legMeshes[i].rotation.x = (i%2===0?1:-1)*swing;
+    }
+    this.group.position.copy(this.pos);
+    this.group.rotation.y = this.yaw;
+  }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health <= 0) this.dead = true;
+    return this.dead;
+  }
+
+  destroy() {
+    this.scene.remove(this.group);
+    this.group.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material) obj.material.dispose(); });
+  }
+}
+
+/* =====================================================================
+   SISTEMA: MOB MANAGER
+   Controla spawn (más agresivo de noche para hostiles), límite de mobs
+   activos por rendimiento, y el ciclo update/destroy.
+   ===================================================================== */
+class MobManager {
+  constructor(scene, world, droppedItems) {
+    this.scene = scene;
+    this.world = world;
+    this.droppedItems = droppedItems;
+    this.mobs = [];
+    this.maxHostiles = 12;
+    this.maxAnimals = 10;
+    this.spawnTimer = 0;
+  }
+
+  countByCategory() {
+    let hostiles=0, animals=0;
+    for (const m of this.mobs) { if (m.isHostile()) hostiles++; else animals++; }
+    return {hostiles, animals};
+  }
+
+  trySpawn(playerPos, isNight) {
+    const {hostiles, animals} = this.countByCategory();
+    const wantHostile = isNight && hostiles < this.maxHostiles;
+    const wantAnimal = animals < this.maxAnimals;
+    if (!wantHostile && !wantAnimal) return;
+
+    // posición candidata: anillo alrededor del jugador, fuera de la vista inmediata pero dentro de chunks cargados
+    const ang = Math.random()*Math.PI*2;
+    const dist = 14 + Math.random()*16;
+    const wx = Math.floor(playerPos.x + Math.cos(ang)*dist);
+    const wz = Math.floor(playerPos.z + Math.sin(ang)*dist);
+    // buscar superficie sólida en esa columna (desde arriba hacia abajo, límite razonable)
+    let spawnY = -1;
+    for (let y=Math.min(WORLD_HEIGHT-2, 60); y>1; y--) {
+      if (this.world.isSolidAt(wx,y,wz) && !this.world.isSolidAt(wx,y+1,wz) && !this.world.isSolidAt(wx,y+2,wz)) {
+        // comprobar que ni el bloque de superficie ni el espacio donde aparecerá el mob sean agua
+        const surfaceBlock = this.world.getBlock(wx,y,wz);
+        const spawnSpaceBlock = this.world.getBlock(wx,y+1,wz);
+        if (surfaceBlock === BLOCK.WATER || spawnSpaceBlock === BLOCK.WATER) continue;
+        spawnY = y+1; break;
+      }
+    }
+    if (spawnY < 0) return; // no se encontró superficie válida (chunk no cargado, agua, o cueva compleja)
+
+    let type;
+    if (wantHostile && (!wantAnimal || Math.random()<0.5)) {
+      type = HOSTILE_MOBS[Math.floor(Math.random()*HOSTILE_MOBS.length)];
+    } else {
+      type = ANIMAL_MOBS[Math.floor(Math.random()*ANIMAL_MOBS.length)];
+    }
+    const mob = new Mob(this.scene, type, new THREE.Vector3(wx+0.5, spawnY, wz+0.5));
+    this.mobs.push(mob);
+  }
+
+  update(dt, playerPos, isNight, callbacks) {
+    this.spawnTimer -= dt;
+    if (this.spawnTimer <= 0) {
+      this.spawnTimer = 2 + Math.random()*3;
+      this.trySpawn(playerPos, isNight);
+    }
+    for (let i=this.mobs.length-1; i>=0; i--) {
+      const mob = this.mobs[i];
+      // despawn por lejanía (rendimiento) — pero solo si sigue vivo; un mob que
+      // acaba de morir debe procesar su drop antes de ser eliminado, aunque el
+      // jugador ya esté lejos, para no perder el loot silenciosamente.
+      if (!mob.dead) {
+        const dx=mob.pos.x-playerPos.x, dz=mob.pos.z-playerPos.z;
+        if (dx*dx+dz*dz > 80*80) { mob.destroy(); this.mobs.splice(i,1); continue; }
+      }
+
+      if (!mob.dead) {
+        mob.updateAI(dt, this.world, playerPos, callbacks.onExplode, (dmg) => {
+          const dx2=mob.pos.x-playerPos.x, dz2=mob.pos.z-playerPos.z;
+          if (dx2*dx2+dz2*dz2 < (mob.cfg.attackRange+0.5)*(mob.cfg.attackRange+0.5)) {
+            if (callbacks.onPlayerHit) callbacks.onPlayerHit(dmg);
+          }
+        });
+      }
+
+      if (mob.dead) {
+        // dropear items al morir
+        for (const dropDef of mob.cfg.drops) {
+          const count = Array.isArray(dropDef.count) ? (dropDef.count[0]+Math.floor(Math.random()*(dropDef.count[1]-dropDef.count[0]+1))) : dropDef.count;
+          this.droppedItems.spawnDrop(mob.pos.clone(), dropDef.item, count);
+        }
+        mob.destroy();
+        this.mobs.splice(i,1);
+      }
+    }
+  }
+
+  // daño en área (usado por la explosión del creeper)
+  damageInRadius(center, radius, playerPos, onPlayerDamaged) {
+    const distToPlayerSq = (center.x-playerPos.x)**2 + (center.y-playerPos.y)**2 + (center.z-playerPos.z)**2;
+    if (distToPlayerSq < radius*radius) {
+      const falloff = 1 - Math.sqrt(distToPlayerSq)/radius;
+      const dmg = Math.ceil(6*falloff);
+      if (dmg > 0 && onPlayerDamaged) onPlayerDamaged(dmg);
+    }
+    for (const mob of this.mobs) {
+      const d2 = (center.x-mob.pos.x)**2 + (center.y-mob.pos.y)**2 + (center.z-mob.pos.z)**2;
+      if (d2 < radius*radius) {
+        const falloff = 1 - Math.sqrt(d2)/radius;
+        mob.takeDamage(Math.ceil(8*falloff));
+      }
+    }
+  }
+}
+
 
 const Game = {
   started:false,
@@ -2355,6 +2708,7 @@ const Game = {
       clearTimeout(timeoutGuard);
       console.log('[MINICRAFT] Generación inicial completada en', ((performance.now()-startTime)/1000).toFixed(1), 's');
       this.droppedItems = new DroppedItemsManager(Engine.scene, Engine.world);
+      this.mobManager = new MobManager(Engine.scene, Engine.world, this.droppedItems);
 
       loading.style.display = 'none';
       document.getElementById('hud').style.display = 'block';
@@ -2432,8 +2786,37 @@ const Game = {
     const origin = Engine.camera.position;
     const result = raycastBlocks(Engine.world, origin, dir, MAX_REACH);
     this.targetBlock = result.hit ? result : null;
+    const blockHitDist = result.hit ? result.dist : Infinity;
 
     const isMining = Engine.isMobile ? Engine.mobileInput.breakHeld : Engine.input.mouseDownLeft;
+
+    // detectar mob apuntado: proyección simple del mob sobre el rayo de la cámara,
+    // solo cuenta si está más cerca que cualquier bloque sólido en esa dirección.
+    let targetedMob = null, targetedMobDist = Infinity;
+    if (this.mobManager) {
+      for (const mob of this.mobManager.mobs) {
+        const toMob = new THREE.Vector3(mob.pos.x-origin.x, mob.pos.y+mob.height/2-origin.y, mob.pos.z-origin.z);
+        const dist = toMob.length();
+        if (dist > MAX_REACH || dist >= blockHitDist) continue;
+        const toMobNorm = toMob.clone().normalize();
+        const dot = toMobNorm.x*dir.x + toMobNorm.y*dir.y + toMobNorm.z*dir.z;
+        if (dot > 0.95 && dist < targetedMobDist) { targetedMob = mob; targetedMobDist = dist; }
+      }
+    }
+
+    if (targetedMob && isMining) {
+      this._mobAttackCooldown = (this._mobAttackCooldown||0) - dt;
+      if (this._mobAttackCooldown <= 0) {
+        this._mobAttackCooldown = 0.4;
+        const selectedItem = this.getSelectedItem();
+        const toolData = selectedItem && typeof selectedItem.item === 'string' ? ItemData[selectedItem.item] : null;
+        const dmg = (toolData && toolData.tool) ? toolData.tool.attackDamage : 1;
+        targetedMob.takeDamage(dmg);
+      }
+      this.miningTarget = null; this.miningProgress = 0;
+      Engine.input.placeRequested = false;
+      return; // priorizar combate sobre minado este frame
+    }
 
     if (this.targetBlock && isMining) {
       const key = this.targetBlock.x+','+this.targetBlock.y+','+this.targetBlock.z;
@@ -2580,12 +2963,21 @@ const Game = {
     this.fpsAccum += dt; this.fpsFrames++;
     if (this.fpsAccum >= 0.5) { this.fpsLast = Math.round(this.fpsFrames/this.fpsAccum); this.fpsAccum=0; this.fpsFrames=0; }
 
-    Engine.updateDayNight(dt);
+    const dayFactor = Engine.updateDayNight(dt);
+    const isNight = dayFactor < 0.15;
     this.handleInputAndPhysics(dt);
     if (!this.invOpen && !this.dead) {
       this.updateBlockTargeting(dt);
       this.updateHunger(dt);
       this.droppedItems.update(dt, Engine.physics.pos, this.inventory, ()=>UI.rebuildHotbar());
+      if (this.mobManager) {
+        this.mobManager.update(dt, Engine.physics.pos, isNight, {
+          onExplode: (center, radius) => {
+            this.mobManager.damageInRadius(center, radius, Engine.physics.pos, (dmg) => this.damagePlayer(dmg));
+          },
+          onPlayerHit: (dmg) => this.damagePlayer(dmg)
+        });
+      }
     }
     if (this.furnace) {
       FurnaceSystem.update(this.furnace, dt, () => {
