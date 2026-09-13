@@ -450,11 +450,12 @@
   }
 
   const PEER_CONFIG = {
-    debug: 1,
+    debug: 2,
     config: {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
         { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:global.stun.twilio.com:3478" },
         {
           urls: "turn:openrelay.metered.ca:80",
           username: "openrelayproject",
@@ -469,6 +470,11 @@
           urls: "turn:openrelay.metered.ca:443?transport=tcp",
           username: "openrelayproject",
           credential: "openrelayproject"
+        },
+        {
+          urls: "turn:relay1.expressturn.com:3478",
+          username: "efQUQ79N77B5BNVVKF",
+          credential: "N4EAUgpjMzPLrxSS"
         }
       ]
     }
@@ -608,6 +614,8 @@
     function doConnect() {
       const outgoing = peer.connect(targetId, { reliable: true });
       let settled = false;
+      connectMsg.textContent = "Buscando conexión con la otra persona…";
+      connectMsg.className = "";
 
       outgoing.on("open", () => {
         settled = true;
@@ -625,14 +633,29 @@
         }
       });
 
+      // Log de progreso ICE visible en pantalla, útil en redes móviles/restrictivas
+      if (outgoing.peerConnection) {
+        outgoing.peerConnection.addEventListener("iceconnectionstatechange", () => {
+          const state = outgoing.peerConnection.iceConnectionState;
+          console.log("ICE state:", state);
+          if (!settled) {
+            if (state === "checking") connectMsg.textContent = "Probando ruta de conexión (esto puede tardar en redes móviles)…";
+            if (state === "failed") {
+              connectMsg.textContent = "La ruta de conexión falló. Puede ser un bloqueo de red (datos móviles/firewall). Probá con wifi.";
+              connectMsg.className = "error";
+            }
+          }
+        });
+      }
+
       setTimeout(() => {
         if (!settled) {
           connectBtn.disabled = false;
           connectBtn.textContent = "Conectar";
-          connectMsg.textContent = "No se pudo conectar. Verificá que el código sea correcto y que la otra persona siga con la sala abierta.";
+          connectMsg.textContent = "No se pudo conectar tras 25s. Probá que ambos estén en wifi, o revisá el código.";
           connectMsg.className = "error";
         }
-      }, 15000);
+      }, 25000);
     }
 
     if (peer && peer.open) {
