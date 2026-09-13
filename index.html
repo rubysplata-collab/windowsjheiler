@@ -2,3616 +2,598 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MINICRAFT P2P</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YEI Social P2P</title>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
 <style>
-  html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:#000;font-family:'Segoe UI',Arial,sans-serif;user-select:none;-webkit-user-select:none;touch-action:none;}
-  canvas{display:block;}
-  #gameCanvas{position:absolute;top:0;left:0;}
-
-  /* ===== MENU PRINCIPAL ===== */
-  #mainMenu{
-    position:absolute;inset:0;z-index:100;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;
-    overflow:hidden;
-  }
-  #menuBgCanvas{
-    position:absolute;inset:0;width:100%;height:100%;z-index:-1;
-    filter:brightness(0.85);
-  }
-  #mainMenu .titleWrap{ margin-bottom:36px; text-align:center; position:relative; }
-  #mainMenu .title{
-    font-size:72px;font-weight:900;letter-spacing:1px;color:#e8e8e8;
-    font-family:'Arial Black',Arial,sans-serif;
-    text-shadow:
-      3px 3px 0 #6a6a6a, 6px 6px 0 #4a4a4a, 9px 9px 0 #2a2a2a,
-      0 0 24px rgba(0,0,0,0.6);
-    -webkit-text-stroke:2px #1a1a1a;
-  }
-  #mainMenu .subtitle{
-    display:inline-block; color:#3a3a3a; font-size:15px; font-weight:900; letter-spacing:1px;
-    background:#f5d020; padding:3px 10px; transform:rotate(-8deg);
-    position:absolute; right:-30px; bottom:-10px; text-shadow:none;
-    box-shadow:2px 2px 0 rgba(0,0,0,.4);
-  }
-  .menuBtn{
-    width:280px;padding:16px;margin:6px;font-size:18px;font-weight:700;color:#fff;
-    background:#3a3a3a;border:3px solid #1a1a1a;border-top-color:#5a5a5a;border-left-color:#5a5a5a;
-    cursor:pointer;transition:background .1s;box-shadow:0 4px 0 rgba(0,0,0,.4);
-  }
-  .menuBtn:hover{background:#4a4a4a;}
-  .menuBtn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.4);}
-  #mpPanel,#optPanel{display:none;flex-direction:column;align-items:center;margin-top:10px;}
-  #mpPanel input, #optPanel input{
-    width:260px;padding:10px;font-size:16px;margin:6px;text-align:center;
-    background:#222;color:#fff;border:2px solid #555;
-  }
-  .roomIdBox{font-size:22px;letter-spacing:4px;background:#111;padding:10px 20px;border:2px solid #7ec850;color:#7ec850;margin:8px;}
-
-  /* ===== HUD ===== */
-  #hud{position:absolute;inset:0;z-index:10;pointer-events:none;display:none;}
-  #crosshair{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    width:20px;height:20px;
-  }
-  #crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.85);}
-  #crosshair::before{width:100%;height:2px;top:9px;}
-  #crosshair::after{width:2px;height:100%;left:9px;}
-
-  #hotbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;background:rgba(0,0,0,.35);padding:4px;border:2px solid rgba(255,255,255,.2);}
-  .hotslot{width:48px;height:48px;margin:2px;background:rgba(20,20,20,.7);border:2px solid #555;position:relative;display:flex;align-items:center;justify-content:center;}
-  .hotslot.selected{border-color:#fff;box-shadow:0 0 8px #fff;}
-  .hotslot img{width:36px;height:36px;image-rendering:pixelated;}
-  .hotslot .cnt{position:absolute;bottom:1px;right:3px;font-size:12px;color:#fff;text-shadow:1px 1px 0 #000;font-weight:bold;}
-
-  #statsBars{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;}
-  .barRow{display:flex;}
-  .heart,.hunger{width:16px;height:16px;margin:1px;background-size:contain;}
-  #healthRow, #hungerRow{display:flex;}
-
-  #topLeftInfo{position:absolute;top:8px;left:8px;color:#fff;font-size:12px;text-shadow:1px 1px 2px #000;background:rgba(0,0,0,.3);padding:6px 8px;line-height:1.5;font-family:monospace;}
-
-  #inventoryScreen{
-    position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.5);pointer-events:auto;
-  }
-  #invBox{background:#c6c6c6;border:4px solid #373737;padding:16px;width:420px;box-shadow:0 0 0 4px #8b8b8b inset;}
-  .invTitle{color:#333;font-weight:bold;margin-bottom:8px;}
-  .invGrid{display:grid;grid-template-columns:repeat(9,40px);gap:2px;margin-bottom:8px;}
-  .slot{width:40px;height:40px;background:#8b8b8b;border:2px solid #555;box-shadow:inset 2px 2px 0 #fff3,inset -2px -2px 0 #0004;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-  .slot img{width:32px;height:32px;image-rendering:pixelated;pointer-events:none;}
-  .slot .cnt{position:absolute;bottom:0;right:2px;font-size:11px;color:#fff;text-shadow:1px 1px 0 #000;font-weight:bold;pointer-events:none;}
-  .craftArea{display:flex;align-items:center;justify-content:center;margin-bottom:10px;gap:10px;}
-  .craftGrid{display:grid;gap:2px;}
-  .craftGrid.g2{grid-template-columns:repeat(2,40px);}
-  .craftGrid.g3{grid-template-columns:repeat(3,40px);}
-  .arrowChar{color:#333;font-size:22px;}
-  #closeInvHint{color:#555;font-size:11px;text-align:center;margin-top:6px;}
-  .recipeBookBtn{display:block;margin:10px auto 0;padding:8px 12px;background:#3f3f3f;color:#fff;border:2px solid #222;font-weight:bold;cursor:pointer;}
-  #recipeBook{position:absolute;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);pointer-events:auto;}
-  #recipeBookBox{width:min(760px,90vw);max-height:82vh;overflow:auto;background:#c6c6c6;border:4px solid #373737;padding:16px;box-shadow:0 0 0 4px #8b8b8b inset;}
-  #recipeList{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:10px;}
-  .recipeCard{background:#9b9b9b;border:2px solid #555;padding:8px;color:#222;}
-  .recipeName{font-weight:bold;margin-bottom:5px;}
-  .recipePattern{font-family:monospace;white-space:pre;background:#777;color:#fff;padding:5px;font-size:12px;}
-  .recipeNeed{font-size:11px;margin-top:5px;}
-  .craftDirectBtn{width:100%;margin-top:7px;}
-  #recipeMessage{min-height:18px;text-align:center;font-weight:bold;color:#333;margin-top:6px;transition:opacity .2s;}
-
-  #furnaceScreen{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:auto;}
-  #furnaceBox{background:#c6c6c6;border:4px solid #373737;padding:16px;width:340px;box-shadow:0 0 0 4px #8b8b8b inset;}
-  #fireProgress{width:20px;height:40px;background:#333;position:relative;margin:0 10px;}
-  #fireFill{position:absolute;bottom:0;width:100%;background:#e08020;height:0%;}
-
-  #deathScreen{position:absolute;inset:0;z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(80,0,0,.7);color:#fff;}
-  #deathScreen h1{font-size:48px;color:#ff4444;}
-
-  #mobileControls{position:absolute;inset:0;z-index:90;display:none;pointer-events:none;touch-action:none;}
-  #joystickZone{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;background:rgba(20,20,20,.34);border:3px solid rgba(255,255,255,.42);box-shadow:0 5px 18px rgba(0,0,0,.35),inset 0 0 0 8px rgba(255,255,255,.06);pointer-events:auto;touch-action:none;}
-  #joystickStick{position:absolute;left:38px;top:38px;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid rgba(255,255,255,.7);box-shadow:0 3px 10px rgba(0,0,0,.3);}
-  #lookZone{position:absolute;right:0;top:0;width:58%;height:76%;pointer-events:auto;touch-action:none;}
-  .mobileBtn{position:absolute;width:68px;height:68px;border-radius:50%;background:rgba(25,25,25,.48);border:3px solid rgba(255,255,255,.55);box-shadow:0 5px 16px rgba(0,0,0,.35),inset 0 0 0 3px rgba(255,255,255,.06);color:#fff;font-size:25px;font-weight:800;display:flex;align-items:center;justify-content:center;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;}
-  .mobileBtn:active{transform:scale(.92);background:rgba(255,255,255,.28);}
-  #btnJump{right:max(20px,env(safe-area-inset-right));bottom:118px;}
-  #btnBreak{right:106px;bottom:200px;width:62px;height:62px;}
-  #btnPlace{right:22px;bottom:200px;width:62px;height:62px;}
-  #btnRun{right:104px;bottom:118px;width:62px;height:62px;font-size:11px;}
-  #btnInv{right:max(18px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));width:52px;height:52px;font-size:21px;}
-  #mobileHint{position:absolute;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);padding:7px 12px;border-radius:12px;background:rgba(0,0,0,.38);color:#fff;font-size:11px;font-weight:700;pointer-events:none;opacity:.75;}
-  @media (max-width:700px){
-    #recipeBookBox{width:94vw;max-height:88vh;padding:10px;}
-    #recipeList{grid-template-columns:1fr;gap:6px;}
-    .recipeCard{padding:7px;}
-
-    #chatBox{width:calc(100vw - 24px);max-width:none;right:12px;top:10px;font-size:12px;}
-    #chatInput{width:calc(100vw - 24px);right:12px;top:170px;}
-    #hotbar{transform:scale(.82);transform-origin:center bottom;bottom:8px;}
-    #statsBars{transform:scale(.85);transform-origin:left bottom;left:10px;bottom:105px;}
-    #inventoryScreen #invBox,#craftingTableScreen #ctBox,#furnaceScreen #furnaceBox{width:min(92vw,460px);max-height:86vh;overflow:auto;box-sizing:border-box;}
-  }
-  @media (max-width:420px){
-    #joystickZone{width:118px;height:118px;bottom:16px;}
-    #joystickStick{left:34px;top:34px;width:50px;height:50px;}
-    #btnJump{right:14px;bottom:100px;width:62px;height:62px;}
-    #btnBreak{right:88px;bottom:174px;width:56px;height:56px;}
-    #btnPlace{right:14px;bottom:174px;width:56px;height:56px;}
-    #btnRun{right:86px;bottom:100px;width:56px;height:56px;}
-    #btnInv{right:12px;top:12px;width:48px;height:48px;}
-    #mobileHint{font-size:10px;max-width:55vw;text-align:center;}
-  }
-
-
-  /* ===== MANO EN PRIMERA PERSONA ===== */
-  #mcHand{
-    position:fixed;
-    right:3vw;
-    bottom:-8px;
-    width:150px;
-    height:210px;
-    z-index:14;
-    pointer-events:none;
-    display:none;
-    transform-origin:80% 90%;
-    filter:drop-shadow(5px 7px 0 rgba(0,0,0,.25));
-  }
-  #mcArm{
-    position:absolute;
-    right:30px;
-    bottom:-18px;
-    width:72px;
-    height:145px;
-    background:#b9784e;
-    border:5px solid #75482f;
-    box-sizing:border-box;
-    transform:rotate(-13deg);
-  }
-  #mcArm:before{
-    content:"";
-    position:absolute;
-    left:5px; top:5px;
-    width:18px; height:128px;
-    background:rgba(255,255,255,.12);
-  }
-  #mcFist{
-    position:absolute;
-    right:18px;
-    top:38px;
-    width:92px;
-    height:82px;
-    background:#c98759;
-    border:5px solid #75482f;
-    box-sizing:border-box;
-    transform:rotate(-13deg);
-  }
-  #mcFist:before{
-    content:"";
-    position:absolute;
-    left:8px; top:9px;
-    width:68px; height:17px;
-    background:#d99a6b;
-    box-shadow:0 24px 0 #c98759, 0 48px 0 #b9784e;
-  }
-  #mcHand.swing{
-    animation:mcHandSwing .18s ease-out;
-  }
-  @keyframes mcHandSwing{
-    0%{transform:rotate(0deg) translate(0,0);}
-    45%{transform:rotate(-12deg) translate(-8px,10px);}
-    100%{transform:rotate(0deg) translate(0,0);}
-  }
-  @media (max-width:700px){
-    #mcHand{
-      right:-8px;
-      bottom:-18px;
-      width:115px;
-      height:155px;
-      transform:scale(.78);
-      transform-origin:bottom right;
-    }
-  }
-
-  #startPrompt{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);color:#fff;font-size:22px;cursor:pointer;}
-
-  #chatBox{position:absolute;top:8px;right:8px;width:280px;max-height:150px;overflow-y:auto;color:#fff;font-size:12px;background:rgba(0,0,0,.35);padding:6px;display:none;border-radius:4px;}
-  #chatInput{position:absolute;top:166px;right:8px;width:280px;box-sizing:border-box;background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 9px;border-radius:4px;display:none;outline:none;}
-
-  ::-webkit-scrollbar{width:6px;}
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#f2f3f5;
+ font-family:Arial,sans-serif;
+ color:#111
+}
+header{
+ background:white;
+ padding:15px;
+ text-align:center;
+ font-size:23px;
+ font-weight:bold;
+ border-bottom:1px solid #ddd
+}
+main{
+ max-width:650px;
+ margin:20px auto;
+ padding:10px
+}
+.box,.post{
+ background:white;
+ padding:15px;
+ border-radius:15px;
+ margin-bottom:12px;
+ border:1px solid #ddd
+}
+input,textarea,button{
+ width:100%;
+ padding:11px;
+ margin:5px 0;
+ border-radius:9px;
+ border:1px solid #ccc;
+ font-size:15px
+}
+button{
+ background:#111827;
+ color:white;
+ cursor:pointer
+}
+button:hover{opacity:.9}
+.post img{
+ max-width:100%;
+ border-radius:12px;
+ margin-top:8px
+}
+.like{
+ width:auto;
+ color:#ef4444;
+ background:white;
+ border:1px solid #ddd
+}
+small{color:#666}
+.online{color:#159447}
 </style>
 </head>
+
 <body>
 
-<canvas id="gameCanvas"></canvas>
+<header>
+🌐 YEI Social
+</header>
 
-<div id="mainMenu">
-  <canvas id="menuBgCanvas"></canvas>
-  <div class="titleWrap">
-    <div class="title">MINICRAFT</div>
-    <div class="subtitle">P2P!!!</div>
-  </div>
-  <div id="menuMain">
-    <button class="menuBtn" id="btnPlaySolo">JUGAR</button>
-    <button class="menuBtn" id="btnShowMP">MULTIJUGADOR</button>
-    <button class="menuBtn" id="btnShowOpt">OPCIONES</button>
-  </div>
-  <div id="mpPanel">
-    <button class="menuBtn" id="btnCreateRoom">CREAR SALA</button>
-    <div id="roomIdDisplay" class="roomIdBox" style="display:none;"></div>
-    <button class="menuBtn" id="btnCopyRoom" style="display:none;">COPIAR ID</button>
-    <input type="text" id="joinRoomInput" placeholder="Room ID">
-    <button class="menuBtn" id="btnJoinRoom">UNIRSE</button>
-    <div id="mpStatus" style="color:#7ec850;margin-top:6px;font-size:13px;"></div>
-    <button class="menuBtn" id="btnBackFromMP" style="background:#5a2a2a;">VOLVER</button>
-  </div>
-  <div id="optPanel">
-    <label style="color:#fff;margin:6px;">Sensibilidad mouse
-      <input type="range" id="sensSlider" min="0.05" max="0.5" step="0.01" value="0.15">
-    </label>
-    <label style="color:#fff;margin:6px;">Distancia de renderizado (chunks)
-      <input type="range" id="renderDistSlider" min="2" max="8" step="1" value="4">
-    </label>
-    <button class="menuBtn" id="btnBackFromOpt" style="background:#5a2a2a;">VOLVER</button>
-  </div>
+<main>
+
+<div class="box">
+
+<input id="name" placeholder="Tu nombre">
+
+<button onclick="crearSala()">
+🏠 Crear sala
+</button>
+
+<hr>
+
+<input id="room" placeholder="Código de sala, ejemplo XD-429">
+
+<button onclick="entrarSala()">
+🚪 Entrar a sala
+</button>
+
+<p id="estado">⚪ Sin conexión</p>
+
+<p>
+🔑 Tu código:
+<b id="codigo">---</b>
+</p>
+
+<small>
+Comparte tu código con tus amigos para que entren a la misma sala.
+</small>
+
 </div>
 
 
-<div id="mcHand" aria-hidden="true">
-  <div id="mcArm"></div>
-  <div id="mcFist"></div>
+<div class="box">
+
+<textarea
+id="texto"
+rows="3"
+placeholder="¿Qué estás pensando?"
+></textarea>
+
+<input
+id="foto"
+type="file"
+accept="image/*"
+>
+
+<button onclick="publicar()">
+📢 Publicar
+</button>
+
 </div>
 
-<div id="startPrompt">Click para jugar (mouse capturado)</div>
 
-<div id="hud">
-  <div id="topLeftInfo"></div>
-  <div id="crosshair"></div>
-  <div id="statsBars">
-    <div class="barRow" id="healthRow"></div>
-    <div class="barRow" id="hungerRow"></div>
-  </div>
-  <div id="hotbar"></div>
-  <div id="chatBox"></div><input id="chatInput" autocomplete="off" maxlength="120" placeholder="Escribe y presiona Enter...">
-</div>
+<div id="feed"></div>
 
-<div id="inventoryScreen">
-  <div id="invBox">
-    <div class="invTitle">Inventario</div>
-    <div class="craftArea">
-      <div class="craftGrid g2" id="craftGrid2"></div>
-      <div class="arrowChar">&#8594;</div>
-      <div class="slot" id="craftResultSlot"></div>
-    </div>
-    <div class="invGrid" id="mainInvGrid"></div>
-    <div class="invGrid" id="hotbarInvGrid" style="margin-top:6px;"></div>
-    <button id="btnRecipeBook" class="recipeBookBtn">📖 LIBRO DE RECETAS</button>
-    <div id="closeInvHint">[E] cerrar</div>
-  </div>
-</div>
+</main>
 
-<div id="craftingTableScreen" style="position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:auto;">
-  <div id="ctBox" style="background:#c6c6c6;border:4px solid #373737;padding:16px;width:460px;box-shadow:0 0 0 4px #8b8b8b inset;">
-    <div class="invTitle">Mesa de Crafteo</div>
-    <div class="craftArea">
-      <div class="craftGrid g3" id="craftGrid3"></div>
-      <div class="arrowChar">&#8594;</div>
-      <div class="slot" id="craftResultSlot3"></div>
-    </div>
-    <div class="invGrid" id="ctMainInvGrid"></div>
-    <div class="invGrid" id="ctHotbarInvGrid" style="margin-top:6px;"></div>
-    <button id="btnRecipeBook2" class="recipeBookBtn">📖 LIBRO DE RECETAS</button>
-    <div id="closeCtHint" style="color:#555;font-size:11px;text-align:center;margin-top:6px;">[E] cerrar</div>
-  </div>
-</div>
-
-<div id="recipeBook">
-  <div id="recipeBookBox">
-    <div class="invTitle">📖 Libro de recetas</div>
-    <div style="color:#444;font-size:12px;">Recetas disponibles en Minicraft.</div>
-    <div id="recipeMessage"></div>
-    <div id="recipeList"></div>
-    <button id="closeRecipeBook" class="recipeBookBtn">CERRAR</button>
-  </div>
-</div>
-
-<div id="furnaceScreen">
-  <div id="furnaceBox">
-    <div class="invTitle">Horno</div>
-    <div style="display:flex;align-items:center;justify-content:center;">
-      <div>
-        <div class="slot" id="furnaceInputSlot" style="margin-bottom:20px;"></div>
-        <div class="slot" id="furnaceFuelSlot"></div>
-      </div>
-      <div id="fireProgress"><div id="fireFill"></div></div>
-      <div class="slot" id="furnaceOutputSlot"></div>
-    </div>
-    <div class="invGrid" id="fnMainInvGrid" style="margin-top:14px;"></div>
-    <div class="invGrid" id="fnHotbarInvGrid" style="margin-top:6px;"></div>
-    <div style="color:#555;font-size:11px;text-align:center;margin-top:6px;">[E] cerrar</div>
-  </div>
-</div>
-
-<div id="deathScreen">
-  <h1>HAS MUERTO</h1>
-  <button class="menuBtn" id="btnRespawn">RESPAWN</button>
-</div>
-
-<div id="mobileControls">
-  <div id="mobileHint">🕹️ Mover · arrastra la derecha para mirar</div>
-  <div id="joystickZone"><div id="joystickStick"></div></div>
-  <div id="lookZone"></div>
-  <div class="mobileBtn" id="btnJump">&#8593;</div>
-  <div class="mobileBtn" id="btnBreak">&#9935;</div>
-  <div class="mobileBtn" id="btnPlace">&#9635;</div>
-  <div class="mobileBtn" id="btnRun">RUN</div>
-  <div class="mobileBtn" id="btnInv">E</div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
 
 <script>
-/* =====================================================================
-   MINICRAFT P2P - MOTOR COMPLETO
-   Organizado por sistemas: NOISE, TEXTURES, BLOCKS, WORLD/CHUNKS,
-   PLAYER/PHYSICS, INPUT, MOBILE, BIOMES, MOBS, INVENTORY, CRAFTING,
-   FURNACE, MULTIPLAYER, UI/HUD, SAVE
-   ===================================================================== */
 
-console.log('[MINICRAFT] Iniciando motor...');
+let peer;
+let conexiones=[];
+let publicaciones=[];
 
-/* =====================================================================
-   SISTEMA: NOISE (Simplex Noise 2D/3D con múltiples octavas - FBM)
-   Implementación propia basada en el algoritmo de Stefan Gustavson
-   ===================================================================== */
-class SimplexNoise {
-  constructor(seed) {
-    this.p = new Uint8Array(256);
-    this.perm = new Uint8Array(512);
-    this.permMod12 = new Uint8Array(512);
-    let s = seed || 1;
-    const rand = () => {
-      s = (s * 16807) % 2147483647;
-      return (s - 1) / 2147483646;
-    };
-    for (let i = 0; i < 256; i++) this.p[i] = i;
-    for (let i = 255; i > 0; i--) {
-      const n = Math.floor(rand() * (i + 1));
-      const tmp = this.p[i]; this.p[i] = this.p[n]; this.p[n] = tmp;
-    }
-    for (let i = 0; i < 512; i++) {
-      this.perm[i] = this.p[i & 255];
-      this.permMod12[i] = this.perm[i] % 12;
-    }
-    this.grad3 = [
-      [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],
-      [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
-      [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]
-    ];
-    this.F2 = 0.5 * (Math.sqrt(3) - 1);
-    this.G2 = (3 - Math.sqrt(3)) / 6;
-    this.F3 = 1/3; this.G3 = 1/6;
-  }
-  dot(g, x, y) { return g[0]*x + g[1]*y; }
-  dot3(g, x, y, z) { return g[0]*x + g[1]*y + g[2]*z; }
-  noise2D(xin, yin) {
-    let n0=0,n1=0,n2=0;
-    const s = (xin+yin)*this.F2;
-    const i = Math.floor(xin+s), j = Math.floor(yin+s);
-    const t = (i+j)*this.G2;
-    const X0=i-t, Y0=j-t;
-    const x0=xin-X0, y0=yin-Y0;
-    let i1,j1;
-    if (x0>y0) { i1=1; j1=0; } else { i1=0; j1=1; }
-    const x1=x0-i1+this.G2, y1=y0-j1+this.G2;
-    const x2=x0-1+2*this.G2, y2=y0-1+2*this.G2;
-    const ii=i&255, jj=j&255;
-    const gi0=this.permMod12[ii+this.perm[jj]];
-    const gi1=this.permMod12[ii+i1+this.perm[jj+j1]];
-    const gi2=this.permMod12[ii+1+this.perm[jj+1]];
-    let t0=0.5-x0*x0-y0*y0;
-    if (t0>=0) { t0*=t0; n0=t0*t0*this.dot(this.grad3[gi0],x0,y0); }
-    let t1=0.5-x1*x1-y1*y1;
-    if (t1>=0) { t1*=t1; n1=t1*t1*this.dot(this.grad3[gi1],x1,y1); }
-    let t2=0.5-x2*x2-y2*y2;
-    if (t2>=0) { t2*=t2; n2=t2*t2*this.dot(this.grad3[gi2],x2,y2); }
-    return 70*(n0+n1+n2);
-  }
-  noise3D(xin, yin, zin) {
-    let n0=0,n1=0,n2=0,n3=0;
-    const s=(xin+yin+zin)*this.F3;
-    const i=Math.floor(xin+s), j=Math.floor(yin+s), k=Math.floor(zin+s);
-    const t=(i+j+k)*this.G3;
-    const X0=i-t,Y0=j-t,Z0=k-t;
-    const x0=xin-X0,y0=yin-Y0,z0=zin-Z0;
-    let i1,j1,k1,i2,j2,k2;
-    if (x0>=y0) {
-      if (y0>=z0) { i1=1;j1=0;k1=0;i2=1;j2=1;k2=0; }
-      else if (x0>=z0) { i1=1;j1=0;k1=0;i2=1;j2=0;k2=1; }
-      else { i1=0;j1=0;k1=1;i2=1;j2=0;k2=1; }
-    } else {
-      if (y0<z0) { i1=0;j1=0;k1=1;i2=0;j2=1;k2=1; }
-      else if (x0<z0) { i1=0;j1=1;k1=0;i2=0;j2=1;k2=1; }
-      else { i1=0;j1=1;k1=0;i2=1;j2=1;k2=0; }
-    }
-    const x1=x0-i1+this.G3, y1=y0-j1+this.G3, z1=z0-k1+this.G3;
-    const x2=x0-i2+2*this.G3, y2=y0-j2+2*this.G3, z2=z0-k2+2*this.G3;
-    const x3=x0-1+3*this.G3, y3=y0-1+3*this.G3, z3=z0-1+3*this.G3;
-    const ii=i&255, jj=j&255, kk=k&255;
-    const gi0=this.permMod12[ii+this.perm[jj+this.perm[kk]]];
-    const gi1=this.permMod12[ii+i1+this.perm[jj+j1+this.perm[kk+k1]]];
-    const gi2=this.permMod12[ii+i2+this.perm[jj+j2+this.perm[kk+k2]]];
-    const gi3=this.permMod12[ii+1+this.perm[jj+1+this.perm[kk+1]]];
-    let t0=0.6-x0*x0-y0*y0-z0*z0;
-    if (t0>=0) { t0*=t0; n0=t0*t0*this.dot3(this.grad3[gi0],x0,y0,z0); }
-    let t1=0.6-x1*x1-y1*y1-z1*z1;
-    if (t1>=0) { t1*=t1; n1=t1*t1*this.dot3(this.grad3[gi1],x1,y1,z1); }
-    let t2=0.6-x2*x2-y2*y2-z2*z2;
-    if (t2>=0) { t2*=t2; n2=t2*t2*this.dot3(this.grad3[gi2],x2,y2,z2); }
-    let t3=0.6-x3*x3-y3*y3-z3*z3;
-    if (t3>=0) { t3*=t3; n3=t3*t3*this.dot3(this.grad3[gi3],x3,y3,z3); }
-    return 32*(n0+n1+n2+n3);
-  }
-  // Fractional Brownian Motion (múltiples octavas)
-  fbm2D(x, y, octaves, persistence, lacunarity) {
-    let total=0, freq=1, amp=1, maxVal=0;
-    for (let i=0;i<octaves;i++) {
-      total += this.noise2D(x*freq, y*freq)*amp;
-      maxVal += amp;
-      amp *= persistence;
-      freq *= lacunarity;
-    }
-    return total/maxVal;
-  }
-  fbm3D(x, y, z, octaves, persistence, lacunarity) {
-    let total=0, freq=1, amp=1, maxVal=0;
-    for (let i=0;i<octaves;i++) {
-      total += this.noise3D(x*freq, y*freq, z*freq)*amp;
-      maxVal += amp;
-      amp *= persistence;
-      freq *= lacunarity;
-    }
-    return total/maxVal;
-  }
+let usuario=
+localStorage.getItem("nombre") ||
+"Usuario";
+
+
+name.value=usuario;
+
+
+/* CREAR SALA */
+
+function crearSala(){
+
+ usuario=name.value.trim()||"Usuario";
+
+ localStorage.setItem(
+  "nombre",
+  usuario
+ );
+
+ if(peer)return;
+
+ let codigoSala=
+ "XD-"+Math.floor(
+  100+Math.random()*900
+ );
+
+ peer=new Peer(codigoSala);
+
+ peer.on("open",id=>{
+
+  codigo.textContent=id;
+
+  estado.textContent=
+   "🟢 Sala creada: "+id;
+
+  estado.className="online";
+
+ });
+
+ peer.on("connection",conexion=>{
+  prepararConexion(conexion);
+ });
+
+ peer.on("error",e=>{
+  estado.textContent=
+   "❌ Error: "+e.type;
+ });
+
 }
 
-/* =====================================================================
-   SISTEMA: TEXTURES (pixel-art procedural mediante Canvas)
-   Cada función dibuja un patrón de 16x16 px en un canvas y lo devuelve
-   como CanvasTexture de Three.js con NearestFilter (look pixel-art).
-   ===================================================================== */
-const TEX_SIZE = 16;
-function makeCanvas() {
-  const c = document.createElement('canvas');
-  c.width = TEX_SIZE; c.height = TEX_SIZE;
-  return c;
+
+/* ENTRAR */
+
+function entrarSala(){
+
+ let id=room.value
+  .trim()
+  .toUpperCase();
+
+ if(!id)return;
+
+ usuario=name.value.trim()||"Usuario";
+
+ localStorage.setItem(
+  "nombre",
+  usuario
+ );
+
+ if(!peer){
+
+  peer=new Peer();
+
+  peer.on("open",miID=>{
+
+   codigo.textContent=miID;
+
+   conectar(id);
+
+  });
+
+ }else{
+
+  conectar(id);
+
+ }
+
 }
-function toTexture(canvas) {
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.magFilter = THREE.NearestFilter;
-  tex.minFilter = THREE.NearestFilter;
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.RepeatWrapping;
-  return tex;
+
+
+/* CONECTAR */
+
+function conectar(id){
+
+ let conexion=
+  peer.connect(id);
+
+ prepararConexion(conexion);
+
 }
-// PRNG determinístico simple para variar texturas de forma consistente
-function mulberry32(seed) {
-  return function() {
-    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+
+
+/* PREPARAR CONEXIÓN */
+
+function prepararConexion(c){
+
+ c.on("open",()=>{
+
+  if(!conexiones.includes(c))
+   conexiones.push(c);
+
+  estado.textContent=
+   "🟢 Conectado • "+
+   conexiones.length+
+   " usuario(s)";
+
+  /* mandar publicaciones actuales */
+
+  c.send({
+   tipo:"sync",
+   publicaciones:publicaciones
+  });
+
+ });
+
+
+ c.on("data",datos=>{
+
+  /* sincronizar */
+
+  if(datos.tipo==="sync"){
+
+   datos.publicaciones.forEach(
+    agregarPublicacion
+   );
+
+   mostrar();
+
+  }
+
+
+  /* nueva publicación */
+
+  if(datos.tipo==="publicacion"){
+
+   if(
+    agregarPublicacion(
+     datos.publicacion
+    )
+   ){
+
+    mostrar();
+
+    repartir(
+     datos,
+     c
+    );
+
+   }
+
+  }
+
+
+  /* like */
+
+  if(datos.tipo==="like"){
+
+   let p=
+    publicaciones.find(
+     x=>x.id===datos.id
+    );
+
+   if(p){
+
+    p.likes++;
+
+    mostrar();
+
+    repartir(
+     datos,
+     c
+    );
+
+   }
+
+  }
+
+ });
+
+
+ c.on("close",()=>{
+
+  conexiones=
+   conexiones.filter(
+    x=>x!==c
+   );
+
+  estado.textContent=
+   "🟢 Conectados: "+
+   conexiones.length;
+
+ });
+
+}
+
+
+/* ENVIAR A TODOS */
+
+function repartir(datos,excepto){
+
+ conexiones.forEach(c=>{
+
+  if(
+   c!==excepto &&
+   c.open
+  ){
+
+   c.send(datos);
+
+  }
+
+ });
+
+}
+
+
+/* PUBLICAR */
+
+function publicar(){
+
+ let texto=
+  document.getElementById(
+   "texto"
+  ).value.trim();
+
+ let archivo=
+  document.getElementById(
+   "foto"
+  ).files[0];
+
+ if(!texto&&!archivo)return;
+
+
+ if(archivo){
+
+  let lector=
+   new FileReader();
+
+  lector.onload=()=>{
+
+   crearPublicacion(
+    texto,
+    lector.result
+   );
+
   };
-}
-function speckle(ctx, baseColor, variants, seed, density) {
-  const rnd = mulberry32(seed);
-  ctx.fillStyle = baseColor;
-  ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-  for (let y=0;y<TEX_SIZE;y++){
-    for (let x=0;x<TEX_SIZE;x++){
-      if (rnd() < density) {
-        ctx.fillStyle = variants[Math.floor(rnd()*variants.length)];
-        ctx.fillRect(x,y,1,1);
-      }
-    }
-  }
-}
 
-const TextureFactory = {
-  grassTop(seed=1) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#5a9e3d', ['#6bb84a','#4d8a33','#3f7a29','#75c454'], seed, 0.45);
-    return toTexture(c);
-  },
-  grassSide(seed=2) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#8a5a34', ['#9c6a3e','#7a4c2a','#6b4322'], seed, 0.4);
-    // franja de pasto arriba
-    const rnd = mulberry32(seed+99);
-    for (let x=0;x<TEX_SIZE;x++){
-      const h = 3+Math.floor(rnd()*2);
-      for (let y=0;y<h;y++){
-        ctx.fillStyle = (rnd()<0.5)?'#5a9e3d':'#6bb84a';
-        ctx.fillRect(x,y,1,1);
-      }
-    }
-    return toTexture(c);
-  },
-  dirt(seed=3) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#8a5a34', ['#9c6a3e','#7a4c2a','#6b4322','#6f4f2c'], seed, 0.5);
-    return toTexture(c);
-  },
-  stone(seed=4) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#8a8a8a', ['#9a9a9a','#7a7a7a','#6f6f6f','#828282'], seed, 0.45);
-    return toTexture(c);
-  },
-  cobblestone(seed=5) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    ctx.fillStyle = '#7a7a7a'; ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-    const rnd = mulberry32(seed);
-    for (let i=0;i<10;i++){
-      const w=3+Math.floor(rnd()*4), h=3+Math.floor(rnd()*4);
-      const x=Math.floor(rnd()*TEX_SIZE), y=Math.floor(rnd()*TEX_SIZE);
-      ctx.fillStyle = rnd()<0.5?'#8a8a8a':'#6a6a6a';
-      ctx.fillRect(x,y,w,h);
-    }
-    ctx.strokeStyle='#4a4a4a';
-    for(let i=0;i<TEX_SIZE;i+=4) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(TEX_SIZE,i); ctx.stroke(); }
-    return toTexture(c);
-  },
-  sand(seed=6) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#dccb8f', ['#e8d9a3','#cfbd7d','#d4c489'], seed, 0.4);
-    return toTexture(c);
-  },
-  gravel(seed=7) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#8d8880', ['#a19c92','#78746c','#6b675f','#95908a'], seed, 0.55);
-    return toTexture(c);
-  },
-  oakLog(seed=8) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    ctx.fillStyle = '#6b4a2a'; ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-    const rnd = mulberry32(seed);
-    for (let y=0;y<TEX_SIZE;y++){
-      for (let x=0;x<TEX_SIZE;x++){
-        if (rnd()<0.3) { ctx.fillStyle='#5a3d22'; ctx.fillRect(x,y,1,1); }
-      }
-    }
-    return toTexture(c);
-  },
-  oakLogTop(seed=9) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    ctx.fillStyle = '#8a6a42'; ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-    ctx.strokeStyle = '#6b4a2a';
-    for (let r=1;r<8;r+=2){
-      ctx.beginPath(); ctx.arc(8,8,r,0,Math.PI*2); ctx.stroke();
-    }
-    return toTexture(c);
-  },
-  oakLeaves(seed=10, biome='forest') {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    const colors = biome==='taiga' ? ['#2f5a3a','#3a6b45','#264a30'] : ['#3f8a3a','#4f9a48','#357a30','#5aa850'];
-    ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.clearRect(0,0,TEX_SIZE,TEX_SIZE);
-    const rnd = mulberry32(seed);
-    for (let y=0;y<TEX_SIZE;y++){
-      for (let x=0;x<TEX_SIZE;x++){
-        if (rnd()<0.85) {
-          ctx.fillStyle = colors[Math.floor(rnd()*colors.length)];
-          ctx.fillRect(x,y,1,1);
-        }
-      }
-    }
-    return toTexture(c);
-  },
-  planks(seed=11) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#c19a5b', ['#cba869','#b58c4e','#a97f44'], seed, 0.25);
-    ctx.strokeStyle = '#8a6a3a';
-    for (let y=0;y<TEX_SIZE;y+=4){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(TEX_SIZE,y); ctx.stroke(); }
-    return toTexture(c);
-  },
-  glass(seed=12) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    ctx.fillStyle = 'rgba(200,230,240,0.35)'; ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-    ctx.strokeRect(0.5,0.5,TEX_SIZE-1,TEX_SIZE-1);
-    ctx.beginPath(); ctx.moveTo(2,2); ctx.lineTo(6,6); ctx.stroke();
-    return toTexture(c);
-  },
-  oreBase(oreColor, seed) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#8a8a8a', ['#9a9a9a','#7a7a7a','#828282'], seed, 0.4);
-    const rnd = mulberry32(seed+50);
-    for (let i=0;i<6;i++){
-      const x=Math.floor(rnd()*13)+1, y=Math.floor(rnd()*13)+1;
-      ctx.fillStyle = oreColor;
-      ctx.fillRect(x,y,2,2);
-    }
-    return toTexture(c);
-  },
-  coalOre(){ return this.oreBase('#1a1a1a', 20); },
-  ironOre(){ return this.oreBase('#d8b48a', 21); },
-  goldOre(){ return this.oreBase('#f5d020', 22); },
-  diamondOre(){ return this.oreBase('#5fe8e0', 23); },
-  snow(seed=30) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#f5f8fa', ['#ffffff','#e8eef2','#dde8ee'], seed, 0.3);
-    return toTexture(c);
-  },
-  ice(seed=31) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#bfe6f0', ['#cdeef5','#a8d8e5','#d6f2f8'], seed, 0.3);
-    return toTexture(c);
-  },
-  water(seed=32) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    ctx.fillStyle = 'rgba(40,90,180,0.65)'; ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-    const rnd = mulberry32(seed);
-    for (let i=0;i<8;i++){
-      ctx.strokeStyle = 'rgba(120,170,230,0.5)';
-      const y = Math.floor(rnd()*TEX_SIZE);
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(TEX_SIZE,y); ctx.stroke();
-    }
-    return toTexture(c);
-  },
-  bedrock(seed=33) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#333333', ['#3f3f3f','#282828','#1e1e1e','#454545'], seed, 0.5);
-    return toTexture(c);
-  },
-  cactus(seed=34) {
-    const c = makeCanvas(); const ctx = c.getContext('2d');
-    speckle(ctx, '#3d7a3d', ['#468446','#347034'], seed, 0.3);
-    return toTexture(c);
-  }
-};
+  lector.readAsDataURL(
+   archivo
+  );
 
-/* =====================================================================
-   SISTEMA: BLOCKS
-   Registro central de tipos de bloque: id, nombre, textura(s), dureza,
-   tipo de herramienta requerida, drop, si es sólido/colisiona, etc.
-   ===================================================================== */
-const BLOCK = {
-  AIR:0, GRASS:1, DIRT:2, STONE:3, COBBLESTONE:4, SAND:5, GRAVEL:6,
-  OAK_LOG:7, OAK_LEAVES:8, PLANKS:9, GLASS:10, COAL_ORE:11, IRON_ORE:12,
-  GOLD_ORE:13, DIAMOND_ORE:14, SNOW:15, ICE:16, WATER:17, BEDROCK:18,
-  CACTUS:19, PINE_LOG:20, PINE_LEAVES:21, TORCH:22, CRAFTING_TABLE:23,
-  FURNACE:24, CHEST:25, PLANK_SLAB:26, PLANK_STAIRS:27, PLANK_FENCE:28,
-  PLANK_DOOR:29
-};
+ }else{
 
-const BlockData = {}; // id -> {name, hardness, tool, drop, solid, transparent, textures:{...}}
+  crearPublicacion(
+   texto,
+   ""
+  );
 
-function registerBlocks() {
-  const T = TextureFactory;
-  const grassTop = T.grassTop(), grassSide = T.grassSide(), dirt = T.dirt(), stone = T.stone(),
-        cobble = T.cobblestone(), sand = T.sand(), gravel = T.gravel(), oakLog = T.oakLog(),
-        oakLogTop = T.oakLogTop(), oakLeaves = T.oakLeaves(1,'forest'), planks = T.planks(),
-        glass = T.glass(), coalOre = T.coalOre(), ironOre = T.ironOre(), goldOre = T.goldOre(),
-        diamondOre = T.diamondOre(), snow = T.snow(), ice = T.ice(), water = T.water(),
-        bedrock = T.bedrock(), cactus = T.cactus(), pineLeaves = T.oakLeaves(2,'taiga');
+ }
 
-  BlockData[BLOCK.AIR] = { name:'Aire', solid:false, transparent:true };
-  BlockData[BLOCK.GRASS] = { name:'Grass', hardness:0.6, tool:'shovel', drop:BLOCK.DIRT, solid:true,
-    textures:{ top:grassTop, bottom:dirt, side:grassSide } };
-  BlockData[BLOCK.DIRT] = { name:'Dirt', hardness:0.5, tool:'shovel', drop:BLOCK.DIRT, solid:true,
-    textures:{ all:dirt } };
-  BlockData[BLOCK.STONE] = { name:'Stone', hardness:1.5, tool:'pickaxe', drop:BLOCK.COBBLESTONE, solid:true,
-    textures:{ all:stone } };
-  BlockData[BLOCK.COBBLESTONE] = { name:'Cobblestone', hardness:2.0, tool:'pickaxe', drop:BLOCK.COBBLESTONE, solid:true,
-    textures:{ all:cobble } };
-  BlockData[BLOCK.SAND] = { name:'Sand', hardness:0.5, tool:'shovel', drop:BLOCK.SAND, solid:true,
-    textures:{ all:sand } };
-  BlockData[BLOCK.GRAVEL] = { name:'Gravel', hardness:0.6, tool:'shovel', drop:BLOCK.GRAVEL, solid:true,
-    textures:{ all:gravel } };
-  BlockData[BLOCK.OAK_LOG] = { name:'Oak Log', hardness:2.0, tool:'axe', drop:BLOCK.OAK_LOG, solid:true,
-    textures:{ top:oakLogTop, bottom:oakLogTop, side:oakLog } };
-  BlockData[BLOCK.PINE_LOG] = { name:'Pine Log', hardness:2.0, tool:'axe', drop:BLOCK.PINE_LOG, solid:true,
-    textures:{ top:oakLogTop, bottom:oakLogTop, side:oakLog } };
-  BlockData[BLOCK.OAK_LEAVES] = { name:'Oak Leaves', hardness:0.2, tool:null, drop:BLOCK.OAK_LEAVES, solid:true, transparent:true,
-    textures:{ all:oakLeaves } };
-  BlockData[BLOCK.PINE_LEAVES] = { name:'Pine Leaves', hardness:0.2, tool:null, drop:BLOCK.PINE_LEAVES, solid:true, transparent:true,
-    textures:{ all:pineLeaves } };
-  BlockData[BLOCK.PLANKS] = { name:'Planks', hardness:2.0, tool:'axe', drop:BLOCK.PLANKS, solid:true,
-    textures:{ all:planks } };
-  BlockData[BLOCK.GLASS] = { name:'Glass', hardness:0.3, tool:null, drop:null, solid:true, transparent:true,
-    textures:{ all:glass } };
-  BlockData[BLOCK.COAL_ORE] = { name:'Coal Ore', hardness:3.0, tool:'pickaxe', drop:'COAL', solid:true,
-    textures:{ all:coalOre } };
-  BlockData[BLOCK.IRON_ORE] = { name:'Iron Ore', hardness:3.0, tool:'pickaxe', tier:1, drop:BLOCK.IRON_ORE, solid:true,
-    textures:{ all:ironOre } };
-  BlockData[BLOCK.GOLD_ORE] = { name:'Gold Ore', hardness:3.0, tool:'pickaxe', tier:2, drop:BLOCK.GOLD_ORE, solid:true,
-    textures:{ all:goldOre } };
-  BlockData[BLOCK.DIAMOND_ORE] = { name:'Diamond Ore', hardness:3.0, tool:'pickaxe', tier:2, drop:'DIAMOND', solid:true,
-    textures:{ all:diamondOre } };
-  BlockData[BLOCK.SNOW] = { name:'Snow', hardness:0.5, tool:'shovel', drop:BLOCK.SNOW, solid:true,
-    textures:{ all:snow } };
-  BlockData[BLOCK.ICE] = { name:'Ice', hardness:0.5, tool:null, drop:null, solid:true, transparent:true,
-    textures:{ all:ice } };
-  BlockData[BLOCK.WATER] = { name:'Water', hardness:0, tool:null, drop:null, solid:false, transparent:true, liquid:true,
-    textures:{ all:water } };
-  BlockData[BLOCK.BEDROCK] = { name:'Bedrock', hardness:-1, tool:null, drop:null, solid:true,
-    textures:{ all:bedrock } };
-  BlockData[BLOCK.CACTUS] = { name:'Cactus', hardness:0.4, tool:null, drop:BLOCK.CACTUS, solid:true,
-    textures:{ all:cactus } };
-  BlockData[BLOCK.TORCH] = { name:'Torch', hardness:0, tool:null, drop:BLOCK.TORCH, solid:false, transparent:true, isTorch:true,
-    textures:{ all:planks } };
-  BlockData[BLOCK.CRAFTING_TABLE] = { name:'Crafting Table', hardness:2.5, tool:'axe', drop:BLOCK.CRAFTING_TABLE, solid:true,
-    textures:{ top:planks, bottom:planks, side:oakLog } };
-  BlockData[BLOCK.FURNACE] = { name:'Furnace', hardness:3.5, tool:'pickaxe', drop:BLOCK.FURNACE, solid:true,
-    textures:{ top:stone, bottom:stone, side:cobble } };
-  BlockData[BLOCK.CHEST] = { name:'Chest', hardness:2.5, tool:'axe', drop:BLOCK.CHEST, solid:true,
-    textures:{ all:planks } };
-  BlockData[BLOCK.PLANK_SLAB] = { name:'Plank Slab', hardness:2.0, tool:'axe', drop:BLOCK.PLANK_SLAB, solid:true, half:true,
-    textures:{ all:planks } };
-  BlockData[BLOCK.PLANK_FENCE] = { name:'Fence', hardness:2.0, tool:'axe', drop:BLOCK.PLANK_FENCE, solid:true, thin:true,
-    textures:{ all:planks } };
-}
-
-// Íconos de inventario (mini canvas escalado a partir de la textura del bloque, o dibujo custom para items no-bloque)
-const ItemIcons = {};
-function buildItemIcon(texCanvasDataURL, key) { ItemIcons[key] = texCanvasDataURL; }
-
-/* =====================================================================
-   SISTEMA: BIOMES
-   Cada bioma define bloque superficial, sub-superficial, densidad de
-   árboles, tipo de árbol, y rango de temperatura/humedad que lo activa.
-   ===================================================================== */
-const BIOME = { PLAINS:'plains', FOREST:'forest', DESERT:'desert', TAIGA:'taiga', MOUNTAINS:'mountains', BEACH:'beach' };
-
-function pickBiome(temp, humidity, heightNorm) {
-  if (heightNorm > 0.72) return BIOME.MOUNTAINS;
-  if (heightNorm < 0.30) return BIOME.BEACH;
-  if (temp < 0.32) return BIOME.TAIGA;
-  if (temp > 0.68 && humidity < 0.4) return BIOME.DESERT;
-  if (humidity > 0.55) return BIOME.FOREST;
-  return BIOME.PLAINS;
-}
-
-const BiomeConfig = {
-  [BIOME.PLAINS]:   { surface:BLOCK.GRASS, sub:BLOCK.DIRT, treeDensity:0.006, treeType:'oak', flowerDensity:0.02 },
-  [BIOME.FOREST]:    { surface:BLOCK.GRASS, sub:BLOCK.DIRT, treeDensity:0.045, treeType:'oak', flowerDensity:0.015 },
-  [BIOME.DESERT]:    { surface:BLOCK.SAND, sub:BLOCK.SAND, treeDensity:0.004, treeType:'cactus', flowerDensity:0 },
-  [BIOME.TAIGA]:     { surface:BLOCK.SNOW, sub:BLOCK.DIRT, treeDensity:0.03, treeType:'pine', flowerDensity:0 },
-  [BIOME.MOUNTAINS]: { surface:BLOCK.STONE, sub:BLOCK.STONE, treeDensity:0.002, treeType:'pine', flowerDensity:0 },
-  [BIOME.BEACH]:     { surface:BLOCK.SAND, sub:BLOCK.SAND, treeDensity:0, treeType:null, flowerDensity:0 },
-};
-
-/* =====================================================================
-   SISTEMA: WORLD / CHUNKS
-   Mundo dividido en chunks de CHUNK_SIZE x CHUNK_SIZE x WORLD_HEIGHT.
-   Se generan/descargan dinámicamente según distancia al jugador.
-   Cada chunk mantiene un Uint8Array plano de bloques y construye UNA
-   sola geometría combinada por "capa de material" (culling de caras
-   ocultas: solo se generan las caras visibles/adyacentes a aire).
-   ===================================================================== */
-const CHUNK_SIZE = 16;
-const WORLD_HEIGHT = 64;
-const SEA_LEVEL = 9;
-const CHUNK_VOL = CHUNK_SIZE*CHUNK_SIZE*WORLD_HEIGHT;
-
-function idx(x,y,z){ return (y*CHUNK_SIZE*CHUNK_SIZE) + (z*CHUNK_SIZE) + x; }
-
-class World {
-  constructor(seed) {
-    this.seed = seed;
-    this.heightNoise = new SimplexNoise(seed);
-    this.tempNoise = new SimplexNoise(seed+1000);
-    this.humidNoise = new SimplexNoise(seed+2000);
-    this.caveNoise = new SimplexNoise(seed+3000);
-    this.oreNoise = new SimplexNoise(seed+4000);
-    this.riverNoise = new SimplexNoise(seed+5000);
-    this.detailNoise = new SimplexNoise(seed+6000);
-    this.chunks = new Map(); // key "cx,cz" -> chunkObj
-    this.pendingBlockUpdates = []; // para networking (host)
-  }
-  key(cx,cz){ return cx+','+cz; }
-
-  // Altura del terreno (0..WORLD_HEIGHT) suavizada mediante FBM de varias octavas
-  getHeightAt(wx, wz) {
-    // Terreno continental: la mayor parte del mapa es tierra continua.
-    // El ruido grande solo crea valles/costas amplias, no cientos de islas pequeñas.
-    const continental = this.heightNoise.fbm2D(wx*0.0032, wz*0.0032, 4, 0.5, 2.0);
-    const hills = this.heightNoise.fbm2D(wx*0.012, wz*0.012, 4, 0.5, 2.0);
-    const mountains = this.heightNoise.fbm2D(wx*0.007+500, wz*0.007+500, 5, 0.55, 2.1);
-
-    let h = 24 + continental*7 + hills*4;
-    const mountainMask = Math.max(0, mountains);
-    h += mountainMask*mountainMask*24;
-
-    // Ríos suaves y estrechos. No bajamos el terreno tanto como para partirlo en islas.
-    const river = Math.abs(this.riverNoise.fbm2D(wx*0.0055, wz*0.0055, 2, 0.5, 2.0));
-    if (river < 0.025 && h > SEA_LEVEL+2) {
-      h = Math.max(SEA_LEVEL+1, h - (1 - river/0.025)*5);
-    }
-
-    return Math.max(SEA_LEVEL+1, Math.min(WORLD_HEIGHT-6, Math.round(h)));
-  }
-  getTempAt(wx,wz){ return (this.tempNoise.fbm2D(wx*0.003,wz*0.003,3,0.5,2.0)+1)/2; }
-  getHumidAt(wx,wz){ return (this.humidNoise.fbm2D(wx*0.0035+300,wz*0.0035+300,3,0.5,2.0)+1)/2; }
-
-  getBiomeAt(wx,wz) {
-    const h = this.getHeightAt(wx,wz);
-    const hNorm = h / WORLD_HEIGHT;
-    const t = this.getTempAt(wx,wz);
-    const hum = this.getHumidAt(wx,wz);
-    return pickBiome(t, hum, hNorm);
-  }
-
-  // Cueva: usamos ruido 3D fbm; si supera umbral, es aire (hueco)
-  isCave(wx,wy,wz) {
-    if (wy < 4 || wy > WORLD_HEIGHT-8) return false;
-    const n = this.caveNoise.fbm3D(wx*0.05, wy*0.08, wz*0.05, 3, 0.5, 2.0);
-    // hacer las cuevas más raras cerca de la superficie
-    const depthFactor = Math.min(1, (WORLD_HEIGHT*0.6 - wy)/30);
-    return n > (0.62 - depthFactor*0.15);
-  }
-
-  oreAt(wx,wy,wz) {
-    const n = this.oreNoise.fbm3D(wx*0.12,wy*0.12,wz*0.12,2,0.5,2.0);
-    if (wy > 24) {
-      if (n > 0.72) return BLOCK.COAL_ORE;
-      return null;
-    } else if (wy > 14) {
-      if (n > 0.78) return BLOCK.COAL_ORE;
-      if (n < -0.76) return BLOCK.IRON_ORE;
-      return null;
-    } else if (wy > 7) {
-      if (n < -0.8) return BLOCK.IRON_ORE;
-      if (n > 0.82) return BLOCK.GOLD_ORE;
-      return null;
-    } else {
-      if (n > 0.85) return BLOCK.DIAMOND_ORE;
-      if (n < -0.82) return BLOCK.GOLD_ORE;
-      if (Math.abs(n) < 0.03) return BLOCK.IRON_ORE;
-      return null;
-    }
-  }
-
-  generateChunkData(cx, cz) {
-    const data = new Uint8Array(CHUNK_VOL);
-    const baseX = cx*CHUNK_SIZE, baseZ = cz*CHUNK_SIZE;
-    const treeSpots = []; // {x,y,z,type}
-    for (let lx=0; lx<CHUNK_SIZE; lx++) {
-      for (let lz=0; lz<CHUNK_SIZE; lz++) {
-        const wx = baseX+lx, wz = baseZ+lz;
-        const h = this.getHeightAt(wx,wz);
-        const biome = this.getBiomeAt(wx,wz);
-        const cfg = BiomeConfig[biome];
-        for (let y=0; y<WORLD_HEIGHT; y++) {
-          let block = BLOCK.AIR;
-          if (y===0) block = BLOCK.BEDROCK;
-          else if (y < h-4) {
-            block = BLOCK.STONE;
-            const ore = this.oreAt(wx,y,wz);
-            if (ore) block = ore;
-          } else if (y < h) {
-            block = (biome===BIOME.DESERT || biome===BIOME.BEACH) ? BLOCK.SAND : BLOCK.DIRT;
-          } else if (y === h) {
-            block = cfg.surface;
-            if (biome===BIOME.MOUNTAINS && y > WORLD_HEIGHT*0.8) block = BLOCK.SNOW;
-          } else if (y <= SEA_LEVEL && h <= SEA_LEVEL) {
-            block = BLOCK.WATER;
-          }
-          // cuevas: solo tallar roca sólida por debajo de la superficie, nunca cerca del agua/superficie inmediata
-          if (block===BLOCK.STONE || (block!==BLOCK.AIR && block!==BLOCK.WATER && y < h-1)) {
-            if (this.isCave(wx,y,wz)) block = BLOCK.AIR;
-          }
-          data[idx(lx,y,lz)] = block;
-        }
-        // vegetación: flores/decoración simple sobre superficie
-        const detail = (this.detailNoise.fbm2D(wx*0.5,wz*0.5,2,0.5,2.0)+1)/2;
-        // árboles: decidir determinísticamente por posición
-        if (cfg.treeDensity > 0 && h > SEA_LEVEL) {
-          const treeRand = mulberry32(wx*92821 + wz*68917 + this.seed);
-          if (treeRand() < cfg.treeDensity) {
-            treeSpots.push({x:lx, y:h+1, z:lz, type:cfg.treeType, wx, wz});
-          }
-        }
-      }
-    }
-    return { data, treeSpots, cx, cz };
-  }
-
-  placeTree(data, cx, cz, spot) {
-    const type = spot.type;
-    if (type === 'cactus') {
-      const height = 2 + Math.floor(Math.random()*2);
-      for (let i=0;i<height;i++) {
-        this.setLocal(data, spot.x, spot.y+i, spot.z, BLOCK.CACTUS);
-      }
-      return;
-    }
-    const isPine = type === 'pine';
-    const trunkH = isPine ? (5+Math.floor(Math.random()*3)) : (4+Math.floor(Math.random()*2));
-    const logBlock = isPine ? BLOCK.PINE_LOG : BLOCK.OAK_LOG;
-    const leafBlock = isPine ? BLOCK.PINE_LEAVES : BLOCK.OAK_LEAVES;
-    for (let i=0;i<trunkH;i++) {
-      this.setLocal(data, spot.x, spot.y+i, spot.z, logBlock);
-    }
-    if (isPine) {
-      // copa cónica
-      const topY = spot.y+trunkH;
-      let radius = 2;
-      for (let layer=0; layer<4; layer++) {
-        const ly = topY - layer + 1;
-        const r = Math.max(0, radius - layer*0.6);
-        for (let dx=-2; dx<=2; dx++) for (let dz=-2; dz<=2; dz++) {
-          if (dx*dx+dz*dz <= r*r+0.5 && !(dx===0&&dz===0&&layer<2)) {
-            this.setLocal(data, spot.x+dx, ly, spot.z+dz, leafBlock);
-          }
-        }
-      }
-      this.setLocal(data, spot.x, topY+1, spot.z, leafBlock);
-    } else {
-      // copa esférica/irregular
-      const topY = spot.y+trunkH;
-      for (let dx=-2; dx<=2; dx++) for (let dy=-1; dy<=2; dy++) for (let dz=-2; dz<=2; dz++) {
-        const dist = dx*dx+dy*dy*1.3+dz*dz;
-        if (dist <= 5.5 && Math.random() > 0.15) {
-          if (!(dx===0&&dz===0&&dy<0)) this.setLocal(data, spot.x+dx, topY+dy, spot.z+dz, leafBlock);
-        }
-      }
-    }
-  }
-
-  setLocal(data, lx, ly, lz, block) {
-    if (lx<0||lx>=CHUNK_SIZE||ly<0||ly>=WORLD_HEIGHT||lz<0||lz>=CHUNK_SIZE) return; // fuera de este chunk (simplificación: árboles no cruzan límites)
-    const i = idx(lx,ly,lz);
-    if (data[i] === BLOCK.AIR || data[i] === undefined) data[i] = block;
-    else if (block !== BLOCK.AIR && (data[i]===BLOCK.OAK_LEAVES||data[i]===BLOCK.PINE_LEAVES)===false && (block===BLOCK.OAK_LEAVES||block===BLOCK.PINE_LEAVES)) {
-      // no sobreescribir troncos con hojas
-      if (data[i] !== BLOCK.OAK_LOG && data[i] !== BLOCK.PINE_LOG) data[i] = block;
-    }
-  }
-
-  getBlock(wx, wy, wz) {
-    if (wy < 0 || wy >= WORLD_HEIGHT) return BLOCK.AIR;
-    const cx = Math.floor(wx/CHUNK_SIZE), cz = Math.floor(wz/CHUNK_SIZE);
-    const chunk = this.chunks.get(this.key(cx,cz));
-    if (!chunk) return BLOCK.STONE; // asume sólido si el chunk no está cargado (evita caer al vacío)
-    const lx = ((wx%CHUNK_SIZE)+CHUNK_SIZE)%CHUNK_SIZE;
-    const lz = ((wz%CHUNK_SIZE)+CHUNK_SIZE)%CHUNK_SIZE;
-    return chunk.data[idx(lx,wy,lz)];
-  }
-  setBlock(wx, wy, wz, block, {noMesh}={}) {
-    if (wy < 0 || wy >= WORLD_HEIGHT) return;
-    const cx = Math.floor(wx/CHUNK_SIZE), cz = Math.floor(wz/CHUNK_SIZE);
-    const chunk = this.chunks.get(this.key(cx,cz));
-    if (!chunk) return;
-    const lx = ((wx%CHUNK_SIZE)+CHUNK_SIZE)%CHUNK_SIZE;
-    const lz = ((wz%CHUNK_SIZE)+CHUNK_SIZE)%CHUNK_SIZE;
-    chunk.data[idx(lx,wy,lz)] = block;
-    if (!noMesh) {
-      chunk.dirty = true;
-      // marcar chunks vecinos dirty si el bloque está en el borde (para culling correcto)
-      if (lx===0) this.markDirty(cx-1,cz);
-      if (lx===CHUNK_SIZE-1) this.markDirty(cx+1,cz);
-      if (lz===0) this.markDirty(cx,cz-1);
-      if (lz===CHUNK_SIZE-1) this.markDirty(cx,cz+1);
-    }
-  }
-  markDirty(cx,cz){ const c = this.chunks.get(this.key(cx,cz)); if (c) c.dirty = true; }
-  isSolidAt(wx,wy,wz) {
-    const b = this.getBlock(wx,wy,wz);
-    if (b===BLOCK.AIR) return false;
-    const bd = BlockData[b];
-    return bd ? (bd.solid !== false) : true;
-  }
-}
-
-/* =====================================================================
-   SISTEMA: CHUNK MESHER
-   Construye, por chunk, UNA geometría combinada por textura (atlas
-   simplificado: usamos un material por textura única entre las 6 caras)
-   agregando SOLO las caras que lindan con aire/transparente (culling).
-   Esto evita miles de meshes individuales -> alto rendimiento.
-   ===================================================================== */
-const FACE_DEFS = [
-  { dir:[ 1,0,0], corners:[[1,0,0],[1,1,0],[1,1,1],[1,0,1]], name:'px' },
-  { dir:[-1,0,0], corners:[[0,0,1],[0,1,1],[0,1,0],[0,0,0]], name:'nx' },
-  { dir:[0, 1,0], corners:[[0,1,0],[0,1,1],[1,1,1],[1,1,0]], name:'py' },
-  { dir:[0,-1,0], corners:[[0,0,1],[0,0,0],[1,0,0],[1,0,1]], name:'ny' },
-  { dir:[0,0, 1], corners:[[1,0,1],[1,1,1],[0,1,1],[0,0,1]], name:'pz' },
-  { dir:[0,0,-1], corners:[[0,0,0],[0,1,0],[1,1,0],[1,0,0]], name:'nz' },
-];
-
-function getBlockTexture(blockId, faceName) {
-  const bd = BlockData[blockId];
-  if (!bd || !bd.textures) return null;
-  if (bd.textures.all) return bd.textures.all;
-  if (faceName==='py') return bd.textures.top || bd.textures.all;
-  if (faceName==='ny') return bd.textures.bottom || bd.textures.all;
-  return bd.textures.side || bd.textures.all;
-}
-
-class ChunkMesher {
-  constructor(world, scene) {
-    this.world = world;
-    this.scene = scene;
-    this.textureMaterialCache = new Map(); // texture.uuid -> material (opaque)
-    this.transparentMaterialCache = new Map();
-  }
-  getMaterialFor(tex, transparent) {
-    const cache = transparent ? this.transparentMaterialCache : this.textureMaterialCache;
-    if (cache.has(tex)) return cache.get(tex);
-    const mat = new THREE.MeshLambertMaterial({
-      map: tex, transparent: !!transparent, alphaTest: transparent?0.1:0,
-      opacity: transparent?0.9:1, side: transparent?THREE.DoubleSide:THREE.FrontSide,
-      depthWrite: !transparent || true
-    });
-    cache.set(tex, mat);
-    return mat;
-  }
-
-  buildChunkMesh(chunk) {
-    // agrupar geometría por textura (uuid) para minimizar draw calls, separando opacas de transparentes/agua
-    const groups = new Map(); // tex -> {positions[],normals[],uvs[],indices[], transparent}
-    const { data, cx, cz } = chunk;
-    const baseX = cx*CHUNK_SIZE, baseZ = cz*CHUNK_SIZE;
-
-    const getNeighborBlock = (lx,ly,lz) => {
-      if (lx>=0 && lx<CHUNK_SIZE && ly>=0 && ly<WORLD_HEIGHT && lz>=0 && lz<CHUNK_SIZE) {
-        return data[idx(lx,ly,lz)];
-      }
-      return this.world.getBlock(baseX+lx, ly, baseZ+lz);
-    };
-
-    for (let lx=0; lx<CHUNK_SIZE; lx++) {
-      for (let ly=0; ly<WORLD_HEIGHT; ly++) {
-        for (let lz=0; lz<CHUNK_SIZE; lz++) {
-          const block = data[idx(lx,ly,lz)];
-          if (block === BLOCK.AIR) continue;
-          const bd = BlockData[block];
-          if (!bd) continue;
-          for (const face of FACE_DEFS) {
-            const nx = lx+face.dir[0], ny = ly+face.dir[1], nz = lz+face.dir[2];
-            const neighbor = getNeighborBlock(nx,ny,nz);
-            const nbd = BlockData[neighbor];
-            const neighborIsAirLike = (neighbor===BLOCK.AIR) || (nbd && nbd.transparent && neighbor !== block);
-            if (!neighborIsAirLike) continue; // cara oculta, no dibujar
-            const tex = getBlockTexture(block, face.name);
-            if (!tex) continue;
-            const key = tex.uuid + (bd.transparent?'_t':'_o');
-            if (!groups.has(key)) groups.set(key, { tex, transparent: !!bd.transparent, positions:[], normals:[], uvs:[], indices:[], vertCount:0 });
-            const g = groups.get(key);
-            const wx = lx, wy = ly, wz = lz;
-            const uvCoords = [[0,0],[0,1],[1,1],[1,0]];
-            for (let ci=0; ci<4; ci++) {
-              const corner = face.corners[ci];
-              g.positions.push(wx+corner[0], wy+corner[1], wz+corner[2]);
-              g.normals.push(face.dir[0], face.dir[1], face.dir[2]);
-              g.uvs.push(uvCoords[ci][0], uvCoords[ci][1]);
-            }
-            const vi = g.vertCount;
-            g.indices.push(vi,vi+1,vi+2, vi,vi+2,vi+3);
-            g.vertCount += 4;
-          }
-        }
-      }
-    }
-
-    const meshes = [];
-    for (const [key, g] of groups) {
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(g.positions,3));
-      geo.setAttribute('normal', new THREE.Float32BufferAttribute(g.normals,3));
-      geo.setAttribute('uv', new THREE.Float32BufferAttribute(g.uvs,2));
-      geo.setIndex(g.indices);
-      const mat = this.getMaterialFor(g.tex, g.transparent);
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(baseX, 0, baseZ);
-      mesh.matrixAutoUpdate = false;
-      mesh.updateMatrix();
-      mesh.userData.isTerrain = true;
-      mesh.frustumCulled = true;
-      meshes.push(mesh);
-    }
-    return meshes;
-  }
-}
-
-/* =====================================================================
-   SISTEMA: CHUNK MANAGER
-   Carga/descarga chunks según distancia al jugador (en chunks), maneja
-   la cola de generación para no bloquear el hilo principal de golpe.
-   ===================================================================== */
-class ChunkManager {
-  constructor(world, scene, mesher) {
-    this.world = world;
-    this.scene = scene;
-    this.mesher = mesher;
-    this.renderDistance = 4;
-    this.genQueue = [];
-    this.activeMeshGroups = new Map(); // key -> [meshes]
-  }
-  ensureAround(px, pz) {
-    const pcx = Math.floor(px/CHUNK_SIZE), pcz = Math.floor(pz/CHUNK_SIZE);
-    const needed = new Set();
-    for (let dx=-this.renderDistance; dx<=this.renderDistance; dx++) {
-      for (let dz=-this.renderDistance; dz<=this.renderDistance; dz++) {
-        if (dx*dx+dz*dz > this.renderDistance*this.renderDistance) continue;
-        const cx = pcx+dx, cz = pcz+dz;
-        const key = this.world.key(cx,cz);
-        needed.add(key);
-        if (!this.world.chunks.has(key) && !this.genQueue.find(q=>q.key===key)) {
-          this.genQueue.push({key, cx, cz, dist: dx*dx+dz*dz});
-        }
-      }
-    }
-    this.genQueue.sort((a,b)=>a.dist-b.dist);
-    // descargar chunks lejanos
-    for (const [key, meshes] of this.activeMeshGroups) {
-      if (!needed.has(key)) {
-        for (const m of meshes) { this.scene.remove(m); m.geometry.dispose(); }
-        this.activeMeshGroups.delete(key);
-        this.world.chunks.delete(key);
-      }
-    }
-  }
-  // procesa N chunks de la cola por frame para no trabar el juego
-  processQueue(maxPerFrame) {
-    let count = 0;
-    while (this.genQueue.length && count < maxPerFrame) {
-      const job = this.genQueue.shift();
-      if (this.world.chunks.has(job.key)) { count++; continue; }
-      const chunkData = this.world.generateChunkData(job.cx, job.cz);
-      // colocar árboles (después de tener los datos base, dentro del propio chunk)
-      for (const spot of chunkData.treeSpots) {
-        this.world.placeTree(chunkData.data, job.cx, job.cz, spot);
-      }
-      chunkData.dirty = true;
-      this.world.chunks.set(job.key, chunkData);
-      count++;
-    }
-    // (re)construir mallas de chunks marcados dirty (limitar por frame también)
-    let rebuilt = 0;
-    for (const [key, chunk] of this.world.chunks) {
-      if (chunk.dirty && rebuilt < maxPerFrame) {
-        const old = this.activeMeshGroups.get(key);
-        if (old) { for (const m of old) { this.scene.remove(m); m.geometry.dispose(); } }
-        const meshes = this.mesher.buildChunkMesh(chunk);
-        for (const m of meshes) this.scene.add(m);
-        this.activeMeshGroups.set(key, meshes);
-        chunk.dirty = false;
-        rebuilt++;
-      }
-    }
-    return this.genQueue.length;
-  }
-}
-
-/* =====================================================================
-   SISTEMA: PHYSICS
-   Colisión AABB jugador vs. bloques sólidos, resuelta eje por eje
-   (X, luego Y, luego Z) para permitir "sliding" contra paredes.
-   ===================================================================== */
-const PLAYER_WIDTH = 0.6;   // ancho total (radio 0.3)
-const PLAYER_HEIGHT_STAND = 1.8;
-const PLAYER_HEIGHT_CROUCH = 1.4;
-const GRAVITY = -28;
-const JUMP_VELOCITY = 10.2;
-const WALK_SPEED = 4.3;
-const SPRINT_SPEED = 6.2;
-const CROUCH_SPEED = 2.0;
-const SWIM_SPEED = 3.0;
-
-class PhysicsBody {
-  constructor(world) {
-    this.world = world;
-    this.pos = new THREE.Vector3(0, 40, 0); // pies del jugador
-    this.vel = new THREE.Vector3(0,0,0);
-    this.onGround = false;
-    this.inWater = false;
-    this.height = PLAYER_HEIGHT_STAND;
-    this.width = PLAYER_WIDTH;
-  }
-  getAABB(pos, height) {
-    const r = this.width/2;
-    return { minX:pos.x-r, maxX:pos.x+r, minY:pos.y, maxY:pos.y+height, minZ:pos.z-r, maxZ:pos.z+r };
-  }
-  isBoxColliding(box) {
-    const x0 = Math.floor(box.minX), x1 = Math.floor(box.maxX);
-    const y0 = Math.floor(box.minY), y1 = Math.floor(box.maxY);
-    const z0 = Math.floor(box.minZ), z1 = Math.floor(box.maxZ);
-    for (let x=x0; x<=x1; x++) {
-      for (let y=y0; y<=y1; y++) {
-        for (let z=z0; z<=z1; z++) {
-          if (this.world.isSolidAt(x,y,z)) return true;
-        }
-      }
-    }
-    return false;
-  }
-  isInWater(pos, height) {
-    const b = this.world.getBlock(Math.floor(pos.x), Math.floor(pos.y+height*0.5), Math.floor(pos.z));
-    return b === BLOCK.WATER;
-  }
-  // mueve resolviendo colisiones eje por eje
-  move(dx, dy, dz) {
-    const height = this.height;
-    // X
-    let box = this.getAABB(this.pos, height);
-    box.minX += dx; box.maxX += dx;
-    if (!this.isBoxColliding(box)) this.pos.x += dx;
-    else this.vel.x = 0;
-    // Z
-    box = this.getAABB(this.pos, height);
-    box.minZ += dz; box.maxZ += dz;
-    if (!this.isBoxColliding(box)) this.pos.z += dz;
-    else this.vel.z = 0;
-    // Y
-    box = this.getAABB(this.pos, height);
-    box.minY += dy; box.maxY += dy;
-    if (!this.isBoxColliding(box)) {
-      this.pos.y += dy;
-      this.onGround = false;
-    } else {
-      if (dy < 0) {
-        // snap exacto: los pies (minY) deben quedar justo en el borde superior
-        // entero del bloque sólido bajo ellos, no en donde dy los llevó a probar.
-        this.onGround = true;
-        this.pos.y = Math.ceil(box.minY);
-      } else {
-        // golpeó techo al saltar: la cabeza (maxY) debe quedar justo bajo el bloque
-        this.pos.y = Math.floor(box.maxY) - height;
-      }
-      this.vel.y = 0;
-    }
-    this.inWater = this.isInWater(this.pos, height);
-  }
-  update(dt, input, crouching) {
-    this.height = crouching ? PLAYER_HEIGHT_CROUCH : PLAYER_HEIGHT_STAND;
-    if (this.inWater) {
-      this.vel.y += GRAVITY*0.25*dt;
-      this.vel.y = Math.max(this.vel.y, -4);
-      if (input.jump) this.vel.y = 3.2;
-    } else {
-      this.vel.y += GRAVITY*dt;
-    }
-    if (input.jump && this.onGround && !this.inWater) {
-      this.vel.y = JUMP_VELOCITY;
-      this.onGround = false;
-    }
-    let speed = crouching ? CROUCH_SPEED : (input.sprint ? SPRINT_SPEED : WALK_SPEED);
-    if (this.inWater) speed = SWIM_SPEED;
-    const moveVec = new THREE.Vector3(input.moveX, 0, input.moveZ);
-    if (moveVec.lengthSq() > 0) moveVec.normalize();
-    // rotar por yaw de la cámara
-    const yaw = input.yaw;
-    // La cámara con yaw=0 mira hacia -Z. Antes W terminaba moviendo hacia +Z.
-    const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-    const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-    const worldMove = new THREE.Vector3()
-      .addScaledVector(forward, -moveVec.z)
-      .addScaledVector(right, moveVec.x);
-    if (worldMove.lengthSq() > 0) worldMove.normalize();
-    const dx = worldMove.x*speed*dt;
-    const dz = worldMove.z*speed*dt;
-    const dy = this.vel.y*dt;
-    this.move(dx, dy, dz);
-  }
-}
-
-// Comprueba si (wx,wz) es una posición de spawn válida: suelo sobre el nivel
-// del mar, no-montaña, relativamente plana, y sin árbol en esa columna exacta.
-function isSpawnCandidateValid(world, wx, wz) {
-  const h = world.getHeightAt(wx, wz);
-  if (h <= SEA_LEVEL+1) return null; // evitar agua/playa muy baja
-  const biome = world.getBiomeAt(wx,wz);
-  if (biome === BIOME.MOUNTAINS) return null; // evitar terreno escarpado
-  const h2 = world.getHeightAt(wx+2, wz);
-  const h3 = world.getHeightAt(wx-2, wz);
-  const h4 = world.getHeightAt(wx, wz+2);
-  const h5 = world.getHeightAt(wx, wz-2);
-  if (Math.max(Math.abs(h-h2),Math.abs(h-h3),Math.abs(h-h4),Math.abs(h-h5)) > 2) return null;
-  const cfg = BiomeConfig[biome];
-  const treeRand = mulberry32(wx*92821 + wz*68917 + world.seed);
-  if (cfg.treeDensity > 0 && treeRand() < cfg.treeDensity) return null; // habría árbol aquí
-  return h;
-}
-
-// Busca una posición de spawn segura: suelo sólido, 2 bloques de aire arriba,
-// sin árbol, sin agua, y evita zonas demasiado escarpadas.
-// Si una búsqueda aleatoria amplia falla, escala el radio de búsqueda en vez
-// de caer en un fallback ciego que podría dejar al jugador en el mar o en el aire.
-function findSafeSpawn(world) {
-  const rnd = mulberry32(Date.now() & 0xffffffff);
-  for (let attempt=0; attempt<400; attempt++) {
-    const wx = Math.floor((rnd()-0.5)*400);
-    const wz = Math.floor((rnd()-0.5)*400);
-    const h = isSpawnCandidateValid(world, wx, wz);
-    if (h !== null) return new THREE.Vector3(wx+0.5, h+1, wz+0.5);
-  }
-  // fallback robusto: búsqueda determinística en espiral creciente desde el
-  // origen hasta encontrar una columna válida garantizada (nunca cae al vacío/agua).
-  return spiralSafeSpawnSearch(world, 0, 0);
-}
-
-// Búsqueda en espiral con límite de pasos conservador: encontrar un spawn 100%
-// válido no requiere revisar decenas de miles de columnas (cada una cuesta varias
-// llamadas de ruido FBM); si no se encuentra nada razonable en un radio moderado,
-// es mejor caer al último recurso que arriesgarse a congelar el hilo principal.
-function spiralSafeSpawnSearch(world, ox, oz) {
-  let x=0, z=0, dx=0, dz=-1;
-  const maxSteps = 60*60; // radio efectivo ~60 bloques desde el punto de origen: suficiente en la práctica
-  for (let i=0; i<maxSteps; i++) {
-    const wx = ox+x, wz = oz+z;
-    const h = isSpawnCandidateValid(world, wx, wz);
-    if (h !== null) return new THREE.Vector3(wx+0.5, h+1, wz+0.5);
-    // recorrido en espiral cuadrada
-    if (x===z || (x<0 && x===-z) || (x>0 && x===1-z)) { const t=dx; dx=-dz; dz=t; }
-    x+=dx; z+=dz;
-  }
-  // último recurso absoluto: garantizar que al menos no esté bajo tierra ni en agua,
-  // colocándolo muy por encima de la altura real del terreno en ese punto.
-  const h = world.getHeightAt(ox,oz);
-  return new THREE.Vector3(ox+0.5, Math.max(h+3, SEA_LEVEL+5), oz+0.5);
-}
-
-/* =====================================================================
-   SISTEMA: INPUT (PC) — teclado, mouse, pointer lock
-   ===================================================================== */
-class InputSystem {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.keys = {};
-    this.yaw = 0; this.pitch = 0;
-    this.sensitivity = 0.15;
-    this.mouseLocked = false;
-    this.mouseDownLeft = false;
-    this.mouseDownRight = false;
-    this.placeRequested = false;
-    this.hotbarSelect = null;
-
-    window.addEventListener('keydown', e => {
-      this.keys[e.code] = true;
-      if (e.code >= 'Digit1' && e.code <= 'Digit9') {
-        this.hotbarSelect = parseInt(e.code.replace('Digit',''))-1;
-      }
-    });
-    window.addEventListener('keyup', e => { this.keys[e.code] = false; });
-
-    canvas.addEventListener('click', () => {
-      if (!this.mouseLocked && document.getElementById('hud').style.display==='block') {
-        canvas.requestPointerLock();
-      }
-    });
-    document.addEventListener('pointerlockchange', () => {
-      this.mouseLocked = document.pointerLockElement === canvas;
-      if (!this.mouseLocked) { this.mouseDownLeft = false; this.mouseDownRight = false; }
-    });
-    document.addEventListener('mousemove', e => {
-      if (!this.mouseLocked) return;
-      this.yaw -= e.movementX * this.sensitivity * 0.01;
-      this.pitch += e.movementY * this.sensitivity * 0.01;
-      this.pitch = Math.max(-Math.PI/2+0.01, Math.min(Math.PI/2-0.01, this.pitch));
-    });
-    canvas.addEventListener('mousedown', e => {
-      if (!this.mouseLocked) return;
-      if (e.button === 0) this.mouseDownLeft = true;
-      if (e.button === 2) { this.mouseDownRight = true; this.placeRequested = true; }
-    });
-    canvas.addEventListener('mouseup', e => {
-      if (e.button === 0) this.mouseDownLeft = false;
-      if (e.button === 2) this.mouseDownRight = false;
-    });
-    canvas.addEventListener('contextmenu', e => e.preventDefault());
-  }
-  isDown(code){ return !!this.keys[code]; }
-  getMoveVector() {
-    let x=0,z=0;
-    if (this.isDown('KeyW')) z -= 1;
-    if (this.isDown('KeyS')) z += 1;
-    if (this.isDown('KeyA')) x -= 1;
-    if (this.isDown('KeyD')) x += 1;
-    return {x,z};
-  }
-}
-
-/* =====================================================================
-   SISTEMA: MOBILE — joystick virtual, mirar por arrastre, botones táctiles
-   ===================================================================== */
-class MobileInput {
-  constructor() {
-    this.active = false;
-    this.moveX = 0; this.moveZ = 0;
-    this.lookDX = 0; this.lookDY = 0;
-    this.jump = false; this.run = false;
-    this.breakHeld = false; this.placeHeld = false;
-    this.invPressed = false;
-    this.joyTouchId = null;
-    this.lookTouchId = null;
-    this.yaw = 0; this.pitch = 0;
-    this.sensitivity = 0.0065;
-    this._setupJoystick();
-    this._setupLook();
-    this._setupButtons();
-  }
-  _setupJoystick() {
-    const zone = document.getElementById('joystickZone');
-    const stick = document.getElementById('joystickStick');
-    const handleMove = (touch) => {
-      const rect = zone.getBoundingClientRect();
-      let dx = touch.clientX - (rect.left+rect.width/2);
-      let dy = touch.clientY - (rect.top+rect.height/2);
-      const maxR = Math.max(28, rect.width * 0.30);
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      if (dist > maxR) { dx = dx/dist*maxR; dy = dy/dist*maxR; }
-      stick.style.left = (rect.width/2 - stick.offsetWidth/2 + dx)+'px';
-      stick.style.top = (rect.height/2 - stick.offsetHeight/2 + dy)+'px';
-      this.moveX = dx/maxR;
-      this.moveZ = dy/maxR;
-    };
-    zone.addEventListener('touchstart', e => {
-      e.preventDefault();
-      const t = e.changedTouches[0];
-      this.joyTouchId = t.identifier;
-      handleMove(t);
-    }, {passive:false});
-    zone.addEventListener('touchmove', e => {
-      e.preventDefault();
-      for (const t of e.changedTouches) if (t.identifier===this.joyTouchId) handleMove(t);
-    }, {passive:false});
-    zone.addEventListener('touchend', e => {
-      for (const t of e.changedTouches) if (t.identifier===this.joyTouchId) {
-        this.joyTouchId = null; this.moveX = 0; this.moveZ = 0;
-        stick.style.left=(zone.clientWidth/2-stick.offsetWidth/2)+'px'; stick.style.top=(zone.clientHeight/2-stick.offsetHeight/2)+'px';
-      }
-    });
-  }
-  _setupLook() {
-    const zone = document.getElementById('lookZone');
-    let lastX=0, lastY=0;
-    zone.addEventListener('touchstart', e => {
-      e.preventDefault();
-      const t = e.changedTouches[0];
-      this.lookTouchId = t.identifier;
-      lastX = t.clientX; lastY = t.clientY;
-    }, {passive:false});
-    zone.addEventListener('touchmove', e => {
-      e.preventDefault();
-      for (const t of e.changedTouches) {
-        if (t.identifier===this.lookTouchId) {
-          const dx = t.clientX-lastX, dy = t.clientY-lastY;
-          this.yaw -= dx*this.sensitivity;
-          this.pitch += dy*this.sensitivity;
-          this.pitch = Math.max(-Math.PI/2+0.01, Math.min(Math.PI/2-0.01, this.pitch));
-          lastX = t.clientX; lastY = t.clientY;
-        }
-      }
-    }, {passive:false});
-    zone.addEventListener('touchend', e => {
-      for (const t of e.changedTouches) if (t.identifier===this.lookTouchId) this.lookTouchId=null;
-    });
-  }
-  _setupButtons() {
-    const bind = (id, onStart, onEnd) => {
-      const el = document.getElementById(id);
-      el.addEventListener('touchstart', e=>{ e.preventDefault(); onStart(); }, {passive:false});
-      el.addEventListener('touchend', e=>{ e.preventDefault(); onEnd && onEnd(); });
-      el.addEventListener('touchcancel', e=>{ onEnd && onEnd(); });
-    };
-    bind('btnJump', ()=>this.jump=true, ()=>this.jump=false);
-    bind('btnRun', ()=>this.run=true, ()=>this.run=false);
-    bind('btnBreak', ()=>this.breakHeld=true, ()=>this.breakHeld=false);
-    bind('btnPlace', ()=>this.placeHeld=true, ()=>this.placeHeld=false);
-    bind('btnInv', ()=>this.invPressed=true, ()=>{});
-  }
-  static isMobileDevice() {
-    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && window.innerWidth < 1000);
-  }
-}
-
-/* =====================================================================
-   SISTEMA: ENGINE — bootstrap de escena, cámara, luces, cielo,
-   ciclo día/noche, y loop principal. Conecta WORLD + PLAYER + INPUT.
-   ===================================================================== */
-const Engine = {
-  scene:null, camera:null, renderer:null,
-  world:null, chunkManager:null, mesher:null,
-  physics:null, input:null, mobileInput:null,
-  isMobile:false,
-  clock:null,
-  dayTime: 0.3, // 0..1 (0=amanecer,0.5=noche llena aprox según curva)
-  dayLength: 720, // segundos por ciclo completo día/noche
-  sunLight:null, ambientLight:null, hemiLight:null, sky:null,
-  running:false,
-  crouching:false,
-  lastFrameTime:0,
-  fps:0,
-
-  init(seedOverride=null) {
-    this.isMobile = MobileInput.isMobileDevice();
-    const canvas = document.getElementById('gameCanvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: !this.isMobile });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(this.isMobile ? Math.min(1.5, window.devicePixelRatio) : Math.min(2, window.devicePixelRatio));
-    this.renderer.shadowMap.enabled = false; // rendimiento: usamos luz plana + ambient/hemi en vez de shadow maps costosos
-
-    this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0xbfe0ff, 40, this.isMobile ? 90 : 140);
-
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.05, 500);
-
-    this.hemiLight = new THREE.HemisphereLight(0xbfe0ff, 0x3a3a2a, 0.6);
-    this.scene.add(this.hemiLight);
-    this.sunLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    this.sunLight.position.set(50,100,20);
-    this.scene.add(this.sunLight);
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
-    this.scene.add(this.ambientLight);
-
-    const seed = seedOverride !== null ? seedOverride : ((Math.random()*1e9)|0);
-    this.world = new World(seed);
-    this.mesher = new ChunkMesher(this.world, this.scene);
-    this.chunkManager = new ChunkManager(this.world, this.scene, this.mesher);
-
-    this.physics = new PhysicsBody(this.world);
-    this.input = new InputSystem(canvas);
-    this.mobileInput = new MobileInput();
-
-    window.addEventListener('resize', () => {
-      this.camera.aspect = window.innerWidth/window.innerHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    this.clock = new THREE.Clock();
-    console.log('[MINICRAFT] Engine inicializado. Seed:', seed, 'Mobile:', this.isMobile);
-  },
-
-  // Genera chunks iniciales de forma síncrona alrededor del punto de spawn
-  // antes de empezar a jugar, para asegurar que el jugador no caiga al vacío.
-  async pregenerateSpawnArea(onProgress) {
-    console.log('[MINICRAFT] Fase 1: generando área inicial alrededor del origen...');
-    // primero generamos un área reducida "a ciegas" en el origen para poder buscar spawn seguro,
-    // sin construir mallas todavía (solo datos de bloques, mucho más rápido).
-    const initialRadius = 2;
-    let steps = 0;
-    const totalEstimate = (initialRadius*2+1)*(initialRadius*2+1);
-    for (let dx=-initialRadius; dx<=initialRadius; dx++) {
-      for (let dz=-initialRadius; dz<=initialRadius; dz++) {
-        const cx=dx, cz=dz;
-        const key = this.world.key(cx,cz);
-        if (!this.world.chunks.has(key)) {
-          const chunkData = this.world.generateChunkData(cx,cz);
-          for (const spot of chunkData.treeSpots) this.world.placeTree(chunkData.data, cx, cz, spot);
-          chunkData.dirty = true;
-          this.world.chunks.set(key, chunkData);
-        }
-        steps++;
-        if (onProgress) onProgress(steps/totalEstimate*0.3);
-        await frameYield();
-      }
-    }
-    console.log('[MINICRAFT] Fase 1 completa. Chunks generados:', this.world.chunks.size);
-
-    console.log('[MINICRAFT] Fase 2: buscando spawn seguro...');
-    // buscar spawn seguro ahora que hay terreno generado cerca del origen
-    const spawn = findSafeSpawnNear(this.world, 0, 0);
-    this.physics.pos.copy(spawn);
-    console.log('[MINICRAFT] Spawn encontrado en:', spawn.x.toFixed(1), spawn.y.toFixed(1), spawn.z.toFixed(1));
-
-    // regenerar el área realmente alrededor del spawn encontrado (puede no ser exactamente 0,0)
-    // radios más conservadores para que la carga inicial sea rápida en cualquier dispositivo;
-    // el resto del mundo se sigue cargando en segundo plano durante el juego (chunkManager normal).
-    this.chunkManager.renderDistance = this.isMobile ? 2 : 3;
-    this.chunkManager.ensureAround(spawn.x, spawn.z);
-    console.log('[MINICRAFT] Fase 3: construyendo mallas de', this.chunkManager.genQueue.length, 'chunks...');
-    let guard = 0;
-    const maxGuard = 300; // límite de seguridad para nunca quedar colgado indefinidamente
-    while (this.chunkManager.genQueue.length > 0 && guard < maxGuard) {
-      this.chunkManager.processQueue(2); // menos chunks por frame = UI no se congela y hay más chances de ver progreso
-      if (onProgress) onProgress(0.3 + Math.min(0.7, guard/80));
-      guard++;
-      if (guard % 20 === 0) console.log('[MINICRAFT] ... progreso mallas: guard=', guard, 'chunks restantes en cola:', this.chunkManager.genQueue.length);
-      await frameYield();
-    }
-    if (guard >= maxGuard) {
-      console.warn('[MINICRAFT] Se alcanzó el límite de seguridad (maxGuard) con', this.chunkManager.genQueue.length, 'chunks aún en cola. Continuando de todas formas.');
-    }
-    console.log('[MINICRAFT] Fase 3 completa. guard final:', guard);
-    if (onProgress) onProgress(1);
-  },
-
-  updateDayNight(dt) {
-    this.dayTime += dt/this.dayLength;
-    if (this.dayTime > 1) this.dayTime -= 1;
-    const angle = this.dayTime*Math.PI*2;
-    const sunHeight = Math.sin(angle);
-    this.sunLight.position.set(Math.cos(angle)*100, Math.max(5,sunHeight*100), 40);
-    const dayFactor = Math.max(0, sunHeight);
-    this.sunLight.intensity = 0.15 + dayFactor*0.85;
-    this.ambientLight.intensity = 0.12 + dayFactor*0.35;
-    this.hemiLight.intensity = 0.2 + dayFactor*0.5;
-    const skyDay = new THREE.Color(0xbfe0ff), skyNight = new THREE.Color(0x0a0e1e);
-    const skyColor = skyDay.clone().lerp(skyNight, 1-Math.min(1,Math.max(0,(dayFactor*1.3))));
-    this.scene.fog.color.copy(skyColor);
-    this.renderer.setClearColor(skyColor);
-    return dayFactor; // >0 = día, se usa para spawn de mobs hostiles de noche
-  },
-
-  isNight() { return this.updateDayNightCache !== undefined ? this.updateDayNightCache < 0.15 : false; },
-};
-
-function frameYield() { return new Promise(res => requestAnimationFrame(res)); }
-
-// variante de spawn seguro que busca cerca de un punto dado (para spawn inicial cerca del origen)
-function findSafeSpawnNear(world, ox, oz) {
-  const rnd = mulberry32((Date.now()&0xffffffff) ^ 12345);
-  for (let attempt=0; attempt<300; attempt++) {
-    const ang = rnd()*Math.PI*2;
-    const rad = rnd()*40;
-    const wx = Math.floor(ox + Math.cos(ang)*rad);
-    const wz = Math.floor(oz + Math.sin(ang)*rad);
-    const h = isSpawnCandidateValid(world, wx, wz);
-    if (h !== null) return new THREE.Vector3(wx+0.5, h+1.05, wz+0.5);
-  }
-  // fallback robusto: misma búsqueda en espiral garantizada que findSafeSpawn
-  return spiralSafeSpawnSearch(world, ox, oz);
-}
-
-/* =====================================================================
-   SISTEMA: ITEMS / INVENTORY
-   Ítems pueden ser bloques (mismo id que BLOCK.*) o ítems no-bloque
-   (identificados con string, ej: 'COAL', 'STICK', 'IRON_INGOT', tools).
-   Inventario: 27 slots principales + 9 hotbar = 36 slots, stacks de 64.
-   ===================================================================== */
-const ITEM = {
-  COAL:'COAL', STICK:'STICK', DIAMOND:'DIAMOND', IRON_INGOT:'IRON_INGOT', GOLD_INGOT:'GOLD_INGOT',
-  RAW_BEEF:'RAW_BEEF', COOKED_BEEF:'COOKED_BEEF', RAW_PORKCHOP:'RAW_PORKCHOP', COOKED_PORKCHOP:'COOKED_PORKCHOP',
-  RAW_CHICKEN:'RAW_CHICKEN', COOKED_CHICKEN:'COOKED_CHICKEN', WOOL:'WOOL',
-  WOOD_PICKAXE:'WOOD_PICKAXE', STONE_PICKAXE:'STONE_PICKAXE', IRON_PICKAXE:'IRON_PICKAXE', GOLD_PICKAXE:'GOLD_PICKAXE', DIAMOND_PICKAXE:'DIAMOND_PICKAXE',
-  WOOD_AXE:'WOOD_AXE', STONE_AXE:'STONE_AXE', IRON_AXE:'IRON_AXE', GOLD_AXE:'GOLD_AXE', DIAMOND_AXE:'DIAMOND_AXE',
-  WOOD_SHOVEL:'WOOD_SHOVEL', STONE_SHOVEL:'STONE_SHOVEL', IRON_SHOVEL:'IRON_SHOVEL', GOLD_SHOVEL:'GOLD_SHOVEL', DIAMOND_SHOVEL:'DIAMOND_SHOVEL',
-  WOOD_HOE:'WOOD_HOE', STONE_HOE:'STONE_HOE', IRON_HOE:'IRON_HOE', GOLD_HOE:'GOLD_HOE', DIAMOND_HOE:'DIAMOND_HOE',
-  WOOD_SWORD:'WOOD_SWORD', STONE_SWORD:'STONE_SWORD', IRON_SWORD:'IRON_SWORD', GOLD_SWORD:'GOLD_SWORD', DIAMOND_SWORD:'DIAMOND_SWORD',
-  LEATHER_HELMET:'LEATHER_HELMET', LEATHER_CHEST:'LEATHER_CHEST', LEATHER_LEGS:'LEATHER_LEGS', LEATHER_BOOTS:'LEATHER_BOOTS',
-  IRON_HELMET:'IRON_HELMET', IRON_CHEST:'IRON_CHEST', IRON_LEGS:'IRON_LEGS', IRON_BOOTS:'IRON_BOOTS',
-};
-
-const ItemData = {}; // key -> {name, stackSize, tool:{type,tier,durability,speedMul}, foodValue, armor:{slot,defense}}
-
-function registerItems() {
-  const T = TextureFactory;
-  const def = (key, data) => { ItemData[key] = Object.assign({ name:key, stackSize:64 }, data); };
-
-  // materiales base
-  def(ITEM.COAL, { name:'Coal', icon: T.coalOre() });
-  def(ITEM.STICK, { name:'Stick' });
-  def(ITEM.DIAMOND, { name:'Diamond' });
-  def(ITEM.IRON_INGOT, { name:'Iron Ingot' });
-  def(ITEM.GOLD_INGOT, { name:'Gold Ingot' });
-  def(ITEM.WOOL, { name:'Wool' });
-  def(ITEM.RAW_BEEF, { name:'Raw Beef', stackSize:16, foodValue:3 });
-  def(ITEM.COOKED_BEEF, { name:'Cooked Beef', stackSize:16, foodValue:8 });
-  def(ITEM.RAW_PORKCHOP, { name:'Raw Porkchop', stackSize:16, foodValue:3 });
-  def(ITEM.COOKED_PORKCHOP, { name:'Cooked Porkchop', stackSize:16, foodValue:8 });
-  def(ITEM.RAW_CHICKEN, { name:'Raw Chicken', stackSize:16, foodValue:2 });
-  def(ITEM.COOKED_CHICKEN, { name:'Cooked Chicken', stackSize:16, foodValue:6 });
-
-  // herramientas: tier 0=wood,1=stone,2=iron,3=gold,4=diamond
-  const toolTiers = [
-    { tier:0, name:'Wood', durability:60, speedMul:1.0 },
-    { tier:1, name:'Stone', durability:132, speedMul:1.5 },
-    { tier:2, name:'Iron', durability:251, speedMul:2.2 },
-    { tier:3, name:'Gold', durability:33, speedMul:4.0 },
-    { tier:4, name:'Diamond', durability:1562, speedMul:3.2 },
-  ];
-  const toolTypes = [
-    { type:'pickaxe', keys:[ITEM.WOOD_PICKAXE,ITEM.STONE_PICKAXE,ITEM.IRON_PICKAXE,ITEM.GOLD_PICKAXE,ITEM.DIAMOND_PICKAXE] },
-    { type:'axe', keys:[ITEM.WOOD_AXE,ITEM.STONE_AXE,ITEM.IRON_AXE,ITEM.GOLD_AXE,ITEM.DIAMOND_AXE] },
-    { type:'shovel', keys:[ITEM.WOOD_SHOVEL,ITEM.STONE_SHOVEL,ITEM.IRON_SHOVEL,ITEM.GOLD_SHOVEL,ITEM.DIAMOND_SHOVEL] },
-    { type:'hoe', keys:[ITEM.WOOD_HOE,ITEM.STONE_HOE,ITEM.IRON_HOE,ITEM.GOLD_HOE,ITEM.DIAMOND_HOE] },
-    { type:'sword', keys:[ITEM.WOOD_SWORD,ITEM.STONE_SWORD,ITEM.IRON_SWORD,ITEM.GOLD_SWORD,ITEM.DIAMOND_SWORD] },
-  ];
-  for (const tt of toolTypes) {
-    tt.keys.forEach((key, i) => {
-      const tier = toolTiers[i];
-      def(key, {
-        name: tier.name+' '+tt.type[0].toUpperCase()+tt.type.slice(1),
-        stackSize: 1,
-        tool: { type: tt.type, tier: tier.tier, maxDurability: tier.durability, durability: tier.durability, speedMul: tier.speedMul, attackDamage: tt.type==='sword' ? (2+tier.tier*1.5) : (1+tier.tier*0.5) }
-      });
-    });
-  }
-  // armadura (simplificada, defensa por tier)
-  const armorSets = [
-    { prefix:'LEATHER', defense:1 }, { prefix:'IRON', defense:2 }
-  ];
-  def(ITEM.LEATHER_HELMET, { name:'Leather Helmet', stackSize:1, armor:{slot:'head', defense:1} });
-  def(ITEM.LEATHER_CHEST, { name:'Leather Chestplate', stackSize:1, armor:{slot:'chest', defense:2} });
-  def(ITEM.LEATHER_LEGS, { name:'Leather Leggings', stackSize:1, armor:{slot:'legs', defense:2} });
-  def(ITEM.LEATHER_BOOTS, { name:'Leather Boots', stackSize:1, armor:{slot:'feet', defense:1} });
-  def(ITEM.IRON_HELMET, { name:'Iron Helmet', stackSize:1, armor:{slot:'head', defense:2} });
-  def(ITEM.IRON_CHEST, { name:'Iron Chestplate', stackSize:1, armor:{slot:'chest', defense:4} });
-  def(ITEM.IRON_LEGS, { name:'Iron Leggings', stackSize:1, armor:{slot:'legs', defense:4} });
-  def(ITEM.IRON_BOOTS, { name:'Iron Boots', stackSize:1, armor:{slot:'feet', defense:2} });
-}
-
-// Devuelve stackSize máximo para un id de item o bloque
-function getStackSize(itemKey) {
-  if (typeof itemKey === 'number') return 64; // bloques
-  const d = ItemData[itemKey];
-  return d ? d.stackSize : 64;
-}
-function getItemDisplayName(itemKey) {
-  if (typeof itemKey === 'number') return (BlockData[itemKey] && BlockData[itemKey].name) || '???';
-  return (ItemData[itemKey] && ItemData[itemKey].name) || itemKey;
-}
-
-// Un slot de inventario: { item: (number para bloque | string para item), count, durability? }
-class Inventory {
-  constructor(size) {
-    this.size = size;
-    this.slots = new Array(size).fill(null);
-  }
-  // intenta agregar `count` unidades de `item`; devuelve cantidad NO agregada (0 = todo cupo)
-  addItem(item, count) {
-    const maxStack = getStackSize(item);
-    // 1. rellenar stacks existentes del mismo item
-    for (let i=0; i<this.size && count>0; i++) {
-      const s = this.slots[i];
-      if (s && s.item === item && s.count < maxStack) {
-        const canAdd = Math.min(maxStack - s.count, count);
-        s.count += canAdd; count -= canAdd;
-      }
-    }
-    // 2. usar slots vacíos
-    for (let i=0; i<this.size && count>0; i++) {
-      if (!this.slots[i]) {
-        const canAdd = Math.min(maxStack, count);
-        this.slots[i] = { item, count: canAdd };
-        count -= canAdd;
-      }
-    }
-    return count; // lo que no cupo
-  }
-  removeAt(i, count=1) {
-    const s = this.slots[i];
-    if (!s) return null;
-    const removed = Math.min(s.count, count);
-    s.count -= removed;
-    const result = { item: s.item, count: removed };
-    if (s.count <= 0) this.slots[i] = null;
-    return result;
-  }
-  countOf(item) {
-    let total = 0;
-    for (const s of this.slots) if (s && s.item === item) total += s.count;
-    return total;
-  }
-  removeCountOf(item, count) {
-    let remaining = count;
-    for (let i=0; i<this.size && remaining>0; i++) {
-      const s = this.slots[i];
-      if (s && s.item === item) {
-        const take = Math.min(s.count, remaining);
-        s.count -= take; remaining -= take;
-        if (s.count <= 0) this.slots[i] = null;
-      }
-    }
-    return count - remaining; // cuántos se pudieron quitar realmente
-  }
-}
-
-/* =====================================================================
-   SISTEMA: DROPPED ITEMS (físicos en el mundo)
-   Cuando se rompe un bloque, aparece un mesh 3D pequeño que cae con
-   gravedad simplificada y puede ser recogido al acercarse el jugador.
-   ===================================================================== */
-class DroppedItemsManager {
-  constructor(scene, world) {
-    this.scene = scene;
-    this.world = world;
-    this.drops = []; // {mesh, item, count, vel:Vector3, age, pickupDelay}
-    this.iconMatCache = new Map();
-  }
-  getIconTextureFor(item) {
-    const key = 'drop_'+item;
-    if (this.iconMatCache.has(key)) return this.iconMatCache.get(key);
-    let tex;
-    if (typeof item === 'number') {
-      const bd = BlockData[item];
-      tex = (bd && bd.textures) ? (bd.textures.all || bd.textures.side) : null;
-    } else {
-      const idata = ItemData[item];
-      tex = idata && idata.icon;
-    }
-    if (!tex) {
-      // textura de respaldo simple
-      const c = makeCanvas(); const ctx = c.getContext('2d');
-      ctx.fillStyle = '#cc66ff'; ctx.fillRect(0,0,TEX_SIZE,TEX_SIZE);
-      tex = toTexture(c);
-    }
-    this.iconMatCache.set(key, tex);
-    return tex;
-  }
-  spawnDrop(worldPos, item, count) {
-    const tex = this.getIconTextureFor(item);
-    const mat = new THREE.MeshLambertMaterial({ map: tex, transparent:true, alphaTest:0.1 });
-    const geo = new THREE.BoxGeometry(0.28,0.28,0.28);
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(worldPos);
-    this.scene.add(mesh);
-    const vel = new THREE.Vector3((Math.random()-0.5)*1.5, 2.5, (Math.random()-0.5)*1.5);
-    this.drops.push({ mesh, item, count, vel, age:0, pickupDelay:0.5, spin:Math.random()*Math.PI*2 });
-  }
-  update(dt, playerPos, inventory, onPickup) {
-    for (let i=this.drops.length-1; i>=0; i--) {
-      const d = this.drops[i];
-      d.age += dt;
-      d.pickupDelay = Math.max(0, d.pickupDelay - dt);
-      // física simple: gravedad + colisión con el suelo (comprobación de bloque sólido debajo)
-      d.vel.y += GRAVITY*0.6*dt;
-      const nextPos = d.mesh.position.clone();
-      nextPos.x += d.vel.x*dt; nextPos.y += d.vel.y*dt; nextPos.z += d.vel.z*dt;
-      const groundY = Math.floor(nextPos.y);
-      if (this.world.isSolidAt(Math.floor(nextPos.x), groundY, Math.floor(nextPos.z)) && d.vel.y < 0) {
-        nextPos.y = groundY+1+0.14;
-        d.vel.y = 0; d.vel.x *= 0.8; d.vel.z *= 0.8;
-      }
-      d.mesh.position.copy(nextPos);
-      d.mesh.rotation.y += dt*1.5;
-      d.mesh.position.y += Math.sin(d.age*3)*0.001; // leve bobbing visual
-
-      // recolección: si el jugador está cerca y ya pasó el delay
-      if (d.pickupDelay<=0 && playerPos.distanceToSquared ? false : true) {}
-      const dx = playerPos.x-d.mesh.position.x, dy=playerPos.y-d.mesh.position.y, dz=playerPos.z-d.mesh.position.z;
-      const distSq = dx*dx+dy*dy+dz*dz;
-      if (d.pickupDelay<=0 && distSq < 1.3*1.3) {
-        const leftover = inventory.addItem(d.item, d.count);
-        if (leftover < d.count) {
-          if (onPickup) onPickup(d.item, d.count-leftover);
-        }
-        if (leftover <= 0) {
-          this.scene.remove(d.mesh); d.mesh.geometry.dispose(); d.mesh.material.dispose();
-          this.drops.splice(i,1);
-        } else {
-          d.count = leftover;
-        }
-      } else if (d.age > 300) { // despawn tras 5 minutos
-        this.scene.remove(d.mesh); d.mesh.geometry.dispose(); d.mesh.material.dispose();
-        this.drops.splice(i,1);
-      }
-    }
-  }
-}
-
-/* =====================================================================
-   SISTEMA: BLOCK INTERACTION (romper / colocar) vía Raycast real
-   Lanza un rayo desde el centro de la cámara hacia adelante, recorre
-   el mundo bloque a bloque (DDA-like) hasta MAX_REACH, y determina el
-   primer bloque sólido golpeado y la cara exacta para colocar el nuevo.
-   ===================================================================== */
-const MAX_REACH = 5.2;
-
-function raycastBlocks(world, origin, dir, maxDist) {
-  // DDA robusto: recorre exactamente los voxels atravesados por el rayo.
-  const d = dir.clone().normalize();
-  let x = Math.floor(origin.x), y = Math.floor(origin.y), z = Math.floor(origin.z);
-  const stepX = d.x >= 0 ? 1 : -1;
-  const stepY = d.y >= 0 ? 1 : -1;
-  const stepZ = d.z >= 0 ? 1 : -1;
-  const inf = Infinity;
-  const tDeltaX = Math.abs(d.x) > 1e-8 ? 1/Math.abs(d.x) : inf;
-  const tDeltaY = Math.abs(d.y) > 1e-8 ? 1/Math.abs(d.y) : inf;
-  const tDeltaZ = Math.abs(d.z) > 1e-8 ? 1/Math.abs(d.z) : inf;
-  const nextX = d.x >= 0 ? (x+1-origin.x) : (origin.x-x);
-  const nextY = d.y >= 0 ? (y+1-origin.y) : (origin.y-y);
-  const nextZ = d.z >= 0 ? (z+1-origin.z) : (origin.z-z);
-  let tMaxX = Math.abs(d.x) > 1e-8 ? nextX/Math.abs(d.x) : inf;
-  let tMaxY = Math.abs(d.y) > 1e-8 ? nextY/Math.abs(d.y) : inf;
-  let tMaxZ = Math.abs(d.z) > 1e-8 ? nextZ/Math.abs(d.z) : inf;
-  let face = null;
-  let dist = 0;
-  const maxSteps = Math.ceil(maxDist*4)+16;
-  for (let i=0; i<maxSteps && dist <= maxDist; i++) {
-    const block = world.getBlock(x,y,z);
-    const bd = BlockData[block];
-    if (block !== BLOCK.AIR && bd && bd.solid !== false) {
-      return {hit:true,x,y,z,face,dist};
-    }
-    if (tMaxX <= tMaxY && tMaxX <= tMaxZ) {
-      dist=tMaxX; x+=stepX; tMaxX+=tDeltaX; face=[-stepX,0,0];
-    } else if (tMaxY <= tMaxZ) {
-      dist=tMaxY; y+=stepY; tMaxY+=tDeltaY; face=[0,-stepY,0];
-    } else {
-      dist=tMaxZ; z+=stepZ; tMaxZ+=tDeltaZ; face=[0,0,-stepZ];
-    }
-  }
-  return {hit:false};
-}
-
-// Comprueba si colocar un bloque en (x,y,z) invadiría el AABB del jugador
-function wouldOverlapPlayer(playerPos, playerHeight, x,y,z) {
-  const r = PLAYER_WIDTH/2;
-  const pMinX=playerPos.x-r, pMaxX=playerPos.x+r;
-  const pMinY=playerPos.y, pMaxY=playerPos.y+playerHeight;
-  const pMinZ=playerPos.z-r, pMaxZ=playerPos.z+r;
-  return !(x+1<=pMinX || x>=pMaxX || y+1<=pMinY || y>=pMaxY || z+1<=pMinZ || z>=pMaxZ);
-}
-
-/* =====================================================================
-   GAME LOOP PRINCIPAL
-   ===================================================================== */
-/* =====================================================================
-   SISTEMA: CRAFTING
-   Recetas con forma (shaped) y sin forma (shapeless). matchRecipe recibe
-   la cuadrícula actual (array de 4 o 9 slots) y busca una receta que
-   calce, respetando la posición de los ingredientes cuando la receta
-   lo requiere (ej. escalera, losa) o solo el conteo cuando es shapeless.
-   ===================================================================== */
-const CraftingSystem = {
-  recipes2x2: [
-    // shapeless: 1 madera (log) -> 4 tablones
-    { shapeless:true, ingredients:[{item:BLOCK.OAK_LOG,count:1}], output:BLOCK.PLANKS, outputCount:4 },
-    { shapeless:true, ingredients:[{item:BLOCK.PINE_LOG,count:1}], output:BLOCK.PLANKS, outputCount:4 },
-    // shapeless: 2 tablones -> 4 palos
-    { shapeless:true, ingredients:[{item:BLOCK.PLANKS,count:2}], output:ITEM.STICK, outputCount:4 },
-    // shapeless: 4 tablones -> mesa de crafteo
-    { shapeless:true, ingredients:[{item:BLOCK.PLANKS,count:4}], output:BLOCK.CRAFTING_TABLE, outputCount:1 },
-    // shaped: carbón + palo -> 4 antorchas (carbón arriba, palo abajo, en cualquier columna del 2x2)
-    { shaped:true, size:2, pattern:['C','S'], key:{C:ITEM.COAL, S:ITEM.STICK}, output:BLOCK.TORCH, outputCount:4, allowShift:true },
-  ],
-  recipes3x3: [
-    // herramientas: forma de pico (X X X / . S . / . S .) con material M
-    ...['WOOD_PICKAXE','STONE_PICKAXE','IRON_PICKAXE','GOLD_PICKAXE','DIAMOND_PICKAXE'].map((key,i) => ({
-      shaped:true, size:3, pattern:['MMM','.S.','.S.'], key:{M:[BLOCK.PLANKS,BLOCK.COBBLESTONE,ITEM.IRON_INGOT,ITEM.GOLD_INGOT,ITEM.DIAMOND][i], S:ITEM.STICK},
-      output:ITEM[key], outputCount:1
-    })),
-    ...['WOOD_AXE','STONE_AXE','IRON_AXE','GOLD_AXE','DIAMOND_AXE'].map((key,i) => ({
-      shaped:true, size:3, pattern:['MM.','MS.','.S.'], key:{M:[BLOCK.PLANKS,BLOCK.COBBLESTONE,ITEM.IRON_INGOT,ITEM.GOLD_INGOT,ITEM.DIAMOND][i], S:ITEM.STICK},
-      output:ITEM[key], outputCount:1
-    })),
-    ...['WOOD_SHOVEL','STONE_SHOVEL','IRON_SHOVEL','GOLD_SHOVEL','DIAMOND_SHOVEL'].map((key,i) => ({
-      shaped:true, size:3, pattern:['.M.','.S.','.S.'], key:{M:[BLOCK.PLANKS,BLOCK.COBBLESTONE,ITEM.IRON_INGOT,ITEM.GOLD_INGOT,ITEM.DIAMOND][i], S:ITEM.STICK},
-      output:ITEM[key], outputCount:1
-    })),
-    ...['WOOD_HOE','STONE_HOE','IRON_HOE','GOLD_HOE','DIAMOND_HOE'].map((key,i) => ({
-      shaped:true, size:3, pattern:['MM.','.S.','.S.'], key:{M:[BLOCK.PLANKS,BLOCK.COBBLESTONE,ITEM.IRON_INGOT,ITEM.GOLD_INGOT,ITEM.DIAMOND][i], S:ITEM.STICK},
-      output:ITEM[key], outputCount:1
-    })),
-    ...['WOOD_SWORD','STONE_SWORD','IRON_SWORD','GOLD_SWORD','DIAMOND_SWORD'].map((key,i) => ({
-      shaped:true, size:3, pattern:['.M.','.M.','.S.'], key:{M:[BLOCK.PLANKS,BLOCK.COBBLESTONE,ITEM.IRON_INGOT,ITEM.GOLD_INGOT,ITEM.DIAMOND][i], S:ITEM.STICK},
-      output:ITEM[key], outputCount:1
-    })),
-    // armadura: cascos/petos/pantalones/botas para leather e iron
-    ...[['LEATHER_HELMET','LEATHER_CHEST','LEATHER_LEGS','LEATHER_BOOTS', ITEM.WOOL],
-        ['IRON_HELMET','IRON_CHEST','IRON_LEGS','IRON_BOOTS', ITEM.IRON_INGOT]].flatMap(([hk,ck,lk,bk,mat]) => ([
-      { shaped:true, size:3, pattern:['MMM','M.M','...'], key:{M:mat}, output:ITEM[hk], outputCount:1 },
-      { shaped:true, size:3, pattern:['M.M','MMM','MMM'], key:{M:mat}, output:ITEM[ck], outputCount:1 },
-      { shaped:true, size:3, pattern:['MMM','M.M','M.M'], key:{M:mat}, output:ITEM[lk], outputCount:1 },
-      { shaped:true, size:3, pattern:['M.M','...','...'], key:{M:mat}, output:ITEM[bk], outputCount:1 },
-    ])),
-    // horno: 8 cobblestone en anillo
-    { shaped:true, size:3, pattern:['CCC','C.C','CCC'], key:{C:BLOCK.COBBLESTONE}, output:BLOCK.FURNACE, outputCount:1 },
-    // cofre: 8 tablones en anillo
-    { shaped:true, size:3, pattern:['PPP','P.P','PPP'], key:{P:BLOCK.PLANKS}, output:BLOCK.CHEST, outputCount:1 },
-  ],
-
-  // convierte la cuadrícula actual (array de slots) en una matriz recortada a su bounding box
-  // de celdas ocupadas, para poder comparar contra patrones shaped sin importar la posición exacta.
-  _gridToTrimmedPattern(grid, dim) {
-    let minR=dim,maxR=-1,minC=dim,maxC=-1;
-    const cellItem = (r,c) => grid[r*dim+c];
-    for (let r=0;r<dim;r++) for (let c=0;c<dim;c++) {
-      if (cellItem(r,c)) { minR=Math.min(minR,r); maxR=Math.max(maxR,r); minC=Math.min(minC,c); maxC=Math.max(maxC,c); }
-    }
-    if (maxR<0) return null; // grid vacío
-    const rows = maxR-minR+1, cols = maxC-minC+1;
-    const trimmed = [];
-    for (let r=0;r<rows;r++) {
-      let rowItems = [];
-      for (let c=0;c<cols;c++) rowItems.push(cellItem(minR+r, minC+c));
-      trimmed.push(rowItems);
-    }
-    return trimmed;
-  },
-
-  matchRecipe(grid, dim) {
-    const trimmed = this._gridToTrimmedPattern(grid, dim);
-    if (!trimmed) return null;
-    const recipeList = dim===2 ? this.recipes2x2 : this.recipes3x3;
-    for (const recipe of recipeList) {
-      if (recipe.shapeless) {
-        if (this._matchShapeless(grid, recipe)) return recipe;
-      } else if (recipe.shaped) {
-        if (this._matchShaped(trimmed, recipe)) return recipe;
-      }
-    }
-    return null;
-  },
-
-  _matchShapeless(grid, recipe) {
-    // contar items totales presentes en la grid y compararlos contra lo requerido.
-    // Debe coincidir EXACTAMENTE (mismo tipo y misma cantidad total), no solo "al menos".
-    const counts = new Map();
-    let totalCells = 0;
-    for (const cell of grid) {
-      if (cell) { counts.set(cell.item, (counts.get(cell.item)||0)+cell.count); totalCells++; }
-    }
-    if (totalCells===0) return false;
-    for (const req of recipe.ingredients) {
-      if ((counts.get(req.item)||0) !== req.count) return false;
-      counts.delete(req.item);
-    }
-    return counts.size===0; // no deben sobrar otros items distintos ni cantidades de más
-  },
-
-  _matchShaped(trimmed, recipe) {
-    const patRows = recipe.pattern.length, patCols = recipe.pattern[0].length;
-    if (trimmed.length !== patRows || trimmed[0].length !== patCols) return false;
-    for (let r=0;r<patRows;r++) {
-      for (let c=0;c<patCols;c++) {
-        const ch = recipe.pattern[r][c];
-        const cell = trimmed[r][c];
-        if (ch === '.') { if (cell) return false; }
-        else {
-          if (!cell) return false;
-          const expected = recipe.key[ch];
-          const expectedList = Array.isArray(expected) ? expected : [expected];
-          if (!expectedList.includes(cell.item)) return false;
-        }
-      }
-    }
-    return true;
-  }
-};
-
-/* =====================================================================
-   SISTEMA: FURNACE (horno funcional con input/fuel/output y tiempo real de cocción)
-   ===================================================================== */
-const FurnaceRecipes = {}; // input item/block -> {output, cookTime}
-function registerFurnaceRecipes() {
-  FurnaceRecipes[BLOCK.IRON_ORE] = { output:ITEM.IRON_INGOT, cookTime:10 };
-  FurnaceRecipes[BLOCK.GOLD_ORE] = { output:ITEM.GOLD_INGOT, cookTime:10 };
-  FurnaceRecipes[BLOCK.COBBLESTONE] = { output:BLOCK.STONE, cookTime:10 };
-  FurnaceRecipes[BLOCK.SAND] = { output:BLOCK.GLASS, cookTime:10 };
-  FurnaceRecipes[ITEM.RAW_BEEF] = { output:ITEM.COOKED_BEEF, cookTime:8 };
-  FurnaceRecipes[ITEM.RAW_PORKCHOP] = { output:ITEM.COOKED_PORKCHOP, cookTime:8 };
-  FurnaceRecipes[ITEM.RAW_CHICKEN] = { output:ITEM.COOKED_CHICKEN, cookTime:8 };
-}
-const FuelValues = {}; // item/block -> segundos de quemado
-function registerFuelValues() {
-  FuelValues[BLOCK.OAK_LOG] = 15;
-  FuelValues[BLOCK.PINE_LOG] = 15;
-  FuelValues[BLOCK.PLANKS] = 7.5;
-  FuelValues[ITEM.STICK] = 2;
-  FuelValues[ITEM.COAL] = 80;
-}
-
-const FurnaceSystem = {
-  update(furnace, dt, onChange) {
-    const recipe = furnace.input ? FurnaceRecipes[furnace.input.item] : null;
-    const canCook = recipe && furnace.input.count>0 && (!furnace.output || (furnace.output.item===recipe.output && furnace.output.count < getStackSize(recipe.output)));
-    // consumir combustible si hace falta y hay receta válida
-    if (canCook) {
-      if (furnace.fuelBurnTime <= 0) {
-        if (furnace.fuel && furnace.fuel.count>0) {
-          const fuelVal = FuelValues[furnace.fuel.item];
-          if (fuelVal) {
-            furnace.fuelBurnTime = fuelVal;
-            furnace.fuelBurnMax = fuelVal;
-            furnace.fuel.count -= 1;
-            if (furnace.fuel.count<=0) furnace.fuel = null;
-            if (onChange) onChange();
-          }
-        }
-      }
-      if (furnace.fuelBurnTime > 0) {
-        furnace.fuelBurnTime -= dt;
-        furnace.cookMax = recipe.cookTime;
-        furnace.cookProgress += dt;
-        if (furnace.cookProgress >= furnace.cookMax) {
-          furnace.cookProgress = 0;
-          furnace.input.count -= 1;
-          if (furnace.input.count<=0) furnace.input = null;
-          if (!furnace.output) furnace.output = { item:recipe.output, count:1 };
-          else furnace.output.count += 1;
-          if (onChange) onChange();
-        }
-      }
-    } else {
-      furnace.cookProgress = Math.max(0, furnace.cookProgress - dt*2); // se enfría si no puede cocinar
-    }
-  }
-};
-
-
-/* =====================================================================
-   SISTEMA: UI / HUD
-   Renderiza hotbar, corazones de vida/hambre, contorno del bloque
-   apuntado (wireframe), y maneja apertura/cierre del inventario.
-   ===================================================================== */
-const UI = {
-  outlineMesh: null,
-
-  ensureOutlineMesh() {
-    if (this.outlineMesh) return;
-    const geo = new THREE.BoxGeometry(1.002,1.002,1.002);
-    const edges = new THREE.EdgesGeometry(geo);
-    const mat = new THREE.LineBasicMaterial({ color:0x000000, linewidth:2 });
-    this.outlineMesh = new THREE.LineSegments(edges, mat);
-    this.outlineMesh.visible = false;
-    Engine.scene.add(this.outlineMesh);
-  },
-  updateCrosshairOutline() {
-    this.ensureOutlineMesh();
-    const tb = Game.targetBlock;
-    if (tb) {
-      this.outlineMesh.visible = true;
-      this.outlineMesh.position.set(tb.x+0.5, tb.y+0.5, tb.z+0.5);
-    } else {
-      this.outlineMesh.visible = false;
-    }
-  },
-
-  iconDataURLFor(itemKey) {
-    // devuelve un data URL pequeño a partir de la textura procedural del bloque/item para <img>
-    let tex = null;
-    if (typeof itemKey === 'number') {
-      const bd = BlockData[itemKey];
-      tex = bd && bd.textures ? (bd.textures.all || bd.textures.side || bd.textures.top) : null;
-    } else {
-      const idata = ItemData[itemKey];
-      tex = idata && idata.icon;
-    }
-    if (tex && tex.image) {
-      try { return tex.image.toDataURL(); } catch(e) { return null; }
-    }
-    return null;
-  },
-
-  renderSlotContent(el, slotData) {
-    el.innerHTML = '';
-    if (!slotData) return;
-    const url = this.iconDataURLFor(slotData.item);
-    if (url) {
-      const img = document.createElement('img');
-      img.src = url;
-      el.appendChild(img);
-    } else {
-      el.style.background = '#8866cc';
-    }
-    if (slotData.count > 1) {
-      const cnt = document.createElement('div');
-      cnt.className = 'cnt';
-      cnt.textContent = slotData.count;
-      el.appendChild(cnt);
-    }
-  },
-
-  rebuildHotbar() {
-    const hotbar = document.getElementById('hotbar');
-    hotbar.innerHTML = '';
-    for (let i=0;i<9;i++) {
-      const el = document.createElement('div');
-      el.className = 'hotslot' + (i===Game.hotbarSelected ? ' selected' : '');
-      const slotData = Game.inventory ? Game.inventory.slots[27+i] : null;
-      this.renderSlotContent(el, slotData);
-      el.addEventListener('click', () => { Game.hotbarSelected = i; this.rebuildHotbar(); });
-      hotbar.appendChild(el);
-    }
-  },
-
-  rebuildHealthHunger() {
-    const hRow = document.getElementById('healthRow');
-    const gRow = document.getElementById('hungerRow');
-    hRow.innerHTML = ''; gRow.innerHTML = '';
-    const heartsFull = Math.floor(Game.health/2), heartHalf = Game.health%2;
-    for (let i=0;i<10;i++) {
-      const d = document.createElement('div');
-      d.style.width='14px'; d.style.height='14px'; d.style.margin='1px';
-      d.style.background = (i<heartsFull) ? '#e02020' : (i===heartsFull && heartHalf ? '#e02020':'#3a3a3a');
-      d.style.opacity = (i<heartsFull || (i===heartsFull&&heartHalf)) ? '1':'0.35';
-      d.style.clipPath = 'polygon(50% 15%, 61% 4%, 75% 4%, 88% 12%, 94% 25%, 94% 38%, 84% 55%, 50% 90%, 16% 55%, 6% 38%, 6% 25%, 12% 12%, 25% 4%, 39% 4%)';
-      hRow.appendChild(d);
-    }
-    const hungerFull = Math.floor(Game.hunger/2), hungerHalf = Game.hunger%2;
-    for (let i=0;i<10;i++) {
-      const d = document.createElement('div');
-      d.style.width='14px'; d.style.height='14px'; d.style.margin='1px';
-      d.style.background = (i<hungerFull || (i===hungerFull&&hungerHalf)) ? '#c48a3a' : '#3a3a3a';
-      d.style.clipPath = 'polygon(50% 15%, 61% 4%, 75% 4%, 88% 12%, 94% 25%, 94% 38%, 84% 55%, 50% 90%, 16% 55%, 6% 38%, 6% 25%, 12% 12%, 25% 4%, 39% 4%)';
-      gRow.appendChild(d);
-    }
-  },
-
-  toggleInventory() {
-    const hand=document.getElementById('mcHand'); if(hand) hand.style.display = Game.invOpen ? 'none' : 'block';
-    Game.invOpen = !Game.invOpen;
-    document.getElementById('inventoryScreen').style.display = Game.invOpen ? 'flex' : 'none';
-    if (Game.invOpen) {
-      this.rebuildInventoryScreen();
-      if (document.pointerLockElement) document.exitPointerLock();
-    } else {
-      this.returnCraftItemsToInventory(Game.craftGrid2);
-      this.rebuildHotbar();
-      if (!Engine.isMobile) document.getElementById('gameCanvas').requestPointerLock();
-    }
-  },
-
-  returnCraftItemsToInventory(grid) {
-    for (let i=0;i<grid.length;i++) {
-      if (grid[i]) {
-        const leftover = Game.inventory.addItem(grid[i].item, grid[i].count);
-        grid[i] = leftover>0 ? {item:grid[i].item, count:leftover} : null;
-      }
-    }
-  },
-
-  rebuildInventoryScreen() {
-    const mainGrid = document.getElementById('mainInvGrid');
-    const hotbarGrid = document.getElementById('hotbarInvGrid');
-    mainGrid.innerHTML=''; hotbarGrid.innerHTML='';
-    for (let i=0;i<27;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.inventory.slots[i]);
-      el.addEventListener('click', () => this.onInventorySlotClick(i));
-      mainGrid.appendChild(el);
-    }
-    for (let i=27;i<36;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.inventory.slots[i]);
-      el.addEventListener('click', () => this.onInventorySlotClick(i));
-      hotbarGrid.appendChild(el);
-    }
-    this.rebuildCraftGrid2();
-  },
-
-  _heldItem: null, // item "en mano" al hacer click (drag simplificado por clicks)
-
-  onInventorySlotClick(index) {
-    const inv = Game.inventory;
-    if (!this._heldItem) {
-      if (inv.slots[index]) { this._heldItem = inv.slots[index]; inv.slots[index] = null; }
-    } else {
-      if (!inv.slots[index]) {
-        inv.slots[index] = this._heldItem; this._heldItem = null;
-      } else if (inv.slots[index].item === this._heldItem.item) {
-        const max = getStackSize(this._heldItem.item);
-        const total = inv.slots[index].count + this._heldItem.count;
-        inv.slots[index].count = Math.min(max,total);
-        this._heldItem = (total>max) ? {item:this._heldItem.item, count:total-max} : null;
-      } else {
-        const tmp = inv.slots[index]; inv.slots[index] = this._heldItem; this._heldItem = tmp;
-      }
-    }
-    this.rebuildInventoryScreen();
-    this.rebuildHotbar();
-  },
-
-  rebuildCraftGrid2() {
-    const grid = document.getElementById('craftGrid2');
-    grid.innerHTML='';
-    for (let i=0;i<4;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.craftGrid2[i]);
-      el.addEventListener('click', () => this.onCraftSlotClick(Game.craftGrid2, i, 2));
-      grid.appendChild(el);
-    }
-    this.updateCraftResult2();
-  },
-  onCraftSlotClick(grid, index, gridSize) {
-    if (!this._heldItem) {
-      if (grid[index]) { this._heldItem = grid[index]; grid[index] = null; }
-    } else {
-      if (!grid[index]) { grid[index] = this._heldItem; this._heldItem = null; }
-      else if (grid[index].item === this._heldItem.item) {
-        const max = getStackSize(this._heldItem.item);
-        const total = grid[index].count + this._heldItem.count;
-        grid[index].count = Math.min(max,total);
-        this._heldItem = (total>max) ? {item:this._heldItem.item, count:total-max} : null;
-      } else {
-        const tmp = grid[index]; grid[index] = this._heldItem; this._heldItem = tmp;
-      }
-    }
-    if (gridSize===2) { this.rebuildCraftGrid2(); }
-    else { this.rebuildCraftGrid3(); }
-  },
-  updateCraftResult2() {
-    const result = CraftingSystem.matchRecipe(Game.craftGrid2, 2);
-    const el = document.getElementById('craftResultSlot');
-    el.innerHTML=''; el.onclick=null;
-    if (result) {
-      this.renderSlotContent(el, {item:result.output, count:result.outputCount});
-      el.onclick = () => this.collectCraftResult(Game.craftGrid2, 2, result);
-    }
-  },
-  rebuildCraftGrid3() {
-    const grid = document.getElementById('craftGrid3');
-    grid.innerHTML='';
-    for (let i=0;i<9;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.craftGrid3[i]);
-      el.addEventListener('click', () => this.onCraftSlotClick(Game.craftGrid3, i, 3));
-      grid.appendChild(el);
-    }
-    this.updateCraftResult3();
-  },
-  updateCraftResult3() {
-    const result = CraftingSystem.matchRecipe(Game.craftGrid3, 3);
-    const el = document.getElementById('craftResultSlot3');
-    el.innerHTML=''; el.onclick=null;
-    if (result) {
-      this.renderSlotContent(el, {item:result.output, count:result.outputCount});
-      el.onclick = () => this.collectCraftResult(Game.craftGrid3, 3, result);
-    }
-  },
-  collectCraftResult(grid, gridSize, result) {
-    const leftover = Game.inventory.addItem(result.output, result.outputCount);
-    if (leftover > 0) return; // inventario lleno, no consumir ingredientes
-    for (let i=0;i<grid.length;i++) {
-      if (grid[i]) {
-        grid[i].count -= 1;
-        if (grid[i].count<=0) grid[i]=null;
-      }
-    }
-    if (gridSize===2) { this.rebuildCraftGrid2(); } else { this.rebuildCraftGrid3(); }
-    this.rebuildInventoryScreen();
-  },
-
-  openCraftingTable() {
-    const hand=document.getElementById('mcHand'); if(hand) hand.style.display='none';
-    document.getElementById('craftingTableScreen').style.display='flex';
-    Game.invOpen = true;
-    if (document.pointerLockElement) document.exitPointerLock();
-    this.rebuildCraftingTableScreen();
-  },
-  closeCraftingTable() {
-    const hand=document.getElementById('mcHand'); if(hand) hand.style.display='block';
-    document.getElementById('craftingTableScreen').style.display='none';
-    Game.invOpen = false;
-    this.returnCraftItemsToInventory(Game.craftGrid3);
-    this.rebuildHotbar();
-    if (!Engine.isMobile) document.getElementById('gameCanvas').requestPointerLock();
-  },
-  rebuildCraftingTableScreen() {
-    const mainGrid = document.getElementById('ctMainInvGrid');
-    const hotbarGrid = document.getElementById('ctHotbarInvGrid');
-    mainGrid.innerHTML=''; hotbarGrid.innerHTML='';
-    for (let i=0;i<27;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.inventory.slots[i]);
-      el.addEventListener('click', () => { this.onInventorySlotClick(i); this.rebuildCraftingTableScreen(); this.rebuildCraftGrid3(); });
-      mainGrid.appendChild(el);
-    }
-    for (let i=27;i<36;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.inventory.slots[i]);
-      el.addEventListener('click', () => { this.onInventorySlotClick(i); this.rebuildCraftingTableScreen(); this.rebuildCraftGrid3(); });
-      hotbarGrid.appendChild(el);
-    }
-    this.rebuildCraftGrid3();
-  },
-
-  _recipeRequirements(recipe) {
-    const req = {};
-    if (recipe.shapeless) {
-      for (const x of recipe.ingredients) req[x.item] = (req[x.item] || 0) + x.count;
-      return req;
-    }
-    for (const row of (recipe.pattern || [])) {
-      for (const ch of row) {
-        if (ch === '.') continue;
-        const value = recipe.key[ch];
-        const item = Array.isArray(value) ? value[0] : value;
-        if (item !== undefined) req[item] = (req[item] || 0) + 1;
-      }
-    }
-    return req;
-  },
-
-  craftRecipeDirect(recipe) {
-    const req = this._recipeRequirements(recipe);
-    for (const [item, needed] of Object.entries(req)) {
-      let total = 0;
-      for (const slot of Game.inventory.slots) {
-        if (slot && String(slot.item) === String(item)) total += slot.count;
-      }
-      if (total < needed) {
-        this.recipeMessage('Faltan materiales para: ' + getItemName(recipe.output));
-        return false;
-      }
-    }
-
-    // Consumir ingredientes de todo el inventario.
-    for (const [item, neededRaw] of Object.entries(req)) {
-      let needed = Number(neededRaw);
-      for (let i=0; i<Game.inventory.slots.length && needed>0; i++) {
-        const slot = Game.inventory.slots[i];
-        if (!slot || String(slot.item) !== String(item)) continue;
-        const take = Math.min(slot.count, needed);
-        slot.count -= take;
-        needed -= take;
-        if (slot.count <= 0) Game.inventory.slots[i] = null;
-      }
-    }
-
-    const leftover = Game.inventory.addItem(recipe.output, recipe.outputCount || 1);
-    if (leftover > 0) {
-      // Caso extremadamente raro: devolver ingredientes si el inventario se llenó.
-      for (const [item, count] of Object.entries(req)) Game.inventory.addItem(Number(item), count);
-      this.recipeMessage('Inventario lleno.');
-      return false;
-    }
-
-    this.rebuildHotbar();
-    this.rebuildInventoryScreen();
-    if (document.getElementById('craftingTableScreen').style.display === 'flex') {
-      this.rebuildCraftingTableScreen();
-      this.rebuildCraftGrid3();
-    } else {
-      this.rebuildCraftGrid2();
-    }
-    this.recipeMessage('✓ Crafteado: ' + (recipe.outputCount || 1) + 'x ' + getItemName(recipe.output));
-    return true;
-  },
-
-  recipeMessage(text) {
-    let msg = document.getElementById('recipeMessage');
-    if (!msg) return;
-    msg.textContent = text;
-    msg.style.opacity = '1';
-    clearTimeout(this._recipeMsgTimer);
-    this._recipeMsgTimer = setTimeout(() => msg.style.opacity = '0', 1800);
-  },
-
-  openRecipeBook() {
-    const hand=document.getElementById('mcHand'); if(hand) hand.style.display='none';
-    const panel=document.getElementById('recipeBook');
-    const list=document.getElementById('recipeList');
-    list.innerHTML='';
-    const all=[...CraftingSystem.recipes2x2,...CraftingSystem.recipes3x3];
-    all.forEach((r)=>{
-      const card=document.createElement('div'); card.className='recipeCard';
-      const name=getItemName(r.output);
-      const out=(r.outputCount||1)+'x '+name;
-      let pattern='';
-      if(r.shapeless){
-        pattern='LIBRE: '+r.ingredients.map(x=>x.count+'x '+getItemName(x.item)).join(' + ');
-      } else {
-        pattern=(r.pattern||[]).map(row=>row.replace(/M|C|S|P/g,ch=>{
-          const v=r.key[ch];
-          return v ? (Array.isArray(v)?getItemName(v[0]):getItemName(v)).slice(0,12) : ch;
-        })).join('\n');
-      }
-      card.innerHTML =
-        '<div class="recipeName">'+out+'</div>' +
-        '<div class="recipePattern">'+pattern+'</div>' +
-        '<button class="recipeBookBtn craftDirectBtn">⚒ CREAR</button>';
-      card.querySelector('.craftDirectBtn').addEventListener('click', ()=>this.craftRecipeDirect(r));
-      list.appendChild(card);
-    });
-    panel.style.display='flex';
-  },
-  closeRecipeBook() { document.getElementById('recipeBook').style.display='none'; const hand=document.getElementById('mcHand'); if(hand) hand.style.display='block'; },
-
-  openFurnace() {
-    document.getElementById('furnaceScreen').style.display='flex';
-    Game.invOpen = true;
-    if (document.pointerLockElement) document.exitPointerLock();
-    this.rebuildFurnaceScreen();
-  },
-  closeFurnace() {
-    document.getElementById('furnaceScreen').style.display='none';
-    Game.invOpen = false;
-    if (!Engine.isMobile) document.getElementById('gameCanvas').requestPointerLock();
-  },
-  rebuildFurnaceScreen() {
-    const inputEl = document.getElementById('furnaceInputSlot');
-    const fuelEl = document.getElementById('furnaceFuelSlot');
-    const outEl = document.getElementById('furnaceOutputSlot');
-    inputEl.innerHTML=''; this.renderSlotContent(inputEl, Game.furnace.input);
-    fuelEl.innerHTML=''; this.renderSlotContent(fuelEl, Game.furnace.fuel);
-    outEl.innerHTML=''; this.renderSlotContent(outEl, Game.furnace.output);
-    inputEl.onclick = () => { this.onFurnaceSlotClick('input'); };
-    fuelEl.onclick = () => { this.onFurnaceSlotClick('fuel'); };
-    outEl.onclick = () => { this.onFurnaceCollectOutput(); };
-    const mainGrid = document.getElementById('fnMainInvGrid');
-    const hotbarGrid = document.getElementById('fnHotbarInvGrid');
-    mainGrid.innerHTML=''; hotbarGrid.innerHTML='';
-    for (let i=0;i<27;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.inventory.slots[i]);
-      el.addEventListener('click', () => { this.onInventorySlotClick(i); this.rebuildFurnaceScreen(); });
-      mainGrid.appendChild(el);
-    }
-    for (let i=27;i<36;i++) {
-      const el = document.createElement('div'); el.className='slot';
-      this.renderSlotContent(el, Game.inventory.slots[i]);
-      el.addEventListener('click', () => { this.onInventorySlotClick(i); this.rebuildFurnaceScreen(); });
-      hotbarGrid.appendChild(el);
-    }
-    document.getElementById('fireFill').style.height = Math.floor((Game.furnace.cookProgress/Game.furnace.cookMax)*100)+'%';
-  },
-  onFurnaceSlotClick(which) {
-    const f = Game.furnace;
-    if (!this._heldItem) {
-      if (f[which]) { this._heldItem = f[which]; f[which] = null; }
-    } else {
-      if (!f[which]) { f[which] = this._heldItem; this._heldItem = null; }
-      else if (f[which].item === this._heldItem.item) {
-        const max = getStackSize(this._heldItem.item);
-        const total = f[which].count + this._heldItem.count;
-        f[which].count = Math.min(max,total);
-        this._heldItem = (total>max)?{item:this._heldItem.item,count:total-max}:null;
-      } else {
-        const tmp = f[which]; f[which] = this._heldItem; this._heldItem = tmp;
-      }
-    }
-    this.rebuildFurnaceScreen();
-  },
-  onFurnaceCollectOutput() {
-    const f = Game.furnace;
-    if (!f.output) return;
-    if (!this._heldItem) { this._heldItem = f.output; f.output = null; }
-    this.rebuildFurnaceScreen();
-  }
-};
-
-/* =====================================================================
-   SISTEMA: MOBS
-   Cada mob es un grupo de mallas simples (cabeza, cuerpo, patas) —
-   nunca un único cubo — con textura pixel-art propia y animación básica
-   de caminata. La IA se resuelve con máquinas de estado simples por tipo.
-   ===================================================================== */
-const MOB_TYPE = {
-  ZOMBIE:'zombie', CREEPER:'creeper', SKELETON:'skeleton', SPIDER:'spider',
-  PIG:'pig', COW:'cow', SHEEP:'sheep', CHICKEN:'chicken'
-};
-const HOSTILE_MOBS = [MOB_TYPE.ZOMBIE, MOB_TYPE.CREEPER, MOB_TYPE.SKELETON, MOB_TYPE.SPIDER];
-const ANIMAL_MOBS = [MOB_TYPE.PIG, MOB_TYPE.COW, MOB_TYPE.SHEEP, MOB_TYPE.CHICKEN];
-
-const MobConfig = {
-  [MOB_TYPE.ZOMBIE]:   { maxHealth:20, speed:1.6, damage:3, detectRange:14, attackRange:1.1, bodyColor:'#3a7d44', skinColor:'#4a9d54', drops:[] },
-  [MOB_TYPE.CREEPER]:  { maxHealth:20, speed:1.4, damage:0, detectRange:12, attackRange:2.2, bodyColor:'#4caf50', skinColor:'#5cbf60', drops:[], explodes:true, fuseTime:1.5, explosionRadius:3 },
-  [MOB_TYPE.SKELETON]: { maxHealth:20, speed:1.3, damage:2, detectRange:16, attackRange:8, bodyColor:'#d8d8c8', skinColor:'#e8e8d8', drops:[], ranged:true },
-  [MOB_TYPE.SPIDER]:   { maxHealth:16, speed:2.2, damage:2, detectRange:14, attackRange:1.3, bodyColor:'#2a1a1a', skinColor:'#3a2a2a', drops:[] },
-  [MOB_TYPE.PIG]:      { maxHealth:10, speed:1.0, damage:0, detectRange:0, attackRange:0, bodyColor:'#e8a0a8', skinColor:'#f0b0b8', drops:[{item:ITEM.RAW_PORKCHOP,count:[1,3]}] },
-  [MOB_TYPE.COW]:      { maxHealth:10, speed:0.9, damage:0, detectRange:0, attackRange:0, bodyColor:'#4a3a2a', skinColor:'#5a4a3a', drops:[{item:ITEM.RAW_BEEF,count:[1,3]}] },
-  [MOB_TYPE.SHEEP]:    { maxHealth:8, speed:0.9, damage:0, detectRange:0, attackRange:0, bodyColor:'#e8e8e0', skinColor:'#f0f0e8', drops:[{item:ITEM.WOOL,count:[1,2]}] },
-  [MOB_TYPE.CHICKEN]:  { maxHealth:4, speed:1.1, damage:0, detectRange:0, attackRange:0, bodyColor:'#f0f0f0', skinColor:'#ffffff', drops:[{item:ITEM.RAW_CHICKEN,count:[1,1]}] },
-};
-
-function makeSolidColorTexture(hexColor, seed) {
-  const c = makeCanvas(); const ctx = c.getContext('2d');
-  speckle(ctx, hexColor, [hexColor], seed||1, 0); // color sólido con textura base (sin ruido, pero reutiliza el pipeline pixel-art)
-  return toTexture(c);
-}
-
-class Mob {
-  constructor(scene, type, position) {
-    this.scene = scene;
-    this.type = type;
-    this.cfg = MobConfig[type];
-    this.health = this.cfg.maxHealth;
-    this.pos = position.clone();
-    this.vel = new THREE.Vector3(0,0,0);
-    this.onGround = false;
-    this.yaw = Math.random()*Math.PI*2;
-    this.state = 'idle'; // idle, wander, chase, attack, flee, fuse(creeper)
-    this.stateTimer = 0;
-    this.wanderTarget = null;
-    this.fuseTimer = 0;
-    this.attackCooldown = 0;
-    this.dead = false;
-    this.group = this.buildModel();
-    this.group.position.copy(this.pos);
-    scene.add(this.group);
-  }
-
-  // Construye el modelo en partes: cabeza, cuerpo, 4 patas (o menos para gallina/araña con más patas)
-  buildModel() {
-    const cfg = this.cfg;
-    const group = new THREE.Group();
-    const bodyMat = new THREE.MeshLambertMaterial({ map: makeSolidColorTexture(cfg.bodyColor, 1) });
-    const headMat = new THREE.MeshLambertMaterial({ map: makeSolidColorTexture(cfg.skinColor, 2) });
-    const legMat = new THREE.MeshLambertMaterial({ map: makeSolidColorTexture(cfg.bodyColor, 3) });
-
-    const isSpider = this.type === MOB_TYPE.SPIDER;
-    const isChicken = this.type === MOB_TYPE.CHICKEN;
-    const bodyW = isSpider ? 0.9 : 0.55, bodyH = isSpider?0.35:0.55, bodyD = isSpider?0.7:0.35;
-
-    const bodyGeo = new THREE.BoxGeometry(bodyW, bodyH, bodyD);
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.position.y = isSpider ? 0.5 : 0.75;
-    group.add(body);
-    this.bodyMesh = body;
-
-    const headSize = isChicken ? 0.22 : 0.32;
-    const headGeo = new THREE.BoxGeometry(headSize, headSize, headSize);
-    const head = new THREE.Mesh(headGeo, headMat);
-    head.position.set(0, body.position.y + bodyH/2 + headSize/2 - 0.02, bodyD/2 + headSize/2 - 0.05);
-    group.add(head);
-    this.headMesh = head;
-
-    // ojos simples (para dar sensación de rostro sin depender de UV mapping complejo)
-    if (!isSpider) {
-      const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-      const eyeGeo = new THREE.BoxGeometry(0.04,0.04,0.02);
-      const eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(-headSize*0.22, head.position.y+0.02, headSize/2+0.01);
-      const eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(headSize*0.22, head.position.y+0.02, headSize/2+0.01);
-      group.add(eyeL); group.add(eyeR);
-    }
-
-    // patas
-    this.legMeshes = [];
-    if (isSpider) {
-      for (let i=0;i<8;i++) {
-        const legGeo = new THREE.BoxGeometry(0.06,0.3,0.06);
-        const leg = new THREE.Mesh(legGeo, legMat);
-        const side = i<4 ? -1:1;
-        const idx = i%4;
-        leg.position.set(side*(bodyW/2+0.1), 0.3, (idx-1.5)*0.18);
-        group.add(leg); this.legMeshes.push(leg);
-      }
-    } else {
-      const legCount = isChicken?2:4;
-      const legGeo = new THREE.BoxGeometry(0.12, isChicken?0.35:0.5, 0.12);
-      const positions = isChicken
-        ? [[-0.08,0,0],[0.08,0,0]]
-        : [[-bodyW/2+0.08,0,bodyD/2-0.08],[bodyW/2-0.08,0,bodyD/2-0.08],[-bodyW/2+0.08,0,-bodyD/2+0.08],[bodyW/2-0.08,0,-bodyD/2+0.08]];
-      for (const p of positions) {
-        const leg = new THREE.Mesh(legGeo, legMat);
-        leg.position.set(p[0], (isChicken?0.18:0.25), p[2]);
-        group.add(leg); this.legMeshes.push(leg);
-      }
-    }
-
-    if (this.type===MOB_TYPE.CREEPER) {
-      // creeper no tiene patas visibles separadas (piernas cortas pegadas al cuerpo), ajuste visual simple
-      for (const leg of this.legMeshes) leg.scale.set(1,0.6,1);
-    }
-
-    return group;
-  }
-
-  get height() { return this.type===MOB_TYPE.SPIDER ? 0.6 : (this.type===MOB_TYPE.CHICKEN?0.5:0.9); }
-  get width() { return this.type===MOB_TYPE.SPIDER ? 0.9 : 0.6; }
-
-  isHostile() { return HOSTILE_MOBS.includes(this.type); }
-
-  // === IA ===
-  updateAI(dt, world, playerPos, onExplode, onAttackPlayer) {
-    if (this.dead) return;
-    const dx = playerPos.x-this.pos.x, dz = playerPos.z-this.pos.z;
-    const distToPlayer = Math.sqrt(dx*dx+dz*dz);
-    const cfg = this.cfg;
-
-    if (this.isHostile()) {
-      if (this.type === MOB_TYPE.CREEPER && this.state==='fuse') {
-        this.fuseTimer += dt;
-        if (this.fuseTimer >= cfg.fuseTime) {
-          this.dead = true;
-          if (onExplode) onExplode(this.pos.clone(), cfg.explosionRadius);
-          return;
-        }
-      } else if (distToPlayer < cfg.detectRange) {
-        this.state = 'chase';
-      } else if (this.state==='chase' && distToPlayer > cfg.detectRange*1.5) {
-        this.state = 'wander';
-      }
-
-      if (this.state === 'chase') {
-        if (this.type===MOB_TYPE.CREEPER && distToPlayer < cfg.attackRange) {
-          this.state = 'fuse'; this.fuseTimer = 0;
-        } else if (this.type===MOB_TYPE.SKELETON && distToPlayer < cfg.attackRange && distToPlayer > 3) {
-          // skeleton mantiene distancia: no avanza más si ya está en rango de tiro
-          this.yaw = Math.atan2(dx, dz);
-        } else if (distToPlayer > cfg.attackRange*0.7) {
-          this.yaw = Math.atan2(dx, dz);
-          this.moveForward(dt, world, cfg.speed);
-        }
-        if (distToPlayer < cfg.attackRange && this.type!==MOB_TYPE.CREEPER) {
-          this.attackCooldown -= dt;
-          if (this.attackCooldown <= 0) {
-            this.attackCooldown = 1.0;
-            if (onAttackPlayer) onAttackPlayer(cfg.damage);
-          }
-        }
-      } else {
-        this.wander(dt, world);
-      }
-    } else {
-      // animales: deambulan pasivamente, huyen si el jugador está muy cerca (opcional simple)
-      this.wander(dt, world);
-    }
-
-    this.applyGravityAndCollision(dt, world);
-    this.animateWalk(dt);
-  }
-
-  wander(dt, world) {
-    this.stateTimer -= dt;
-    if (this.stateTimer <= 0 || !this.wanderTarget) {
-      this.stateTimer = 3+Math.random()*4;
-      this.yaw = Math.random()*Math.PI*2;
-    }
-    if (Math.random() < 0.6*dt) this.moveForward(dt, world, this.cfg.speed*0.5);
-  }
-
-  moveForward(dt, world, speed) {
-    const dx = Math.sin(this.yaw)*speed*dt;
-    const dz = Math.cos(this.yaw)*speed*dt;
-    const nx = this.pos.x+dx, nz = this.pos.z+dz;
-    // no caminar hacia un bloque sólido (evita que atraviesen paredes, aunque IA simple)
-    if (!world.isSolidAt(Math.floor(nx), Math.floor(this.pos.y), Math.floor(nz))) {
-      this.pos.x = nx; this.pos.z = nz;
-    } else {
-      this.yaw += Math.PI/2; // gira si choca
-    }
-  }
-
-  applyGravityAndCollision(dt, world) {
-    this.vel.y += GRAVITY*dt;
-    const nextY = this.pos.y + this.vel.y*dt;
-    if (world.isSolidAt(Math.floor(this.pos.x), Math.floor(nextY), Math.floor(this.pos.z))) {
-      if (this.vel.y < 0) { this.onGround = true; this.pos.y = Math.ceil(nextY); }
-      this.vel.y = 0;
-    } else {
-      this.pos.y = nextY;
-      this.onGround = false;
-    }
-  }
-
-  animateWalk(dt) {
-    this._walkCycle = (this._walkCycle||0) + dt*6;
-    const swing = Math.sin(this._walkCycle)*0.4;
-    for (let i=0;i<this.legMeshes.length;i++) {
-      this.legMeshes[i].rotation.x = (i%2===0?1:-1)*swing;
-    }
-    this.group.position.copy(this.pos);
-    this.group.rotation.y = this.yaw;
-  }
-
-  takeDamage(amount) {
-    this.health -= amount;
-    if (this.health <= 0) this.dead = true;
-    return this.dead;
-  }
-
-  destroy() {
-    this.scene.remove(this.group);
-    this.group.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material) obj.material.dispose(); });
-  }
-}
-
-/* =====================================================================
-   SISTEMA: MOB MANAGER
-   Controla spawn (más agresivo de noche para hostiles), límite de mobs
-   activos por rendimiento, y el ciclo update/destroy.
-   ===================================================================== */
-class MobManager {
-  constructor(scene, world, droppedItems) {
-    this.scene = scene;
-    this.world = world;
-    this.droppedItems = droppedItems;
-    this.mobs = [];
-    this.maxHostiles = 12;
-    this.maxAnimals = 10;
-    this.spawnTimer = 0;
-  }
-
-  countByCategory() {
-    let hostiles=0, animals=0;
-    for (const m of this.mobs) { if (m.isHostile()) hostiles++; else animals++; }
-    return {hostiles, animals};
-  }
-
-  trySpawn(playerPos, isNight) {
-    const {hostiles, animals} = this.countByCategory();
-    const wantHostile = isNight && hostiles < this.maxHostiles;
-    const wantAnimal = animals < this.maxAnimals;
-    if (!wantHostile && !wantAnimal) return;
-
-    // posición candidata: anillo alrededor del jugador, fuera de la vista inmediata pero dentro de chunks cargados
-    const ang = Math.random()*Math.PI*2;
-    const dist = 14 + Math.random()*16;
-    const wx = Math.floor(playerPos.x + Math.cos(ang)*dist);
-    const wz = Math.floor(playerPos.z + Math.sin(ang)*dist);
-    // buscar superficie sólida en esa columna (desde arriba hacia abajo, límite razonable)
-    let spawnY = -1;
-    for (let y=Math.min(WORLD_HEIGHT-2, 60); y>1; y--) {
-      if (this.world.isSolidAt(wx,y,wz) && !this.world.isSolidAt(wx,y+1,wz) && !this.world.isSolidAt(wx,y+2,wz)) {
-        // comprobar que ni el bloque de superficie ni el espacio donde aparecerá el mob sean agua
-        const surfaceBlock = this.world.getBlock(wx,y,wz);
-        const spawnSpaceBlock = this.world.getBlock(wx,y+1,wz);
-        if (surfaceBlock === BLOCK.WATER || spawnSpaceBlock === BLOCK.WATER) continue;
-        spawnY = y+1; break;
-      }
-    }
-    if (spawnY < 0) return; // no se encontró superficie válida (chunk no cargado, agua, o cueva compleja)
-
-    let type;
-    if (wantHostile && (!wantAnimal || Math.random()<0.5)) {
-      type = HOSTILE_MOBS[Math.floor(Math.random()*HOSTILE_MOBS.length)];
-    } else {
-      type = ANIMAL_MOBS[Math.floor(Math.random()*ANIMAL_MOBS.length)];
-    }
-    const mob = new Mob(this.scene, type, new THREE.Vector3(wx+0.5, spawnY, wz+0.5));
-    this.mobs.push(mob);
-  }
-
-  update(dt, playerPos, isNight, callbacks) {
-    this.spawnTimer -= dt;
-    if (this.spawnTimer <= 0) {
-      this.spawnTimer = 2 + Math.random()*3;
-      this.trySpawn(playerPos, isNight);
-    }
-    for (let i=this.mobs.length-1; i>=0; i--) {
-      const mob = this.mobs[i];
-      // despawn por lejanía (rendimiento) — pero solo si sigue vivo; un mob que
-      // acaba de morir debe procesar su drop antes de ser eliminado, aunque el
-      // jugador ya esté lejos, para no perder el loot silenciosamente.
-      if (!mob.dead) {
-        const dx=mob.pos.x-playerPos.x, dz=mob.pos.z-playerPos.z;
-        if (dx*dx+dz*dz > 80*80) { mob.destroy(); this.mobs.splice(i,1); continue; }
-      }
-
-      if (!mob.dead) {
-        mob.updateAI(dt, this.world, playerPos, callbacks.onExplode, (dmg) => {
-          const dx2=mob.pos.x-playerPos.x, dz2=mob.pos.z-playerPos.z;
-          if (dx2*dx2+dz2*dz2 < (mob.cfg.attackRange+0.5)*(mob.cfg.attackRange+0.5)) {
-            if (callbacks.onPlayerHit) callbacks.onPlayerHit(dmg);
-          }
-        });
-      }
-
-      if (mob.dead) {
-        // dropear items al morir
-        for (const dropDef of mob.cfg.drops) {
-          const count = Array.isArray(dropDef.count) ? (dropDef.count[0]+Math.floor(Math.random()*(dropDef.count[1]-dropDef.count[0]+1))) : dropDef.count;
-          this.droppedItems.spawnDrop(mob.pos.clone(), dropDef.item, count);
-        }
-        mob.destroy();
-        this.mobs.splice(i,1);
-      }
-    }
-  }
-
-  // daño en área (usado por la explosión del creeper)
-  damageInRadius(center, radius, playerPos, onPlayerDamaged) {
-    const distToPlayerSq = (center.x-playerPos.x)**2 + (center.y-playerPos.y)**2 + (center.z-playerPos.z)**2;
-    if (distToPlayerSq < radius*radius) {
-      const falloff = 1 - Math.sqrt(distToPlayerSq)/radius;
-      const dmg = Math.ceil(6*falloff);
-      if (dmg > 0 && onPlayerDamaged) onPlayerDamaged(dmg);
-    }
-    for (const mob of this.mobs) {
-      const d2 = (center.x-mob.pos.x)**2 + (center.y-mob.pos.y)**2 + (center.z-mob.pos.z)**2;
-      if (d2 < radius*radius) {
-        const falloff = 1 - Math.sqrt(d2)/radius;
-        mob.takeDamage(Math.ceil(8*falloff));
-      }
-    }
-  }
 }
 
 
-const Game = {
-  started:false,
-  fpsAccum:0, fpsFrames:0, fpsLast:0,
-  inventory:null,
-  hotbarSelected:0,
-  health:20, maxHealth:20, // 10 corazones = 20 puntos (medio corazón = 1 punto)
-  hunger:20, maxHunger:20,
-  dead:false,
-  invOpen:false,
-  droppedItems:null,
-  targetBlock:null, // {x,y,z,face,dist}
-  miningProgress:0,
-  miningTarget:null, // "x,y,z" string del bloque que se está minando actualmente
-  craftGrid2:null, craftGrid3:null, // arrays de 4 / 9 slots {item,count}|null
-  furnace:null, // {input,fuel,output,fuelBurnTime,fuelBurnMax,cookProgress,cookMax}
-  lastPlaceTime:0, lastBreakActionTime:0,
+/* CREAR PUBLICACIÓN */
 
-  async startSingleplayer(seedOverride=null) {
-    document.getElementById('mainMenu').style.display = 'none';
-    MenuBackground.stop();
-    try {
-      if (typeof THREE === 'undefined') {
-        throw new Error('Three.js no cargó (CDN bloqueado o sin conexión a internet). Revisa tu conexión y recarga la página.');
-      }
-      // registerBlocks/Items/etc. son idempotentes por diseño: si el fondo del
-      // menú ya los inicializó, no los recreamos (evita duplicar texturas/materiales).
-      if (Object.keys(BlockData).length === 0) registerBlocks();
-      if (Object.keys(ItemData).length === 0) registerItems();
-      if (Object.keys(FurnaceRecipes).length === 0) registerFurnaceRecipes();
-      if (Object.keys(FuelValues).length === 0) registerFuelValues();
-      Engine.init(seedOverride);
-      this.inventory = new Inventory(36); // 27 principal + 9 hotbar (índices 27-35 = hotbar)
-      this.craftGrid2 = new Array(4).fill(null);
-      this.craftGrid3 = new Array(9).fill(null);
-      this.furnace = { input:null, fuel:null, output:null, fuelBurnTime:0, fuelBurnMax:0, cookProgress:0, cookMax:10 };
-      // Kit inicial: herramientas directamente en la HOTBAR para que el clic izquierdo
-      // pueda minar desde el primer segundo. Añadimos madera/palos para probar crafting.
-      this.inventory.slots[27] = { item:ITEM.WOOD_PICKAXE, count:1 };
-      this.inventory.slots[28] = { item:ITEM.WOOD_AXE, count:1 };
-      this.inventory.slots[29] = { item:BLOCK.OAK_LOG, count:4 };
-      this.inventory.slots[30] = { item:BLOCK.PLANKS, count:4 };
-      this.inventory.slots[31] = { item:ITEM.STICK, count:4 };
+function crearPublicacion(
+ texto,
+ imagen
+){
 
-      const startTime = performance.now();
-      await Engine.pregenerateSpawnArea();
-      console.log('[MINICRAFT] Generación inicial completada en', ((performance.now()-startTime)/1000).toFixed(1), 's');
-      this.droppedItems = new DroppedItemsManager(Engine.scene, Engine.world);
-      this.mobManager = new MobManager(Engine.scene, Engine.world, this.droppedItems);
+ let publicacion={
 
-      document.getElementById('hud').style.display = 'block';
-      document.getElementById('mcHand').style.display = 'block';
-      UI.rebuildHotbar();
-      UI.rebuildHealthHunger();
-      if (Engine.isMobile) {
-        Engine.mobileInput.active = true;
-        document.getElementById('mobileControls').style.display = 'block';
-      } else {
-        document.getElementById('startPrompt').style.display = 'flex';
-      }
-      this.started = true;
-      this.loop();
-    } catch (err) {
-      console.error('[MINICRAFT] Error al iniciar:', err);
-      console.error('[MINICRAFT] Error al generar el mundo:', err);
-    }
-  },
+  id:
+   Date.now()+
+   Math.random(),
 
-  handleInputAndPhysics(dt) {
-    if (this.invOpen || this.dead) return; // congelar movimiento con inventario/muerte
-    const camYaw = Engine.isMobile ? Engine.mobileInput.yaw : Engine.input.yaw;
-    const camPitch = Engine.isMobile ? Engine.mobileInput.pitch : Engine.input.pitch;
-    let moveX=0, moveZ=0, jump=false, sprint=false;
-    if (Engine.isMobile) {
-      moveX = Engine.mobileInput.moveX;
-      moveZ = Engine.mobileInput.moveZ;
-      jump = Engine.mobileInput.jump;
-      sprint = Engine.mobileInput.run;
-    } else {
-      const mv = Engine.input.getMoveVector();
-      moveX = mv.x; moveZ = mv.z;
-      jump = Engine.input.isDown('Space');
-      sprint = Engine.input.isDown('ShiftLeft') || Engine.input.isDown('ShiftRight');
-      Engine.crouching = Engine.input.isDown('ControlLeft') || Engine.input.isDown('KeyC');
-    }
-    const wasOnGroundBefore = Engine.physics.onGround;
-    const yBefore = Engine.physics.pos.y;
-    Engine.physics.update(dt, { moveX, moveZ, jump, sprint, yaw:camYaw }, Engine.crouching);
+  nombre:usuario,
 
-    // daño por caída: si tocó el suelo viniendo de una velocidad de caída alta
-    if (!wasOnGroundBefore && Engine.physics.onGround) {
-      const fallDist = Math.max(0, yBefore - Engine.physics.pos.y);
-      if (fallDist > 3.5) {
-        const dmg = Math.floor((fallDist-3)*1.2);
-        if (dmg > 0) this.damagePlayer(dmg);
-      }
-    }
-    // daño por ahogamiento simplificado: si está sumergido bajo agua por mucho tiempo
-    const headBlock = Engine.world.getBlock(Math.floor(Engine.physics.pos.x), Math.floor(Engine.physics.pos.y+1.6), Math.floor(Engine.physics.pos.z));
-    if (headBlock === BLOCK.WATER) {
-      this._underwaterTime = (this._underwaterTime||0) + dt;
-      if (this._underwaterTime > 8) {
-        this.damagePlayer(1);
-        this._underwaterTime = 6.5; // daño periódico, no cada frame
-      }
-    } else {
-      this._underwaterTime = 0;
-    }
+  texto:texto,
 
-    // cámara sigue al jugador (ojos a ~90% de la altura)
-    const eyeHeight = Engine.crouching ? PLAYER_HEIGHT_CROUCH*0.9 : PLAYER_HEIGHT_STAND*0.9;
-    Engine.camera.position.set(Engine.physics.pos.x, Engine.physics.pos.y+eyeHeight, Engine.physics.pos.z);
-    Engine.camera.rotation.order = 'YXZ';
-    Engine.camera.rotation.y = camYaw;
-    Engine.camera.rotation.x = camPitch;
-  },
+  imagen:imagen,
 
-  // ===== INTERACCIÓN: raycast + minar + colocar =====
-  updateBlockTargeting(dt) {
-    if (this.invOpen || this.dead) { this.targetBlock = null; this.miningTarget = null; return; }
-    const dir = new THREE.Vector3();
-    Engine.camera.getWorldDirection(dir);
-    const origin = Engine.camera.position;
-    const result = raycastBlocks(Engine.world, origin, dir, MAX_REACH);
-    this.targetBlock = result.hit ? result : null;
-    const blockHitDist = result.hit ? result.dist : Infinity;
+  likes:0
 
-    const isMining = Engine.isMobile ? Engine.mobileInput.breakHeld : Engine.input.mouseDownLeft;
+ };
 
-    // detectar mob apuntado: proyección simple del mob sobre el rayo de la cámara,
-    // solo cuenta si está más cerca que cualquier bloque sólido en esa dirección.
-    let targetedMob = null, targetedMobDist = Infinity;
-    if (this.mobManager) {
-      for (const mob of this.mobManager.mobs) {
-        const toMob = new THREE.Vector3(mob.pos.x-origin.x, mob.pos.y+mob.height/2-origin.y, mob.pos.z-origin.z);
-        const dist = toMob.length();
-        if (dist > MAX_REACH || dist >= blockHitDist) continue;
-        const toMobNorm = toMob.clone().normalize();
-        const dot = toMobNorm.x*dir.x + toMobNorm.y*dir.y + toMobNorm.z*dir.z;
-        if (dot > 0.95 && dist < targetedMobDist) { targetedMob = mob; targetedMobDist = dist; }
-      }
-    }
 
-    if (targetedMob && isMining) {
-      this._mobAttackCooldown = (this._mobAttackCooldown||0) - dt;
-      if (this._mobAttackCooldown <= 0) {
-        this._mobAttackCooldown = 0.4;
-        const selectedItem = this.getSelectedItem();
-        const toolData = selectedItem && typeof selectedItem.item === 'string' ? ItemData[selectedItem.item] : null;
-        const dmg = (toolData && toolData.tool) ? toolData.tool.attackDamage : 1;
-        targetedMob.takeDamage(dmg);
-      }
-      this.miningTarget = null; this.miningProgress = 0;
-      Engine.input.placeRequested = false;
-      return; // priorizar combate sobre minado este frame
-    }
+ agregarPublicacion(
+  publicacion
+ );
 
-    if (this.targetBlock && isMining) {
-      const key = this.targetBlock.x+','+this.targetBlock.y+','+this.targetBlock.z;
-      if (this.miningTarget !== key) { this.miningTarget = key; this.miningProgress = 0; }
-      const blockId = Engine.world.getBlock(this.targetBlock.x,this.targetBlock.y,this.targetBlock.z);
-      const bd = BlockData[blockId];
-      if (bd && bd.hardness < 0) { /* bedrock: irrompible */ }
-      else if (bd) {
-        const selectedItem = this.getSelectedItem();
-        const toolData = selectedItem && typeof selectedItem.item === 'string' ? ItemData[selectedItem.item] : null;
-        const tool = toolData ? toolData.tool : null;
-        let speedMul = 1.0;
-        // Solo el PICO es estricto: bloques que requieren pico (mena/piedra) NO se
-        // pueden recoger sin el tier correcto (ej. diamante nunca se consigue a mano).
-        // Pala/hacha/otras son solo "herramienta óptima": sin ellas se puede igual,
-        // solo más lento, y sí se obtiene el drop (grass/dirt a mano funciona).
-        let canHarvest;
-        if (bd.tool === 'pickaxe') {
-          canHarvest = !!(tool && tool.type === 'pickaxe' && ((bd.tier===undefined) || (tool.tier >= bd.tier)));
-          speedMul = canHarvest ? tool.speedMul : 0.3;
-        } else {
-          canHarvest = true; // dirt, grass, madera, etc. siempre se pueden recoger, a mano o con herramienta
-          if (tool && tool.type === bd.tool) speedMul = tool.speedMul;
-          else if (bd.tool) speedMul = 0.5; // sin la herramienta óptima: más lento, pero igual se consigue
-        }
-        const timeNeeded = Math.max(0.08, Math.min(2.5, bd.hardness / speedMul));
-        this.miningProgress += dt;
-        if (this.miningProgress >= timeNeeded) {
-          this.breakTargetedBlock(this.targetBlock.x, this.targetBlock.y, this.targetBlock.z, blockId, canHarvest, tool);
-          this.miningProgress = 0; this.miningTarget = null;
-        }
-      }
-    } else {
-      this.miningTarget = null; this.miningProgress = 0;
-    }
+ mostrar();
 
-    // colocar bloque O interactuar con bloque especial (mesa de crafteo / horno)
-    const placeRequested = Engine.isMobile ? this._mobilePlaceEdge() : Engine.input.placeRequested;
-    if (placeRequested && this.targetBlock) {
-      const lookedBlockId = Engine.world.getBlock(this.targetBlock.x, this.targetBlock.y, this.targetBlock.z);
-      if (lookedBlockId === BLOCK.CRAFTING_TABLE) {
-        UI.openCraftingTable();
-      } else if (lookedBlockId === BLOCK.FURNACE) {
-        UI.openFurnace();
-      } else {
-        this.placeBlockFromHotbar();
-      }
-    }
-    Engine.input.placeRequested = false;
-  },
 
-  _mobilePlaceEdge() {
-    const now = Engine.mobileInput.placeHeld;
-    const wasPressed = now && !this._mobilePlacePrev;
-    this._mobilePlacePrev = now;
-    return wasPressed;
-  },
+ repartir({
 
-  breakTargetedBlock(x,y,z, blockId, canHarvest, tool) {
-    const bd = BlockData[blockId];
-    Engine.world.setBlock(x,y,z, BLOCK.AIR);
-    if (canHarvest && bd.drop !== null && bd.drop !== undefined) {
-      const dropItem = bd.drop;
-      const dropCount = (blockId===BLOCK.COAL_ORE) ? 1 : ((blockId===BLOCK.DIAMOND_ORE) ? 1 : 1);
-      this.droppedItems.spawnDrop(new THREE.Vector3(x+0.5,y+0.4,z+0.5), dropItem, dropCount);
-    }
-    // gasta durabilidad de la herramienta usada
-    if (tool) {
-      tool.durability -= 1;
-      if (tool.durability <= 0) {
-        // romper herramienta: quitar del slot seleccionado
-        const idx = this.getSelectedSlotIndex();
-        this.inventory.slots[idx] = null;
-        UI.rebuildHotbar();
-      }
-    }
-  },
+  tipo:"publicacion",
 
-  getSelectedSlotIndex() { return 27 + this.hotbarSelected; }, // hotbar ocupa índices 27..35
-  getSelectedItem() { return this.inventory.slots[this.getSelectedSlotIndex()]; },
+  publicacion:
+   publicacion
 
-  placeBlockFromHotbar() {
-    const slot = this.getSelectedItem();
-    if (!slot) return;
-    if (typeof slot.item !== 'number') return; // solo bloques son colocables
-    const bd = BlockData[slot.item];
-    if (!bd) return;
-    const tb = this.targetBlock;
-    const px = tb.x + (tb.face?tb.face[0]:0);
-    const py = tb.y + (tb.face?tb.face[1]:0);
-    const pz = tb.z + (tb.face?tb.face[2]:0);
-    // no colocar dentro de otro bloque sólido, ni dentro del jugador, ni fuera de alcance (ya limitado por MAX_REACH del raycast)
-    if (Engine.world.isSolidAt(px,py,pz)) return;
-    if (wouldOverlapPlayer(Engine.physics.pos, Engine.physics.height, px,py,pz)) return;
-    Engine.world.setBlock(px,py,pz, slot.item);
-    slot.count -= 1;
-    if (slot.count <= 0) this.inventory.slots[this.getSelectedSlotIndex()] = null;
-    UI.rebuildHotbar();
-  },
+ });
 
-  damagePlayer(amount) {
-    if (this.dead) return;
-    this.health = Math.max(0, this.health - amount);
-    UI.rebuildHealthHunger();
-    if (this.health <= 0) this.onPlayerDeath();
-  },
-  onPlayerDeath() {
-    this.dead = true;
-    document.getElementById('deathScreen').style.display = 'flex';
-    if (document.pointerLockElement) document.exitPointerLock();
-  },
-  respawn() {
-    const spawn = findSafeSpawnNear(Engine.world, Engine.physics.pos.x, Engine.physics.pos.z);
-    Engine.physics.pos.copy(spawn);
-    Engine.physics.vel.set(0,0,0);
-    this.health = this.maxHealth;
-    this.hunger = Math.max(6, this.hunger);
-    this.dead = false;
-    document.getElementById('deathScreen').style.display = 'none';
-    UI.rebuildHealthHunger();
-  },
+ document.getElementById(
+  "texto"
+ ).value="";
 
-  updateHunger(dt) {
-    this._hungerTimer = (this._hungerTimer||0) + dt;
-    if (this._hungerTimer > 12) { // cada ~12s de juego pierde algo de hambre (ritmo jugable, no realista-lento)
-      this._hungerTimer = 0;
-      this.hunger = Math.max(0, this.hunger - 1);
-      UI.rebuildHealthHunger();
-      if (this.hunger <= 0) {
-        this._starveTimer = (this._starveTimer||0) + 1;
-        if (this._starveTimer % 3 === 0) this.damagePlayer(1); // inanición hace daño lento
-      }
-    }
-  },
+ document.getElementById(
+  "foto"
+ ).value="";
 
-  updateHUDInfo() {
-    const p = Engine.physics.pos;
-    document.getElementById('topLeftInfo').innerHTML =
-      `X: ${p.x.toFixed(1)} Y: ${p.y.toFixed(1)} Z: ${p.z.toFixed(1)}<br>FPS: ${Game.fpsLast}`;
-  },
+}
 
-  loop() {
-    const dt = Math.min(0.05, Engine.clock.getDelta());
-    this.fpsAccum += dt; this.fpsFrames++;
-    if (this.fpsAccum >= 0.5) { this.fpsLast = Math.round(this.fpsFrames/this.fpsAccum); this.fpsAccum=0; this.fpsFrames=0; }
 
-    const dayFactor = Engine.updateDayNight(dt);
-    const isNight = dayFactor < 0.15;
-    this.handleInputAndPhysics(dt);
-    if (!this.invOpen && !this.dead) {
-      this.updateBlockTargeting(dt);
-      this.updateHunger(dt);
-      this.droppedItems.update(dt, Engine.physics.pos, this.inventory, ()=>UI.rebuildHotbar());
-      if (this.mobManager) {
-        this.mobManager.update(dt, Engine.physics.pos, isNight, {
-          onExplode: (center, radius) => {
-            this.mobManager.damageInRadius(center, radius, Engine.physics.pos, (dmg) => this.damagePlayer(dmg));
-          },
-          onPlayerHit: (dmg) => this.damagePlayer(dmg)
-        });
-      }
-    }
-    if (this.furnace) {
-      FurnaceSystem.update(this.furnace, dt, () => {
-        if (document.getElementById('furnaceScreen').style.display==='flex') UI.rebuildFurnaceScreen();
-      });
-    }
-    Engine.chunkManager.ensureAround(Engine.physics.pos.x, Engine.physics.pos.z);
-    Engine.chunkManager.processQueue(2);
-    this.updateHUDInfo();
-    UI.updateCrosshairOutline();
+/* AGREGAR */
 
-    Engine.renderer.render(Engine.scene, Engine.camera);
-    requestAnimationFrame(() => this.loop());
-  }
-};
+function agregarPublicacion(p){
 
-/* =====================================================================
-   MULTIJUGADOR P2P — PeerJS
-   Códigos cortos tipo XD-592. El host mantiene la sala y retransmite
-   posiciones, chat y cambios de bloques a los demás jugadores.
-   ===================================================================== */
-const Multiplayer = {
-  peer:null, host:false, roomCode:'', connections:new Map(), remotes:new Map(),
-  active:false, name:'Jugador', connecting:false, suppressNetwork:false,
+ if(
+  publicaciones.some(
+   x=>x.id===p.id
+  )
+ )return false;
 
-  makeCode(){
-    const letters='ABCDEFGHJKLMNPQRSTUVWXYZ';
-    const nums='0123456789';
-    let a='', b='';
-    for(let i=0;i<2;i++) a+=letters[Math.floor(Math.random()*letters.length)];
-    for(let i=0;i<3;i++) b+=nums[Math.floor(Math.random()*nums.length)];
-    return a+'-'+b;
-  },
-  status(t, ok=false){
-    const el=document.getElementById('mpStatus');
-    if(el){ el.textContent=t; el.style.color=ok?'#8be28b':'#ffd166'; }
-  },
-  showRoom(code){
-    const box=document.getElementById('roomIdDisplay');
-    box.textContent='CÓDIGO: '+code;
-    box.style.display='block';
-    document.getElementById('btnCopyRoom').style.display='block';
-  },
-  hideMenu(){
-    document.getElementById('mainMenu').style.display='none';
-    document.getElementById('mpPanel').style.display='none';
-    MenuBackground.stop();
-  },
-  addChat(text){
-    const box=document.getElementById('chatBox');
-    box.style.display='block';
-    const line=document.createElement('div');
-    line.textContent=text;
-    box.appendChild(line);
-    while(box.children.length>12) box.removeChild(box.firstChild);
-    box.scrollTop=box.scrollHeight;
-  },
-  makeRemote(id,name){
-    if(this.remotes.has(id)) return this.remotes.get(id);
-    const g=new THREE.Group();
-    const body=new THREE.Mesh(new THREE.BoxGeometry(.55,1.0,.35),new THREE.MeshLambertMaterial({color:0x777777}));
-    body.position.y=.85;
-    const head=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshLambertMaterial({color:0xc8a27a}));
-    head.position.y=1.6;
-    g.add(body,head);
-    const label=document.createElement('div');
-    label.textContent=name||'Jugador';
-    label.style.cssText='position:absolute;color:#fff;background:rgba(0,0,0,.55);padding:2px 5px;font:12px Arial;border-radius:3px;white-space:nowrap;transform:translate(-50%,-100%);pointer-events:none;';
-    // Sin depender de CSS2DRenderer: guardamos el nombre y lo mostramos en chat.
-    g.userData.playerName=name||'Jugador';
-    Engine.scene.add(g);
-    const r={group:g,name:name||'Jugador',target:new THREE.Vector3(),yaw:0};
-    this.remotes.set(id,r);
-    return r;
-  },
-  removeRemote(id){
-    const r=this.remotes.get(id);
-    if(r){ Engine.scene.remove(r.group); this.remotes.delete(id); }
-  },
-  applyState(m){
-    if(!m.id || m.id===this.peer?.id || !Engine.scene) return;
-    const r=this.makeRemote(m.id,m.name);
-    r.target.set(m.x,m.y,m.z); r.yaw=m.yaw||0;
-    r.group.position.lerp(r.target,.45);
-    r.group.rotation.y=r.yaw;
-  },
-  broadcast(msg, exceptId=null){
-    for(const [id,c] of this.connections){
-      if(id===exceptId) continue;
-      try{ if(c.open) c.send(msg); }catch(e){}
-    }
-  },
-  setupConn(conn){
-    this.connections.set(conn.peer,conn);
-    conn.on('open',()=>{
-      if(this.host && Engine.world){
-        conn.send({t:'world',seed:Engine.world.seed});
-        conn.send({t:'hello',id:this.peer.id,name:this.name});
-      }
-      this.status('Conectado: '+this.connections.size+' jugador(es)',true);
-    });
-    conn.on('data',m=>this.receive(m,conn));
-    conn.on('close',()=>{
-      this.removeRemote(conn.peer); this.connections.delete(conn.peer);
-      this.status('Conectados: '+this.connections.size,true);
-    });
-    conn.on('error',()=>{ this.connections.delete(conn.peer); this.removeRemote(conn.peer); });
-  },
-  receive(m,conn){
-    if(!m || !m.t) return;
-    if(m.t==='world' && !this.host){
-      this.hideMenu();
-      Game.startSingleplayer(m.seed).then(()=>{
-        this.connecting=false;
-        this.active=true;
-        this.showMPHud();
-        this.send({t:'hello',id:this.peer.id,name:this.name});
-      });
-      return;
-    }
-    if(m.t==='hello'){
-      if(m.id && m.id!==this.peer?.id) this.makeRemote(m.id,m.name);
-      if(this.host) this.broadcast(m,conn.peer);
-      return;
-    }
-    if(m.t==='state'){
-      this.applyState(m);
-      if(this.host) this.broadcast(m,conn.peer);
-      return;
-    }
-    if(m.t==='chat'){
-      this.addChat(m.name+': '+m.text);
-      if(this.host) this.broadcast(m,conn.peer);
-      return;
-    }
-    if(m.t==='block'){
-      if(!Engine.world) return;
-      this.suppressNetwork=true;
-      Engine.world.setBlock(m.x,m.y,m.z,m.block);
-      this.suppressNetwork=false;
-      if(this.host) this.broadcast(m,conn.peer);
-    }
-  },
-  send(m){
-    if(!this.active && !this.host) return;
-    if(this.host) this.broadcast(m);
-    else {
-      for(const c of this.connections.values()){ try{ if(c.open){c.send(m);break;} }catch(e){} }
-    }
-  },
-  showMPHud(){
-    document.getElementById('chatBox').style.display='block';
-    document.getElementById('chatInput').style.display='block';
-  },
-  async createRoom(){
-    if(this.connecting) return;
-    this.connecting=true; this.host=true; this.active=true;
-    this.name='Jugador '+Math.floor(10+Math.random()*90);
-    this.status('Creando sala...');
-    const tryPeer=(attempt=0)=>{
-      if(attempt>5){ this.status('No se pudo crear la sala.'); this.connecting=false; return; }
-      const code=this.makeCode();
-      const p=new Peer(code);
-      let settled=false;
-      p.on('open',async id=>{
-        settled=true; this.peer=p; this.roomCode=id; this.connecting=false;
-        this.showRoom(id); this.status('Sala lista. Comparte '+id,true);
-        p.on('connection',c=>this.setupConn(c));
-        this.hideMenu();
-        await Game.startSingleplayer();
-        this.showMPHud();
-        this.addChat('Sala '+id+' creada.');
-      });
-      p.on('error',err=>{
-        if(!settled && (err.type==='unavailable-id'||err.type==='server-error')){
-          try{p.destroy();}catch(e){} tryPeer(attempt+1);
-        } else this.status('Error P2P: '+(err.type||err.message));
-      });
-    };
-    tryPeer();
-  },
-  joinRoom(){
-    if(this.connecting) return;
-    const code=document.getElementById('joinRoomInput').value.trim().toUpperCase();
-    if(!/^[A-Z]{2}-\d{3}$/.test(code)){ this.status('Código inválido. Usa formato XD-592.'); return; }
-    this.connecting=true; this.host=false;
-    this.name='Jugador '+Math.floor(10+Math.random()*90);
-    this.status('Conectando a '+code+'...');
-    const p=new Peer(); this.peer=p;
-    p.on('open',()=>{
-      const c=p.connect(code,{reliable:true});
-      this.setupConn(c);
-    });
-    p.on('error',err=>{ this.connecting=false; this.status('No se pudo conectar: '+(err.type||err.message)); });
-  },
-  init(){
-    document.getElementById('btnCreateRoom').addEventListener('click',()=>this.createRoom());
-    document.getElementById('btnJoinRoom').addEventListener('click',()=>this.joinRoom());
-    document.getElementById('btnCopyRoom').addEventListener('click',async()=>{
-      if(!this.roomCode)return;
-      try{await navigator.clipboard.writeText(this.roomCode);this.status('Código copiado: '+this.roomCode,true);}catch(e){this.status('Código: '+this.roomCode,true);}
-    });
-    document.getElementById('joinRoomInput').addEventListener('input',e=>{
-      e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,6);
-    });
-    document.getElementById('chatInput').addEventListener('keydown',e=>{
-      if(e.key!=='Enter') return;
-      e.preventDefault();
-      const input=e.currentTarget, text=input.value.trim();
-      if(!text)return;
-      const m={t:'chat',name:this.name,text};
-      this.addChat(this.name+': '+text); this.send(m); input.value='';
-    });
-    setInterval(()=>{
-      if(!this.active || !Game.started || !Engine.physics) return;
-      this.send({t:'state',id:this.peer?.id,name:this.name,x:Engine.physics.pos.x,y:Engine.physics.pos.y,z:Engine.physics.pos.z,yaw:Engine.input?.yaw||0});
-      for(const r of this.remotes.values()) r.group.position.lerp(r.target,.25);
-    },100);
-  }
-};
+ publicaciones.push(p);
 
-// Enlaza las acciones de bloques con la red P2P.
-const _breakTargetedBlock=Game.breakTargetedBlock;
-Game.breakTargetedBlock=function(x,y,z,blockId,canHarvest,tool){
-  _breakTargetedBlock.call(this,x,y,z,blockId,canHarvest,tool);
-  if(Multiplayer.active && !Multiplayer.suppressNetwork) Multiplayer.send({t:'block',x,y,z,block:BLOCK.AIR});
-};
-const _placeBlockFromHotbar=Game.placeBlockFromHotbar;
-Game.placeBlockFromHotbar=function(){
-  const tb=this.targetBlock;
-  if(!tb){return _placeBlockFromHotbar.call(this);}
-  const px=tb.x+(tb.face?tb.face[0]:0), py=tb.y+(tb.face?tb.face[1]:0), pz=tb.z+(tb.face?tb.face[2]:0);
-  const before=Engine.world.getBlock(px,py,pz);
-  _placeBlockFromHotbar.call(this);
-  const after=Engine.world.getBlock(px,py,pz);
-  if(Multiplayer.active && !Multiplayer.suppressNetwork && after!==before) Multiplayer.send({t:'block',x:px,y:py,z:pz,block:after});
-};
+ return true;
 
-/* =====================================================================
-   SISTEMA: MENU BACKGROUND
-   Escena 3D independiente y ligera (no usa chunks/física del juego real)
-   que muestra un mini-mundo de bloques con cámara orbitando lentamente
-   detrás del menú principal, al estilo de la pantalla de título clásica.
-   ===================================================================== */
-const MenuBackground = {
-  running:false, scene:null, camera:null, renderer:null, angle:0,
+}
 
-  init() {
-    if (this.scene) return; // ya inicializado, no recrear
-    if (typeof THREE === 'undefined') { console.warn('[MINICRAFT] THREE no disponible, fondo de menú deshabilitado'); return; }
-    // aseguramos que los bloques/texturas existan aunque el jugador no haya
-    // iniciado partida todavía (registerBlocks es idempotente: no rehace nada si ya corrió)
-    if (Object.keys(BlockData).length === 0) registerBlocks();
 
-    const canvas = document.getElementById('menuBgCanvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false });
-    this.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio));
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+/* LIKE */
 
-    this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x8fc6e8, 45, 115);
-    this.renderer.setClearColor(0x8fc6e8);
+function like(id){
 
-    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 220);
+ let p=
+  publicaciones.find(
+   x=>x.id===id
+  );
 
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x3a3a2a, 0.7);
-    this.scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-    sun.position.set(30,40,10);
-    this.scene.add(sun);
+ if(!p)return;
 
-    // pequeño mundo de muestra: una isla simple de bloques con agua alrededor,
-    // construida directamente (sin ChunkManager) para que cargue instantáneamente.
-    const seed = 777;
-    const world = new World(seed);
-    const mesher = new ChunkMesher(world, this.scene);
-    const radius = 4;
-    for (let cx=-radius; cx<=radius; cx++) {
-      for (let cz=-radius; cz<=radius; cz++) {
-        const chunkData = world.generateChunkData(cx,cz);
-        for (const spot of chunkData.treeSpots) world.placeTree(chunkData.data, cx, cz, spot);
-        world.chunks.set(world.key(cx,cz), chunkData);
-      }
-    }
-    for (const [key, chunk] of world.chunks) {
-      const meshes = mesher.buildChunkMesh(chunk);
-      for (const m of meshes) this.scene.add(m);
-    }
+ p.likes++;
 
-    window.addEventListener('resize', () => {
-      if (!this.running) return;
-      this.camera.aspect = window.innerWidth/window.innerHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  },
+ mostrar();
 
-  start() {
-    this.init();
-    if (!this.scene) return; // THREE no disponible; el menú sigue funcionando sin fondo 3D
-    this.running = true;
-    this.loop();
-  },
-  stop() { this.running = false; },
+ repartir({
 
-  loop() {
-    if (!this.running) return;
-    this.angle += 0.0025;
-    // Cámara por encima del terreno para que la cinemática no muestre las caras inferiores.
-    const dist = 38, height = 40;
-    this.camera.position.set(Math.cos(this.angle)*dist, height, Math.sin(this.angle)*dist);
-    this.camera.lookAt(0, 20, 0);
-    this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(() => this.loop());
-  }
-};
+  tipo:"like",
 
-/* =====================================================================
-   UI BOOTSTRAP — menú principal, opciones, arranque
-   ===================================================================== */
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('btnPlaySolo').addEventListener('click', () => Game.startSingleplayer());
-  document.getElementById('btnShowMP').addEventListener('click', () => {
-    document.getElementById('menuMain').style.display='none';
-    document.getElementById('mpPanel').style.display='flex';
-  });
-  document.getElementById('btnBackFromMP').addEventListener('click', () => {
-    document.getElementById('mpPanel').style.display='none';
-    document.getElementById('menuMain').style.display='flex';
-  });
-  document.getElementById('btnShowOpt').addEventListener('click', () => {
-    document.getElementById('menuMain').style.display='none';
-    document.getElementById('optPanel').style.display='flex';
-  });
-  document.getElementById('btnBackFromOpt').addEventListener('click', () => {
-    document.getElementById('optPanel').style.display='none';
-    document.getElementById('menuMain').style.display='flex';
-  });
-  document.getElementById('startPrompt').addEventListener('click', () => {
-    document.getElementById('gameCanvas').requestPointerLock();
-    document.getElementById('startPrompt').style.display='none';
-  });
-  document.addEventListener('pointerlockchange', () => {
-    // Solo mostrar el prompt de "click para jugar" si el mouse se liberó
-    // por accidente/Esc del usuario mientras NO hay ningún panel (inventario,
-    // mesa de crafteo, horno, muerte) abierto intencionalmente.
-    const anyPanelOpen = Game.invOpen || Game.dead;
-    if (document.pointerLockElement !== document.getElementById('gameCanvas') && Game.started && !Engine.isMobile && !anyPanelOpen) {
-      document.getElementById('startPrompt').style.display='flex';
-    }
-  });
-  document.getElementById('sensSlider').addEventListener('input', e => {
-    if (Engine.input) Engine.input.sensitivity = parseFloat(e.target.value);
-  });
-  document.getElementById('renderDistSlider').addEventListener('input', e => {
-    if (Engine.chunkManager) Engine.chunkManager.renderDistance = parseInt(e.target.value);
-  });
-  document.getElementById('btnRespawn').addEventListener('click', () => Game.respawn());
-  document.getElementById('btnRecipeBook').addEventListener('click', () => UI.openRecipeBook());
-  document.getElementById('btnRecipeBook2').addEventListener('click', () => UI.openRecipeBook());
-  document.getElementById('closeRecipeBook').addEventListener('click', () => UI.closeRecipeBook());
-  document.getElementById('btnInv').addEventListener('touchstart', e => { e.preventDefault(); if(Game.started) UI.toggleInventory(); });
+  id:id
 
-  window.addEventListener('keydown', e => {
-    if (!Game.started || Game.dead) return;
-    if (e.code === 'Escape' && document.getElementById('recipeBook').style.display==='flex') { UI.closeRecipeBook(); return; }
-    if (e.code === 'KeyE') {
-      const anySubPanelOpen = document.getElementById('craftingTableScreen').style.display==='flex'
-        || document.getElementById('furnaceScreen').style.display==='flex';
-      if (anySubPanelOpen) {
-        // cerrar el panel específico que esté abierto
-        if (document.getElementById('craftingTableScreen').style.display==='flex') UI.closeCraftingTable();
-        else UI.closeFurnace();
-      } else {
-        UI.toggleInventory();
-      }
-    }
-    if (e.code >= 'Digit1' && e.code <= 'Digit9' && !Game.invOpen) {
-      Game.hotbarSelected = parseInt(e.code.replace('Digit',''))-1;
-      UI.rebuildHotbar();
-    }
-  });
+ });
 
-  Multiplayer.init();
+}
 
-  // Animación de golpe de la mano estilo Minecraft.
-  function swingMinecraftHand(){
-    const hand=document.getElementById('mcHand');
-    if(!hand || hand.style.display==='none') return;
-    hand.classList.remove('swing');
-    void hand.offsetWidth;
-    hand.classList.add('swing');
-  }
-  document.addEventListener('mousedown', e => {
-    if(e.button===0 || e.button===2) swingMinecraftHand();
-  });
-  ['btnBreak','btnPlace'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.addEventListener('touchstart', swingMinecraftHand, {passive:true});
-  });
 
-  console.log('[MINICRAFT] UI lista.');
-  MenuBackground.start();
-});
+/* MOSTRAR FEED */
+
+function mostrar(){
+
+ let feed=
+  document.getElementById(
+   "feed"
+  );
+
+ if(!publicaciones.length){
+
+  feed.innerHTML=
+   "<div class='box'>"+
+   "📭 No hay publicaciones"+
+   "</div>";
+
+  return;
+
+ }
+
+
+ feed.innerHTML=
+  publicaciones
+   .slice()
+   .reverse()
+   .map(p=>`
+
+<div class="post">
+
+<b>👤 ${escapar(p.nombre)}</b>
+
+<br>
+
+<small>
+Publicación P2P
+</small>
+
+<p>
+${escapar(p.texto)}
+</p>
+
+${
+ p.imagen
+ ?
+ `<img src="${p.imagen}">`
+ :
+ ""
+}
+
+<br>
+
+<button
+class="like"
+onclick="like(${p.id})"
+>
+❤️ ${p.likes}
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* SEGURIDAD TEXTO */
+
+function escapar(texto){
+
+ return String(texto||"")
+ .replace(
+  /[&<>"']/g,
+  x=>({
+
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
+
+  }[x])
+ );
+
+}
+
+
+/* INICIAR */
+
+mostrar();
+
+crearSala();
+
 </script>
+
 </body>
 </html>
