@@ -2,597 +2,631 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>YEI Social P2P</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2P Foto Chat</title>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
 <style>
-*{box-sizing:border-box}
-body{
- margin:0;
- background:#f2f3f5;
- font-family:Arial,sans-serif;
- color:#111
-}
-header{
- background:white;
- padding:15px;
- text-align:center;
- font-size:23px;
- font-weight:bold;
- border-bottom:1px solid #ddd
-}
-main{
- max-width:650px;
- margin:20px auto;
- padding:10px
-}
-.box,.post{
- background:white;
- padding:15px;
- border-radius:15px;
- margin-bottom:12px;
- border:1px solid #ddd
-}
-input,textarea,button{
- width:100%;
- padding:11px;
- margin:5px 0;
- border-radius:9px;
- border:1px solid #ccc;
- font-size:15px
-}
-button{
- background:#111827;
- color:white;
- cursor:pointer
-}
-button:hover{opacity:.9}
-.post img{
- max-width:100%;
- border-radius:12px;
- margin-top:8px
-}
-.like{
- width:auto;
- color:#ef4444;
- background:white;
- border:1px solid #ddd
-}
-small{color:#666}
-.online{color:#159447}
+  :root {
+    --bg: #0f1115;
+    --panel: #161922;
+    --border: #262b36;
+    --accent: #4f8cff;
+    --text: #e7e9ee;
+    --muted: #8b93a3;
+    --bubble-me: #2a5bd7;
+    --bubble-them: #232733;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+  @media (min-width: 500px) {
+    .app { height: 90vh; border-radius: 16px; overflow: hidden; }
+  }
+
+  /* Pantalla de conexión */
+  #connectScreen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 24px;
+    gap: 20px;
+  }
+  #connectScreen h1 {
+    font-size: 20px;
+    margin: 0 0 4px;
+    text-align: center;
+  }
+  #connectScreen p.sub {
+    color: var(--muted);
+    text-align: center;
+    font-size: 14px;
+    margin: 0 0 12px;
+  }
+  .myCodeBox {
+    background: #10131a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .myCodeBox label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .myCode {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .myCodeStatus {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .joinRow {
+    display: flex;
+    gap: 8px;
+  }
+  #peerCodeInput {
+    flex: 1;
+    background: #10131a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-family: "SF Mono", Consolas, monospace;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  #peerCodeInput:focus { outline: none; border-color: var(--accent); }
+  button {
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+  }
+  #connectBtn {
+    background: var(--accent);
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  #connectBtn:disabled { opacity: 0.5; cursor: default; }
+  #connectMsg {
+    font-size: 13px;
+    text-align: center;
+    min-height: 18px;
+    color: var(--muted);
+  }
+  #connectMsg.error { color: #ff6b6b; }
+  #connectMsg.ok { color: #4dd47a; }
+
+  /* Pantalla de chat */
+  #chatScreen { display: none; flex: 1; flex-direction: column; min-height: 0; }
+  .chatHeader {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chatHeader .info { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #4dd47a; }
+  .chatHeader .code { font-family: monospace; font-size: 14px; color: var(--muted); }
+  .disconnectBtn {
+    background: none;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .msg {
+    max-width: 75%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+  .msg.me { align-self: flex-end; background: var(--bubble-me); color: white; border-bottom-right-radius: 4px; }
+  .msg.them { align-self: flex-start; background: var(--bubble-them); border-bottom-left-radius: 4px; }
+  .msg img {
+    max-width: 100%;
+    border-radius: 8px;
+    display: block;
+    margin-top: 4px;
+    cursor: pointer;
+  }
+  .msg .caption { margin: 0; }
+  .msg .time { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+  .systemMsg {
+    align-self: center;
+    font-size: 12px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.03);
+    padding: 4px 10px;
+    border-radius: 10px;
+  }
+  .inputBar {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  #textInput {
+    flex: 1;
+    background: #10131a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    resize: none;
+    max-height: 100px;
+    font-family: inherit;
+  }
+  #textInput:focus { outline: none; border-color: var(--accent); }
+  .iconBtn {
+    background: #10131a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #sendBtn {
+    background: var(--accent);
+    color: white;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  #fileInput { display: none; }
+  #imgPreviewBar {
+    display: none;
+    padding: 8px 12px 0;
+    align-items: center;
+    gap: 8px;
+  }
+  #imgPreviewBar img {
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  #imgPreviewBar .cancelPreview {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 14px;
+  }
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
 </style>
 </head>
-
 <body>
 
-<header>
-🌐 YEI Social
-</header>
+<div class="app">
 
-<main>
+  <!-- PANTALLA DE CONEXIÓN -->
+  <div id="connectScreen">
+    <h1>Foto chat P2P</h1>
+    <p class="sub">Conexión directa entre dos navegadores. Nada se guarda en ningún servidor.</p>
 
-<div class="box">
+    <div class="myCodeBox">
+      <label>Tu código</label>
+      <div class="myCode" id="myCode">••••••••</div>
+      <div class="myCodeStatus" id="myCodeStatus">Generando…</div>
+    </div>
 
-<input id="name" placeholder="Tu nombre">
+    <div class="divider">compartí tu código o ingresá uno</div>
 
-<button onclick="crearSala()">
-🏠 Crear sala
-</button>
+    <div class="joinRow">
+      <input type="text" id="peerCodeInput" placeholder="XD-4429" maxlength="9">
+      <button id="connectBtn">Conectar</button>
+    </div>
+    <div id="connectMsg"></div>
+  </div>
 
-<hr>
-
-<input id="room" placeholder="Código de sala, ejemplo XD-429">
-
-<button onclick="entrarSala()">
-🚪 Entrar a sala
-</button>
-
-<p id="estado">⚪ Sin conexión</p>
-
-<p>
-🔑 Tu código:
-<b id="codigo">---</b>
-</p>
-
-<small>
-Comparte tu código con tus amigos para que entren a la misma sala.
-</small>
-
-</div>
-
-
-<div class="box">
-
-<textarea
-id="texto"
-rows="3"
-placeholder="¿Qué estás pensando?"
-></textarea>
-
-<input
-id="foto"
-type="file"
-accept="image/*"
->
-
-<button onclick="publicar()">
-📢 Publicar
-</button>
+  <!-- PANTALLA DE CHAT -->
+  <div id="chatScreen">
+    <div class="chatHeader">
+      <div class="info">
+        <span class="dot"></span>
+        <span class="code" id="peerCodeLabel"></span>
+      </div>
+      <button class="disconnectBtn" id="disconnectBtn">Salir</button>
+    </div>
+    <div id="messages"></div>
+    <div id="imgPreviewBar">
+      <img id="imgPreviewThumb" src="" alt="preview">
+      <span style="font-size:13px;color:var(--muted);flex:1">Imagen lista para enviar</span>
+      <button class="cancelPreview" id="cancelPreviewBtn">✕</button>
+    </div>
+    <div class="inputBar">
+      <button class="iconBtn" id="attachBtn" title="Adjuntar foto">📷</button>
+      <input type="file" id="fileInput" accept="image/*">
+      <textarea id="textInput" placeholder="Escribí un mensaje…" rows="1"></textarea>
+      <button id="sendBtn">➤</button>
+    </div>
+  </div>
 
 </div>
 
-
-<div id="feed"></div>
-
-</main>
-
+<div id="lightbox">
+  <img id="lightboxImg" src="" alt="">
+</div>
 
 <script>
+(function () {
+  const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // sin letras ambiguas
+  function randomCode() {
+    let letters = "";
+    for (let i = 0; i < 2; i++) letters += CHARS[Math.floor(Math.random() * CHARS.length)];
+    const digits = String(Math.floor(1000 + Math.random() * 9000));
+    return letters + "-" + digits;
+  }
 
-let peer;
-let conexiones=[];
-let publicaciones=[];
+  function codeToPeerId(code) {
+    // Namespace para no colisionar con otros usuarios del servidor público de PeerJS
+    return "fotop2p-" + code.replace("-", "").toUpperCase();
+  }
 
-let usuario=
-localStorage.getItem("nombre") ||
-"Usuario";
+  const myCodeEl = document.getElementById("myCode");
+  const myCodeStatusEl = document.getElementById("myCodeStatus");
+  const peerCodeInput = document.getElementById("peerCodeInput");
+  const connectBtn = document.getElementById("connectBtn");
+  const connectMsg = document.getElementById("connectMsg");
 
+  const connectScreen = document.getElementById("connectScreen");
+  const chatScreen = document.getElementById("chatScreen");
+  const peerCodeLabel = document.getElementById("peerCodeLabel");
+  const messagesEl = document.getElementById("messages");
+  const textInput = document.getElementById("textInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const attachBtn = document.getElementById("attachBtn");
+  const fileInput = document.getElementById("fileInput");
+  const imgPreviewBar = document.getElementById("imgPreviewBar");
+  const imgPreviewThumb = document.getElementById("imgPreviewThumb");
+  const cancelPreviewBtn = document.getElementById("cancelPreviewBtn");
+  const disconnectBtn = document.getElementById("disconnectBtn");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
 
-name.value=usuario;
+  let myCode = randomCode();
+  let peer = null;
+  let conn = null;
+  let pendingImageDataUrl = null;
 
+  function setStatus(text, ok) {
+    myCodeStatusEl.textContent = text;
+    myCodeStatusEl.style.color = ok ? "#4dd47a" : "var(--muted)";
+  }
 
-/* CREAR SALA */
+  function initPeer() {
+    myCodeEl.textContent = myCode;
+    setStatus("Conectando al servidor…", false);
+    peer = new Peer(codeToPeerId(myCode), {
+      debug: 1
+    });
 
-function crearSala(){
+    peer.on("open", () => {
+      setStatus("Listo. Compartí tu código.", true);
+    });
 
- usuario=name.value.trim()||"Usuario";
+    peer.on("error", (err) => {
+      console.error(err);
+      if (err.type === "unavailable-id") {
+        // muy raro con código random, pero por si acaso generamos otro
+        myCode = randomCode();
+        peer.destroy();
+        initPeer();
+        return;
+      }
+      if (err.type === "peer-unavailable") {
+        connectMsg.textContent = "No se encontró ese código. Revisá que esté bien escrito y que la otra persona tenga la app abierta.";
+        connectMsg.className = "error";
+        connectBtn.disabled = false;
+        connectBtn.textContent = "Conectar";
+      } else {
+        setStatus("Error de conexión al servidor. Reintentando…", false);
+      }
+    });
 
- localStorage.setItem(
-  "nombre",
-  usuario
- );
+    peer.on("connection", (incomingConn) => {
+      if (conn) { incomingConn.close(); return; }
+      setupConnection(incomingConn, incomingConn.peer);
+    });
 
- if(peer)return;
+    peer.on("disconnected", () => {
+      setStatus("Desconectado del servidor, reintentando…", false);
+      peer.reconnect();
+    });
+  }
 
- let codigoSala=
- "XD-"+Math.floor(
-  100+Math.random()*900
- );
+  function setupConnection(c, remotePeerId) {
+    conn = c;
+    const displayCode = remotePeerId.replace("fotop2p-", "");
+    const formatted = displayCode.slice(0, 2) + "-" + displayCode.slice(2);
 
- peer=new Peer(codigoSala);
+    conn.on("open", () => {
+      showChatScreen(formatted);
+      addSystemMsg("Conectado con " + formatted);
+    });
 
- peer.on("open",id=>{
+    conn.on("data", (data) => {
+      if (data.type === "text") {
+        addMsg(data.text, "them");
+      } else if (data.type === "image") {
+        addImageMsg(data.dataUrl, data.caption, "them");
+      }
+    });
 
-  codigo.textContent=id;
+    conn.on("close", () => {
+      addSystemMsg("La otra persona se desconectó.");
+      conn = null;
+    });
 
-  estado.textContent=
-   "🟢 Sala creada: "+id;
+    conn.on("error", (err) => {
+      console.error(err);
+      addSystemMsg("Error en la conexión.");
+    });
+  }
 
-  estado.className="online";
+  function showChatScreen(formattedCode) {
+    connectScreen.style.display = "none";
+    chatScreen.style.display = "flex";
+    peerCodeLabel.textContent = formattedCode;
+    connectBtn.disabled = false;
+    connectBtn.textContent = "Conectar";
+    connectMsg.textContent = "";
+  }
 
- });
+  connectBtn.addEventListener("click", () => {
+    const raw = peerCodeInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (raw.length < 6) {
+      connectMsg.textContent = "Ingresá un código válido, ej: XD-4429";
+      connectMsg.className = "error";
+      return;
+    }
+    const targetId = "fotop2p-" + raw;
+    if (targetId === codeToPeerId(myCode)) {
+      connectMsg.textContent = "Ese es tu propio código.";
+      connectMsg.className = "error";
+      return;
+    }
+    connectBtn.disabled = true;
+    connectBtn.textContent = "Conectando…";
+    connectMsg.textContent = "";
+    const outgoing = peer.connect(targetId, { reliable: true });
+    let settled = false;
 
- peer.on("connection",conexion=>{
-  prepararConexion(conexion);
- });
+    outgoing.on("open", () => {
+      settled = true;
+      setupConnection(outgoing, targetId);
+    });
 
- peer.on("error",e=>{
-  estado.textContent=
-   "❌ Error: "+e.type;
- });
-
-}
-
-
-/* ENTRAR */
-
-function entrarSala(){
-
- let id=room.value
-  .trim()
-  .toUpperCase();
-
- if(!id)return;
-
- usuario=name.value.trim()||"Usuario";
-
- localStorage.setItem(
-  "nombre",
-  usuario
- );
-
- if(!peer){
-
-  peer=new Peer();
-
-  peer.on("open",miID=>{
-
-   codigo.textContent=miID;
-
-   conectar(id);
-
+    setTimeout(() => {
+      if (!settled) {
+        connectBtn.disabled = false;
+        connectBtn.textContent = "Conectar";
+        connectMsg.textContent = "No se pudo conectar. Verificá el código e intentá de nuevo.";
+        connectMsg.className = "error";
+      }
+    }, 12000);
   });
 
- }else{
-
-  conectar(id);
-
- }
-
-}
-
-
-/* CONECTAR */
-
-function conectar(id){
-
- let conexion=
-  peer.connect(id);
-
- prepararConexion(conexion);
-
-}
-
-
-/* PREPARAR CONEXIÓN */
-
-function prepararConexion(c){
-
- c.on("open",()=>{
-
-  if(!conexiones.includes(c))
-   conexiones.push(c);
-
-  estado.textContent=
-   "🟢 Conectado • "+
-   conexiones.length+
-   " usuario(s)";
-
-  /* mandar publicaciones actuales */
-
-  c.send({
-   tipo:"sync",
-   publicaciones:publicaciones
+  peerCodeInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") connectBtn.click();
+  });
+  peerCodeInput.addEventListener("input", () => {
+    let v = peerCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (v.length > 2) v = v.slice(0, 2) + "-" + v.slice(2, 6);
+    peerCodeInput.value = v;
   });
 
- });
-
-
- c.on("data",datos=>{
-
-  /* sincronizar */
-
-  if(datos.tipo==="sync"){
-
-   datos.publicaciones.forEach(
-    agregarPublicacion
-   );
-
-   mostrar();
-
+  function nowStr() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
   }
 
-
-  /* nueva publicación */
-
-  if(datos.tipo==="publicacion"){
-
-   if(
-    agregarPublicacion(
-     datos.publicacion
-    )
-   ){
-
-    mostrar();
-
-    repartir(
-     datos,
-     c
-    );
-
-   }
-
+  function addSystemMsg(text) {
+    const div = document.createElement("div");
+    div.className = "systemMsg";
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-
-  /* like */
-
-  if(datos.tipo==="like"){
-
-   let p=
-    publicaciones.find(
-     x=>x.id===datos.id
-    );
-
-   if(p){
-
-    p.likes++;
-
-    mostrar();
-
-    repartir(
-     datos,
-     c
-    );
-
-   }
-
+  function addMsg(text, who) {
+    const div = document.createElement("div");
+    div.className = "msg " + who;
+    const p = document.createElement("p");
+    p.className = "caption";
+    p.textContent = text;
+    div.appendChild(p);
+    const t = document.createElement("div");
+    t.className = "time";
+    t.textContent = nowStr();
+    div.appendChild(t);
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
- });
-
-
- c.on("close",()=>{
-
-  conexiones=
-   conexiones.filter(
-    x=>x!==c
-   );
-
-  estado.textContent=
-   "🟢 Conectados: "+
-   conexiones.length;
-
- });
-
-}
-
-
-/* ENVIAR A TODOS */
-
-function repartir(datos,excepto){
-
- conexiones.forEach(c=>{
-
-  if(
-   c!==excepto &&
-   c.open
-  ){
-
-   c.send(datos);
-
+  function addImageMsg(dataUrl, caption, who) {
+    const div = document.createElement("div");
+    div.className = "msg " + who;
+    if (caption) {
+      const p = document.createElement("p");
+      p.className = "caption";
+      p.textContent = caption;
+      div.appendChild(p);
+    }
+    const img = document.createElement("img");
+    img.src = dataUrl;
+    img.addEventListener("click", () => {
+      lightboxImg.src = dataUrl;
+      lightbox.style.display = "flex";
+    });
+    div.appendChild(img);
+    const t = document.createElement("div");
+    t.className = "time";
+    t.textContent = nowStr();
+    div.appendChild(t);
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
- });
-
-}
-
-
-/* PUBLICAR */
-
-function publicar(){
-
- let texto=
-  document.getElementById(
-   "texto"
-  ).value.trim();
-
- let archivo=
-  document.getElementById(
-   "foto"
-  ).files[0];
-
- if(!texto&&!archivo)return;
-
-
- if(archivo){
-
-  let lector=
-   new FileReader();
-
-  lector.onload=()=>{
-
-   crearPublicacion(
-    texto,
-    lector.result
-   );
-
-  };
-
-  lector.readAsDataURL(
-   archivo
-  );
-
- }else{
-
-  crearPublicacion(
-   texto,
-   ""
-  );
-
- }
-
-}
-
-
-/* CREAR PUBLICACIÓN */
-
-function crearPublicacion(
- texto,
- imagen
-){
-
- let publicacion={
-
-  id:
-   Date.now()+
-   Math.random(),
-
-  nombre:usuario,
-
-  texto:texto,
-
-  imagen:imagen,
-
-  likes:0
-
- };
-
-
- agregarPublicacion(
-  publicacion
- );
-
- mostrar();
-
-
- repartir({
-
-  tipo:"publicacion",
-
-  publicacion:
-   publicacion
-
- });
-
- document.getElementById(
-  "texto"
- ).value="";
-
- document.getElementById(
-  "foto"
- ).value="";
-
-}
-
-
-/* AGREGAR */
-
-function agregarPublicacion(p){
-
- if(
-  publicaciones.some(
-   x=>x.id===p.id
-  )
- )return false;
-
- publicaciones.push(p);
-
- return true;
-
-}
-
-
-/* LIKE */
-
-function like(id){
-
- let p=
-  publicaciones.find(
-   x=>x.id===id
-  );
-
- if(!p)return;
-
- p.likes++;
-
- mostrar();
-
- repartir({
-
-  tipo:"like",
-
-  id:id
-
- });
-
-}
-
-
-/* MOSTRAR FEED */
-
-function mostrar(){
-
- let feed=
-  document.getElementById(
-   "feed"
-  );
-
- if(!publicaciones.length){
-
-  feed.innerHTML=
-   "<div class='box'>"+
-   "📭 No hay publicaciones"+
-   "</div>";
-
-  return;
-
- }
-
-
- feed.innerHTML=
-  publicaciones
-   .slice()
-   .reverse()
-   .map(p=>`
-
-<div class="post">
-
-<b>👤 ${escapar(p.nombre)}</b>
-
-<br>
-
-<small>
-Publicación P2P
-</small>
-
-<p>
-${escapar(p.texto)}
-</p>
-
-${
- p.imagen
- ?
- `<img src="${p.imagen}">`
- :
- ""
-}
-
-<br>
-
-<button
-class="like"
-onclick="like(${p.id})"
->
-❤️ ${p.likes}
-</button>
-
-</div>
-
-`).join("");
-
-}
-
-
-/* SEGURIDAD TEXTO */
-
-function escapar(texto){
-
- return String(texto||"")
- .replace(
-  /[&<>"']/g,
-  x=>({
-
-   "&":"&amp;",
-   "<":"&lt;",
-   ">":"&gt;",
-   '"':"&quot;",
-   "'":"&#39;"
-
-  }[x])
- );
-
-}
-
-
-/* INICIAR */
-
-mostrar();
-
-crearSala();
-
+  lightbox.addEventListener("click", () => { lightbox.style.display = "none"; });
+
+  function sendMessage() {
+    const text = textInput.value.trim();
+    if (!conn || !conn.open) { addSystemMsg("No hay conexión activa."); return; }
+
+    if (pendingImageDataUrl) {
+      conn.send({ type: "image", dataUrl: pendingImageDataUrl, caption: text });
+      addImageMsg(pendingImageDataUrl, text, "me");
+      pendingImageDataUrl = null;
+      imgPreviewBar.style.display = "none";
+      fileInput.value = "";
+      textInput.value = "";
+      autoGrow();
+      return;
+    }
+
+    if (!text) return;
+    conn.send({ type: "text", text: text });
+    addMsg(text, "me");
+    textInput.value = "";
+    autoGrow();
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  textInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  function autoGrow() {
+    textInput.style.height = "auto";
+    textInput.style.height = Math.min(textInput.scrollHeight, 100) + "px";
+  }
+  textInput.addEventListener("input", autoGrow);
+
+  attachBtn.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      addSystemMsg("Solo se pueden enviar imágenes.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      // Comprimir/redimensionar para que viaje más liviano por el canal de datos
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1280;
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        pendingImageDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+        imgPreviewThumb.src = pendingImageDataUrl;
+        imgPreviewBar.style.display = "flex";
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  cancelPreviewBtn.addEventListener("click", () => {
+    pendingImageDataUrl = null;
+    fileInput.value = "";
+    imgPreviewBar.style.display = "none";
+  });
+
+  disconnectBtn.addEventListener("click", () => {
+    if (conn) conn.close();
+    location.reload();
+  });
+
+  initPeer();
+})();
 </script>
 
 </body>
