@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P2P Foto Chat</title>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
   :root {
     --bg: #0f1115;
@@ -386,6 +386,12 @@
 
 <script>
 (function () {
+  if (typeof Peer === "undefined") {
+    document.getElementById("connectScreen").innerHTML =
+      '<p style="text-align:center;color:#ff6b6b;padding:32px;">No se pudo cargar la librería de conexión (PeerJS). Revisá tu conexión a internet y recargá la página.</p>';
+    return;
+  }
+
   const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // sin letras ambiguas
   function randomCode() {
     let letters = "";
@@ -443,10 +449,35 @@
     chatScreen.style.display = view === "chatScreen" ? "flex" : "none";
   }
 
+  const PEER_CONFIG = {
+    debug: 1,
+    config: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        {
+          urls: "turn:openrelay.metered.ca:80",
+          username: "openrelayproject",
+          credential: "openrelayproject"
+        },
+        {
+          urls: "turn:openrelay.metered.ca:443",
+          username: "openrelayproject",
+          credential: "openrelayproject"
+        },
+        {
+          urls: "turn:openrelay.metered.ca:443?transport=tcp",
+          username: "openrelayproject",
+          credential: "openrelayproject"
+        }
+      ]
+    }
+  };
+
   function ensurePeer(onOpen) {
     if (peer && !peer.destroyed) { onOpen(); return; }
     myCode = randomCode();
-    peer = new Peer(codeToPeerId(myCode), { debug: 1 });
+    peer = new Peer(codeToPeerId(myCode), PEER_CONFIG);
 
     peer.on("open", () => { onOpen(); });
 
@@ -456,7 +487,7 @@
         // muy raro con código random, pero por si acaso generamos otro
         myCode = randomCode();
         peer.destroy();
-        peer = new Peer(codeToPeerId(myCode), { debug: 1 });
+        peer = new Peer(codeToPeerId(myCode), PEER_CONFIG);
         peer.on("open", onOpen);
         return;
       }
@@ -465,7 +496,20 @@
         connectMsg.className = "error";
         connectBtn.disabled = false;
         connectBtn.textContent = "Conectar";
+      } else if (err.type === "browser-incompatible") {
+        connectMsg.textContent = "Este navegador no soporta WebRTC.";
+        connectMsg.className = "error";
+      } else if (err.type === "network" || err.type === "server-error" || err.type === "socket-error" || err.type === "socket-closed") {
+        connectMsg.textContent = "No se pudo conectar al servidor de señalización. Revisá tu conexión a internet.";
+        connectMsg.className = "error";
+        connectBtn.disabled = false;
+        connectBtn.textContent = "Conectar";
+        setStatus("Error de conexión al servidor…", false);
       } else {
+        connectMsg.textContent = "Error: " + err.type;
+        connectMsg.className = "error";
+        connectBtn.disabled = false;
+        connectBtn.textContent = "Conectar";
         setStatus("Error de conexión al servidor…", false);
       }
     });
@@ -511,12 +555,11 @@
     const displayCode = remotePeerId.replace("fotop2p-", "");
     const formatted = displayCode.slice(0, 2) + "-" + displayCode.slice(2);
 
-    conn.on("open", () => {
-      showView("chatScreen");
-      myCodeLabelHeader.textContent = "Tu código: " + myCode;
-      setStatus("Conectado con " + formatted, true);
-      addSystemMsg("Conectado con " + formatted);
-    });
+    if (c.open) {
+      onConnectionOpen(formatted);
+    } else {
+      conn.on("open", () => onConnectionOpen(formatted));
+    }
 
     conn.on("data", (data) => {
       if (data.type === "text") {
@@ -536,6 +579,13 @@
       console.error(err);
       addSystemMsg("Error en la conexión.");
     });
+  }
+
+  function onConnectionOpen(formatted) {
+    showView("chatScreen");
+    myCodeLabelHeader.textContent = "Tu código: " + myCode;
+    setStatus("Conectado con " + formatted, true);
+    addSystemMsg("Conectado con " + formatted);
   }
 
   connectBtn.addEventListener("click", () => {
@@ -564,14 +614,25 @@
         setupConnection(outgoing, targetId);
       });
 
+      outgoing.on("error", (err) => {
+        console.error(err);
+        if (!settled) {
+          settled = true;
+          connectBtn.disabled = false;
+          connectBtn.textContent = "Conectar";
+          connectMsg.textContent = "Error al conectar: " + (err.type || err.message || err);
+          connectMsg.className = "error";
+        }
+      });
+
       setTimeout(() => {
         if (!settled) {
           connectBtn.disabled = false;
           connectBtn.textContent = "Conectar";
-          connectMsg.textContent = "No se pudo conectar. Verificá el código e intentá de nuevo.";
+          connectMsg.textContent = "No se pudo conectar. Verificá que el código sea correcto y que la otra persona siga con la sala abierta.";
           connectMsg.className = "error";
         }
-      }, 12000);
+      }, 15000);
     }
 
     if (peer && peer.open) {
