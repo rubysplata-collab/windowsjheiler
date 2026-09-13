@@ -141,6 +141,46 @@
   #connectMsg.error { color: #ff6b6b; }
   #connectMsg.ok { color: #4dd47a; }
 
+  .choiceButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .bigChoiceBtn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #10131a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 18px 20px;
+    border-radius: 14px;
+    font-size: 16px;
+    text-align: left;
+  }
+  .bigChoiceBtn:hover { border-color: var(--border-strong, #3a4150); }
+  .bigChoiceBtn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .bigChoiceIcon {
+    font-size: 20px;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .backBtn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 8px 0;
+    margin-top: 8px;
+    text-align: left;
+  }
+
   /* Pantalla de chat */
   #chatScreen { display: none; flex: 1; flex-direction: column; min-height: 0; }
   .chatHeader {
@@ -151,8 +191,11 @@
     justify-content: space-between;
   }
   .chatHeader .info { display: flex; align-items: center; gap: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #4dd47a; }
-  .chatHeader .code { font-family: monospace; font-size: 14px; color: var(--muted); }
+  .headerText { display: flex; flex-direction: column; }
+  .myCodeLabel { font-size: 11px; color: var(--muted); font-family: monospace; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0a83e; flex-shrink: 0; }
+  .dot.connected { background: #4dd47a; }
+  .chatHeader .code { font-family: monospace; font-size: 13px; color: var(--text); }
   .disconnectBtn {
     background: none;
     color: var(--muted);
@@ -278,30 +321,46 @@
 
   <!-- PANTALLA DE CONEXIÓN -->
   <div id="connectScreen">
-    <h1>Foto chat P2P</h1>
-    <p class="sub">Conexión directa entre dos navegadores. Nada se guarda en ningún servidor.</p>
 
-    <div class="myCodeBox">
-      <label>Tu código</label>
-      <div class="myCode" id="myCode">••••••••</div>
-      <div class="myCodeStatus" id="myCodeStatus">Generando…</div>
+    <!-- Vista inicial: elegir modo -->
+    <div id="modeChoice">
+      <h1>Foto chat P2P</h1>
+      <p class="sub">Conexión directa entre dos navegadores. Nada se guarda en ningún servidor.</p>
+      <div class="choiceButtons">
+        <button id="createRoomBtn" class="bigChoiceBtn primary">
+          <span class="bigChoiceIcon">＋</span>
+          <span>Crear sala</span>
+        </button>
+        <button id="joinRoomBtn" class="bigChoiceBtn">
+          <span class="bigChoiceIcon">→</span>
+          <span>Unirme a una sala</span>
+        </button>
+      </div>
     </div>
 
-    <div class="divider">compartí tu código o ingresá uno</div>
-
-    <div class="joinRow">
-      <input type="text" id="peerCodeInput" placeholder="XD-4429" maxlength="9">
-      <button id="connectBtn">Conectar</button>
+    <!-- Vista: unirse con un código -->
+    <div id="joinView" style="display:none;">
+      <h1>Unirme a una sala</h1>
+      <p class="sub">Ingresá el código que te compartieron.</p>
+      <div class="joinRow">
+        <input type="text" id="peerCodeInput" placeholder="XD-4429" maxlength="9">
+        <button id="connectBtn">Conectar</button>
+      </div>
+      <div id="connectMsg"></div>
+      <button id="backFromJoinBtn" class="backBtn">← Volver</button>
     </div>
-    <div id="connectMsg"></div>
+
   </div>
 
   <!-- PANTALLA DE CHAT -->
   <div id="chatScreen">
     <div class="chatHeader">
       <div class="info">
-        <span class="dot"></span>
-        <span class="code" id="peerCodeLabel"></span>
+        <span class="dot" id="statusDot"></span>
+        <div class="headerText">
+          <span class="myCodeLabel" id="myCodeLabelHeader">Tu código: ••••••••</span>
+          <span class="code" id="statusLabel">Generando…</span>
+        </div>
       </div>
       <button class="disconnectBtn" id="disconnectBtn">Salir</button>
     </div>
@@ -340,15 +399,21 @@
     return "fotop2p-" + code.replace("-", "").toUpperCase();
   }
 
-  const myCodeEl = document.getElementById("myCode");
-  const myCodeStatusEl = document.getElementById("myCodeStatus");
+  const modeChoice = document.getElementById("modeChoice");
+  const joinView = document.getElementById("joinView");
+  const createRoomBtn = document.getElementById("createRoomBtn");
+  const joinRoomBtn = document.getElementById("joinRoomBtn");
+  const backFromJoinBtn = document.getElementById("backFromJoinBtn");
+
   const peerCodeInput = document.getElementById("peerCodeInput");
   const connectBtn = document.getElementById("connectBtn");
   const connectMsg = document.getElementById("connectMsg");
 
   const connectScreen = document.getElementById("connectScreen");
   const chatScreen = document.getElementById("chatScreen");
-  const peerCodeLabel = document.getElementById("peerCodeLabel");
+  const myCodeLabelHeader = document.getElementById("myCodeLabelHeader");
+  const statusLabel = document.getElementById("statusLabel");
+  const statusDot = document.getElementById("statusDot");
   const messagesEl = document.getElementById("messages");
   const textInput = document.getElementById("textInput");
   const sendBtn = document.getElementById("sendBtn");
@@ -361,26 +426,29 @@
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.getElementById("lightboxImg");
 
-  let myCode = randomCode();
+  let myCode = null;
   let peer = null;
   let conn = null;
   let pendingImageDataUrl = null;
 
-  function setStatus(text, ok) {
-    myCodeStatusEl.textContent = text;
-    myCodeStatusEl.style.color = ok ? "#4dd47a" : "var(--muted)";
+  function setStatus(text, connected) {
+    statusLabel.textContent = text;
+    statusDot.classList.toggle("connected", !!connected);
   }
 
-  function initPeer() {
-    myCodeEl.textContent = myCode;
-    setStatus("Conectando al servidor…", false);
-    peer = new Peer(codeToPeerId(myCode), {
-      debug: 1
-    });
+  function showView(view) {
+    modeChoice.style.display = view === "modeChoice" ? "block" : "none";
+    joinView.style.display = view === "joinView" ? "block" : "none";
+    connectScreen.style.display = view === "chatScreen" ? "none" : "flex";
+    chatScreen.style.display = view === "chatScreen" ? "flex" : "none";
+  }
 
-    peer.on("open", () => {
-      setStatus("Listo. Compartí tu código.", true);
-    });
+  function ensurePeer(onOpen) {
+    if (peer && !peer.destroyed) { onOpen(); return; }
+    myCode = randomCode();
+    peer = new Peer(codeToPeerId(myCode), { debug: 1 });
+
+    peer.on("open", () => { onOpen(); });
 
     peer.on("error", (err) => {
       console.error(err);
@@ -388,16 +456,17 @@
         // muy raro con código random, pero por si acaso generamos otro
         myCode = randomCode();
         peer.destroy();
-        initPeer();
+        peer = new Peer(codeToPeerId(myCode), { debug: 1 });
+        peer.on("open", onOpen);
         return;
       }
       if (err.type === "peer-unavailable") {
-        connectMsg.textContent = "No se encontró ese código. Revisá que esté bien escrito y que la otra persona tenga la app abierta.";
+        connectMsg.textContent = "No se encontró ese código. Revisá que esté bien escrito y que la otra persona tenga la sala abierta.";
         connectMsg.className = "error";
         connectBtn.disabled = false;
         connectBtn.textContent = "Conectar";
       } else {
-        setStatus("Error de conexión al servidor. Reintentando…", false);
+        setStatus("Error de conexión al servidor…", false);
       }
     });
 
@@ -407,10 +476,35 @@
     });
 
     peer.on("disconnected", () => {
-      setStatus("Desconectado del servidor, reintentando…", false);
-      peer.reconnect();
+      if (peer && !peer.destroyed) peer.reconnect();
     });
   }
+
+  // --- Navegación entre vistas ---
+  createRoomBtn.addEventListener("click", () => {
+    myCodeLabelHeader.textContent = "Tu código: ••••••••";
+    setStatus("Generando…", false);
+    showView("chatScreen");
+    ensurePeer(() => {
+      myCodeLabelHeader.textContent = "Tu código: " + myCode;
+      setStatus("Esperando a que se conecten…", false);
+    });
+  });
+
+  joinRoomBtn.addEventListener("click", () => {
+    showView("joinView");
+    peerCodeInput.value = "";
+    connectMsg.textContent = "";
+    peerCodeInput.focus();
+    ensurePeer(() => {});
+  });
+
+  backFromJoinBtn.addEventListener("click", () => {
+    if (peer && !peer.destroyed) peer.destroy();
+    peer = null;
+    myCode = null;
+    showView("modeChoice");
+  });
 
   function setupConnection(c, remotePeerId) {
     conn = c;
@@ -418,7 +512,9 @@
     const formatted = displayCode.slice(0, 2) + "-" + displayCode.slice(2);
 
     conn.on("open", () => {
-      showChatScreen(formatted);
+      showView("chatScreen");
+      myCodeLabelHeader.textContent = "Tu código: " + myCode;
+      setStatus("Conectado con " + formatted, true);
       addSystemMsg("Conectado con " + formatted);
     });
 
@@ -431,6 +527,7 @@
     });
 
     conn.on("close", () => {
+      setStatus("Desconectado", false);
       addSystemMsg("La otra persona se desconectó.");
       conn = null;
     });
@@ -441,15 +538,6 @@
     });
   }
 
-  function showChatScreen(formattedCode) {
-    connectScreen.style.display = "none";
-    chatScreen.style.display = "flex";
-    peerCodeLabel.textContent = formattedCode;
-    connectBtn.disabled = false;
-    connectBtn.textContent = "Conectar";
-    connectMsg.textContent = "";
-  }
-
   connectBtn.addEventListener("click", () => {
     const raw = peerCodeInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (raw.length < 6) {
@@ -458,7 +546,7 @@
       return;
     }
     const targetId = "fotop2p-" + raw;
-    if (targetId === codeToPeerId(myCode)) {
+    if (myCode && targetId === codeToPeerId(myCode)) {
       connectMsg.textContent = "Ese es tu propio código.";
       connectMsg.className = "error";
       return;
@@ -466,22 +554,31 @@
     connectBtn.disabled = true;
     connectBtn.textContent = "Conectando…";
     connectMsg.textContent = "";
-    const outgoing = peer.connect(targetId, { reliable: true });
-    let settled = false;
 
-    outgoing.on("open", () => {
-      settled = true;
-      setupConnection(outgoing, targetId);
-    });
+    function doConnect() {
+      const outgoing = peer.connect(targetId, { reliable: true });
+      let settled = false;
 
-    setTimeout(() => {
-      if (!settled) {
-        connectBtn.disabled = false;
-        connectBtn.textContent = "Conectar";
-        connectMsg.textContent = "No se pudo conectar. Verificá el código e intentá de nuevo.";
-        connectMsg.className = "error";
-      }
-    }, 12000);
+      outgoing.on("open", () => {
+        settled = true;
+        setupConnection(outgoing, targetId);
+      });
+
+      setTimeout(() => {
+        if (!settled) {
+          connectBtn.disabled = false;
+          connectBtn.textContent = "Conectar";
+          connectMsg.textContent = "No se pudo conectar. Verificá el código e intentá de nuevo.";
+          connectMsg.className = "error";
+        }
+      }, 12000);
+    }
+
+    if (peer && peer.open) {
+      doConnect();
+    } else {
+      ensurePeer(doConnect);
+    }
   });
 
   peerCodeInput.addEventListener("keydown", (e) => {
@@ -625,7 +722,7 @@
     location.reload();
   });
 
-  initPeer();
+  showView("modeChoice");
 })();
 </script>
 
