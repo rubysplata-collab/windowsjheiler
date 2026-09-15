@@ -205,498 +205,225 @@ button{cursor:pointer}
 <!-- ================= LOGIN ================= -->
 
 <div id="login">
-
  <div class="login-card">
-
-  <div class="logo">
-   BLOX<b>VERSE</b>
-  </div>
-
-  <div class="sub">
-   Tu plataforma de juegos.
-  </div>
-
-  <input id="userInput"
-   class="input"
-   placeholder="Nombre de usuario"
-   autocomplete="username">
-
-  <input id="passInput"
-   class="input"
-   type="password"
-   placeholder="Contraseña"
-   autocomplete="current-password">
-
+  <div class="logo">BLOX<b>VERSE</b></div>
+  <div class="sub">Tu plataforma de juegos.</div>
+  
+  <input id="userInput" class="input" placeholder="Nombre de usuario" autocomplete="username">
+  <input id="passInput" class="input" type="password" placeholder="Contraseña" autocomplete="current-password">
+  
   <div class="login-buttons">
-
-   <button id="loginBtn" class="btn primary">
-    ENTRAR
-   </button>
-
-   <button id="registerBtn" class="btn green">
-    CREAR CUENTA
-   </button>
-
+   <button id="loginBtn" class="btn primary">ENTRAR</button>
+   <button id="registerBtn" class="btn green">CREAR CUENTA</button>
   </div>
-
+  
   <div id="error"></div>
-
  </div>
-
 </div>
 
 
 <!-- ================= APP ================= -->
 
 <div id="app" class="hidden">
-
  <aside id="sidebar" class="sidebar">
-
-  <div class="brand">
-   BLOX<b>VERSE</b>
-  </div>
-
+  <div class="brand">BLOX<b>VERSE</b></div>
   <div class="nav">
-
-   <button class="active" data-page="games">
-    🎮 Juegos
-   </button>
-
-   <button data-page="avatar">
-    🧍 Avatar
-   </button>
-
-   <button data-page="market">
-    🛒 Marketplace
-   </button>
-
-   <button data-page="create">
-    🛠️ Crear
-   </button>
-
+   <button class="active" data-page="games">🎮 Juegos</button>
+   <button data-page="avatar">🧍 Avatar</button>
+   <button data-page="market">🛒 Marketplace</button>
+   <button data-page="create">🛠️ Crear</button>
   </div>
-
+  
   <div class="user">
-
-   <div class="username" id="usernameDisplay">
-    Usuario
-   </div>
-
-   <div class="balance">
-    🪙 <span id="coinsDisplay">0</span> YEIBUX
-   </div>
-
-   <button id="logoutBtn" class="logout">
-    CERRAR SESIÓN
-   </button>
-
+   <div class="username" id="usernameDisplay">Usuario</div>
+   <div class="balance">🪙 <span id="coinsDisplay">0</span> YEIBUX</div>
+   <button id="logoutBtn" class="logout">CERRAR SESIÓN</button>
   </div>
-
  </aside>
 
-
  <main class="main">
-
   <div class="top">
-
-   <button id="mobileMenu" class="mobile-menu">
-    ☰
-   </button>
-
-   <div id="title" class="title">
-    Juegos
-   </div>
-
-   <div class="balance">
-    🪙 <span id="topCoins">0</span>
-   </div>
-
+   <button id="mobileMenu" class="mobile-menu">☰</button>
+   <div id="title" class="title">Juegos</div>
+   <div class="balance">🪙 <span id="topCoins">0</span></div>
   </div>
 
-
   <!-- JUEGOS -->
-
   <section id="games" class="section active">
-
    <div class="grid">
-
     <div class="card">
      <div class="preview">🏃</div>
      <h3>Parkour Tower</h3>
      <p>Sube por la torre y llega a la meta.</p>
      <button onclick="play('parkour')">JUGAR</button>
     </div>
-
     <div class="card">
      <div class="preview">🪙</div>
      <h3>Coin Rush</h3>
      <p>Recolecta monedas por el mapa.</p>
      <button onclick="play('coins')">JUGAR</button>
     </div>
-
     <div class="card">
      <div class="preview">🧱</div>
      <h3>Obby Runner</h3>
      <p>Corre y supera los obstáculos.</p>
      <button onclick="play('obby')">JUGAR</button>
     </div>
-
    </div>
-
   </section>
 
-
   <!-- AVATAR -->
-
   <section id="avatar" class="section">
-
    <div class="avatar-layout">
-
     <div class="avatar-view">
      <canvas id="avatarCanvas"></canvas>
     </div>
-
     <div class="controls">
-
      <h3>👕 Ropa</h3>
-
-     <input id="shirt"
-      type="file"
-      accept="image/png,image/jpeg,image/webp">
-
-     <p class="info">
-      Máximo 300 KB.
-     </p>
-
-     <h3 style="margin-top:25px">
-      🧢 Accesorios
-     </h3>
-
+     <input id="shirt" type="file" accept="image/png,image/jpeg,image/webp">
+     <p class="info">Máximo 300 KB.</p>
+     
+     <h3 style="margin-top:25px">🧢 Accesorios</h3>
      <div class="options">
-
-      <button class="option" onclick="accessory('none')">
-       Ninguno
-      </button>
-
-      <button class="option" onclick="accessory('cap')">
-       🧢 Gorra
-      </button>
-
-      <button class="option" onclick="accessory('crown')">
-       👑 Corona
-      </button>
-
-      <button class="option" onclick="accessory('glasses')">
-       🕶️ Gafas
-      </button>
-
-      <button class="option" onclick="accessory('bag')">
-       🎒 Mochila
-      </button>
-
+      <button class="option" onclick="accessory('none')">Ninguno</button>
+      <button class="option" onclick="accessory('cap')">🧢 Gorra</button>
+      <button class="option" onclick="accessory('crown')">👑 Corona</button>
+      <button class="option" onclick="accessory('glasses')">🕶️ Gafas</button>
+      <button class="option" onclick="accessory('bag')">🎒 Mochila</button>
      </div>
-
-     <button class="save" onclick="saveAvatar()">
-      💾 GUARDAR AVATAR
-     </button>
-
+     <button class="save" onclick="saveAvatar()">💾 GUARDAR AVATAR</button>
     </div>
-
    </div>
-
   </section>
-
 
   <!-- MARKET -->
-
   <section id="market" class="section">
-
    <h2>Marketplace</h2>
-
-   <p class="info">
-    Compra accesorios usando YEIBUX.
-   </p>
-
-   <div id="marketGrid" class="grid"
-    style="margin-top:18px">
-   </div>
-
+   <p class="info">Compra accesorios usando YEIBUX.</p>
+   <div id="marketGrid" class="grid" style="margin-top:18px"></div>
   </section>
-
 
   <!-- CREAR -->
-
   <section id="create" class="section">
-
    <div class="form">
-
     <h2>Crear artículo</h2>
-
-    <p class="info">
-     Publica un artículo para el Marketplace.
-    </p>
-
+    <p class="info">Publica un artículo para el Marketplace.</p>
     <label>Nombre</label>
     <input id="itemName" placeholder="Mi gorra">
-
     <label>Icono</label>
     <input id="itemIcon" placeholder="🧢">
-
     <label>Precio</label>
     <input id="itemPrice" type="number" value="50" min="1">
-
     <label>Descripción</label>
-    <textarea id="itemDesc"
-     placeholder="Descripción del artículo"></textarea>
-
-    <button id="createBtn" class="btn primary">
-     PUBLICAR
-    </button>
-
+    <textarea id="itemDesc" placeholder="Descripción del artículo"></textarea>
+    <button id="createBtn" class="btn primary">PUBLICAR</button>
     <p id="createResult" class="info"></p>
-
    </div>
-
   </section>
-
  </main>
-
 </div>
-
 
 <!-- ================= GAME ================= -->
-
 <div id="game">
-
  <canvas id="gameCanvas"></canvas>
-
  <div class="game-top">
-
-  <div id="gameName" class="game-name">
-   Juego
-  </div>
-
-  <button id="leaveBtn" class="leave">
-   SALIR
-  </button>
-
+  <div id="gameName" class="game-name">Juego</div>
+  <button id="leaveBtn" class="leave">SALIR</button>
  </div>
-
- <div class="game-help">
-  WASD para moverte
- </div>
-
+ <div class="game-help">WASD para moverte</div>
  <div id="mobile">
-
-  <div id="joystick" class="joystick">
-   <div id="dot" class="dot"></div>
-  </div>
-
-  <button id="jump" class="jump">
-   SALTAR
-  </button>
-
+  <div id="joystick" class="joystick"><div id="dot" class="dot"></div></div>
+  <button id="jump" class="jump">SALTAR</button>
  </div>
-
 </div>
 
-
 <!-- THREE -->
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-
 <!-- ================= FIREBASE ================= -->
-
 <script type="module">
-
-import {
- initializeApp
-} from
-"https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-
-import {
- getAuth,
- signInWithEmailAndPassword,
- createUserWithEmailAndPassword,
- signOut
-} from
-"https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
-import {
- getFirestore,
- doc,
- getDoc,
- setDoc,
- updateDoc,
- deleteDoc,
- collection,
- addDoc,
- onSnapshot,
- serverTimestamp
-} from
-"https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 /* ================= FIREBASE CONFIG ================= */
-
-const firebaseConfig={
- apiKey:"AIzaSyDATz9IGnt97ojeL7TA6IRH489rERDVMgI",
- authDomain:"siano-4d901.firebaseapp.com",
- projectId:"siano-4d901",
- storageBucket:"siano-4d901.firebasestorage.app",
- messagingSenderId:"224378787783",
- appId:"1:224378787783:web:8cf1ef2409e955e0a62be2",
- measurementId:"G-8C4QPQRW6H"
+const firebaseConfig = {
+ apiKey: "AIzaSyDAT9zIGnt97ojeL7TA6IRH489rERDVMgI",
+ authDomain: "siano-4d901.firebaseapp.com",
+ projectId: "siano-4d901",
+ storageBucket: "siano-4d901.firebasestorage.app",
+ messagingSenderId: "224378787783",
+ appId: "1:224378787783:web:8cf1ef2409e955e0a62be2",
+ measurementId: "G-8C4QPQRW6H"
 };
 
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
-
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* ================= VARIABLES ================= */
-
 let user=null;
 let data=null;
-
 let currentAccessory="none";
 let shirtData=null;
-
-let avatarScene;
-let avatarCamera;
-let avatarRenderer;
-let avatarModel;
-
-let gameScene;
-let gameCamera;
-let gameRenderer;
-let player;
-
+let avatarScene, avatarCamera, avatarRenderer, avatarModel;
+let gameScene, gameCamera, gameRenderer, player;
 let currentGame=null;
 let gameLoopId=null;
-
 let keys={};
-
 let remotePlayers={};
 let unsubscribeRoom=null;
-
 let lastPositionSend=0;
 
-
 /* ================= HELPERS ================= */
-
 const $=id=>document.getElementById(id);
 
 function emailFromUsername(name){
-
- return name
-  .toLowerCase()
-  .replace(/[^a-z0-9_.-]/g,"")
-  +"@bloxverse.local";
-
+ return name.toLowerCase().replace(/[^a-z0-9_.-]/g,"")+"@bloxverse.local";
 }
 
 function validUsername(name){
-
  return /^[a-zA-Z0-9_.-]{3,20}$/.test(name);
-
 }
 
 function errorText(e){
-
  const map={
-
-  "auth/email-already-in-use":
-   "Ese usuario ya existe. Usa ENTRAR.",
-
-  "auth/invalid-credential":
-   "Usuario o contraseña incorrectos.",
-
-  "auth/wrong-password":
-   "Contraseña incorrecta.",
-
-  "auth/user-not-found":
-   "La cuenta no existe.",
-
-  "auth/weak-password":
-   "La contraseña necesita mínimo 6 caracteres.",
-
-  "auth/operation-not-allowed":
-   "Debes activar Email/Password en Firebase Authentication.",
-
-  "auth/network-request-failed":
-   "No hay conexión con Firebase.",
-
-  "auth/invalid-api-key":
-   "La API Key de Firebase no es válida.",
-
-  "auth/api-key-not-valid":
-   "La API Key de Firebase no es válida.",
-
-  "permission-denied":
-   "Firestore rechazó la operación. Revisa las reglas."
-
+  "auth/email-already-in-use":"Ese usuario ya existe. Usa ENTRAR.",
+  "auth/invalid-credential":"Usuario o contraseña incorrectos.",
+  "auth/wrong-password":"Contraseña incorrecta.",
+  "auth/user-not-found":"La cuenta no existe.",
+  "auth/weak-password":"La contraseña necesita mínimo 6 caracteres.",
+  "auth/operation-not-allowed":"Debes activar Email/Password en Firebase Authentication.",
+  "auth/network-request-failed":"No hay conexión con Firebase.",
+  "auth/invalid-api-key":"La API Key de Firebase no es válida.",
+  "auth/api-key-not-valid":"La API Key de Firebase no es válida.",
+  "permission-denied":"Firestore rechazó la operación. Revisa las reglas."
  };
-
- return map[e.code] ||
-  (e.code?e.code+": ":"")+
-  (e.message||"Error desconocido");
-
+ return map[e.code] || (e.code?e.code+": ":"")+(e.message||"Error desconocido");
 }
-
 
 /* ================= CREAR CUENTA ================= */
-
 $("registerBtn").addEventListener("click",async()=>{
-
  const username=$("userInput").value.trim();
  const password=$("passInput").value;
-
  $("error").textContent="";
 
  if(!validUsername(username)){
-
-  $("error").textContent=
-   "El usuario debe tener 3-20 caracteres.";
-
+  $("error").textContent="El usuario debe tener 3-20 caracteres.";
   return;
-
  }
-
  if(password.length<6){
-
-  $("error").textContent=
-   "La contraseña necesita mínimo 6 caracteres.";
-
+  $("error").textContent="La contraseña necesita mínimo 6 caracteres.";
   return;
-
  }
 
  $("registerBtn").disabled=true;
  $("loginBtn").disabled=true;
-
- $("registerBtn").textContent=
-  "CREANDO...";
+ $("registerBtn").textContent="CREANDO...";
 
  try{
-
-  console.log("Creando cuenta...");
-
-  const result=
-   await createUserWithEmailAndPassword(
-    auth,
-    emailFromUsername(username),
-    password
-   );
-
+  const result=await createUserWithEmailAndPassword(auth, emailFromUsername(username), password);
   user=result.user;
-
-  console.log(
-   "Cuenta creada:",
-   user.uid
-  );
-
   data={
    username:username,
    yeibux:100,
@@ -705,118 +432,59 @@ $("registerBtn").addEventListener("click",async()=>{
    ownedItems:[],
    lastDaily:Date.now()
   };
-
-  await setDoc(
-   doc(db,"players",user.uid),
-   data
-  );
-
+  await setDoc(doc(db,"players",user.uid), data);
   openApp();
-
  }catch(e){
-
   console.error(e);
-
-  $("error").textContent=
-   errorText(e);
-
+  $("error").textContent=errorText(e);
  }finally{
-
   $("registerBtn").disabled=false;
   $("loginBtn").disabled=false;
-
-  $("registerBtn").textContent=
-   "CREAR CUENTA";
-
+  $("registerBtn").textContent="CREAR CUENTA";
  }
-
 });
-
 
 /* ================= ENTRAR ================= */
-
 $("loginBtn").addEventListener("click",async()=>{
-
  const username=$("userInput").value.trim();
  const password=$("passInput").value;
-
  $("error").textContent="";
 
  if(!validUsername(username)){
-
-  $("error").textContent=
-   "El usuario debe tener 3-20 caracteres.";
-
+  $("error").textContent="El usuario debe tener 3-20 caracteres.";
   return;
-
  }
-
  if(password.length<6){
-
-  $("error").textContent=
-   "La contraseña necesita mínimo 6 caracteres.";
-
+  $("error").textContent="La contraseña necesita mínimo 6 caracteres.";
   return;
-
  }
 
  $("loginBtn").disabled=true;
  $("registerBtn").disabled=true;
-
- $("loginBtn").textContent=
-  "ENTRANDO...";
+ $("loginBtn").textContent="ENTRANDO...";
 
  try{
-
-  const result=
-   await signInWithEmailAndPassword(
-    auth,
-    emailFromUsername(username),
-    password
-   );
-
+  const result=await signInWithEmailAndPassword(auth, emailFromUsername(username), password);
   user=result.user;
-
   await loadPlayer(username);
-
   openApp();
-
  }catch(e){
-
   console.error(e);
-
-  $("error").textContent=
-   errorText(e);
-
+  $("error").textContent=errorText(e);
  }finally{
-
   $("loginBtn").disabled=false;
   $("registerBtn").disabled=false;
-
-  $("loginBtn").textContent=
-   "ENTRAR";
-
+  $("loginBtn").textContent="ENTRAR";
  }
-
 });
 
-
 /* ================= PLAYER ================= */
-
 async function loadPlayer(username){
-
- const ref=
-  doc(db,"players",user.uid);
-
- const snap=
-  await getDoc(ref);
-
+ const ref=doc(db,"players",user.uid);
+ const snap=await getDoc(ref);
  if(snap.exists()){
-
   data=snap.data();
-
  }else{
-
   data={
    username:username,
    yeibux:100,
@@ -825,1278 +493,463 @@ async function loadPlayer(username){
    ownedItems:[],
    lastDaily:Date.now()
   };
-
   await setDoc(ref,data);
-
  }
-
- currentAccessory=
-  data.accessory||"none";
-
- shirtData=
-  data.shirtTexture||null;
-
+ currentAccessory=data.accessory||"none";
+ shirtData=data.shirtTexture||null;
  await dailyReward();
-
  updateUI();
-
 }
-
 
 async function dailyReward(){
-
- const last=
-  Number(data.lastDaily||0);
-
+ const last=Number(data.lastDaily||0);
  if(Date.now()-last>=86400000){
-
-  data.yeibux=
-   Number(data.yeibux||0)+20;
-
+  data.yeibux=Number(data.yeibux||0)+20;
   data.lastDaily=Date.now();
-
-  await updateDoc(
-   doc(db,"players",user.uid),
-   {
-    yeibux:data.yeibux,
-    lastDaily:data.lastDaily
-   }
-  );
-
+  await updateDoc(doc(db,"players",user.uid),{yeibux:data.yeibux, lastDaily:data.lastDaily});
  }
-
 }
-
 
 function updateUI(){
-
- $("usernameDisplay").textContent=
-  data.username;
-
- $("coinsDisplay").textContent=
-  data.yeibux||0;
-
- $("topCoins").textContent=
-  data.yeibux||0;
-
+ $("usernameDisplay").textContent=data.username;
+ $("coinsDisplay").textContent=data.yeibux||0;
+ $("topCoins").textContent=data.yeibux||0;
 }
-
 
 /* ================= APP ================= */
-
 function openApp(){
-
  $("login").classList.add("hidden");
  $("app").classList.remove("hidden");
-
  updateUI();
-
  loadMarket();
-
 }
 
-
 /* ================= NAVIGATION ================= */
-
-document
-.querySelectorAll(".nav button")
-.forEach(button=>{
-
+document.querySelectorAll(".nav button").forEach(button=>{
  button.addEventListener("click",()=>{
-
-  document
-  .querySelectorAll(".nav button")
-  .forEach(x=>
-   x.classList.remove("active")
-  );
-
-  document
-  .querySelectorAll(".section")
-  .forEach(x=>
-   x.classList.remove("active")
-  );
-
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
   button.classList.add("active");
-
-  const page=
-   button.dataset.page;
-
+  const page=button.dataset.page;
   $(page).classList.add("active");
-
-  const titles={
-   games:"Juegos",
-   avatar:"Avatar",
-   market:"Marketplace",
-   create:"Crear"
-  };
-
-  $("title").textContent=
-   titles[page];
-
+  const titles={games:"Juegos",avatar:"Avatar",market:"Marketplace",create:"Crear"};
+  $("title").textContent=titles[page];
   $("sidebar").classList.remove("open");
-
   if(page==="avatar"){
    setTimeout(initAvatar,100);
   }
-
  });
-
 });
-
 
 $("mobileMenu").onclick=()=>{
  $("sidebar").classList.toggle("open");
 };
 
-
 /* ================= LOGOUT ================= */
-
 $("logoutBtn").onclick=async()=>{
-
- if(currentGame)
-  await leaveGame();
-
- try{
-  await signOut(auth);
- }catch(e){
-  console.error(e);
- }
-
+ if(currentGame) await leaveGame();
+ try{ await signOut(auth); }catch(e){ console.error(e); }
  user=null;
  data=null;
-
  $("app").classList.add("hidden");
  $("login").classList.remove("hidden");
-
  $("userInput").value="";
  $("passInput").value="";
  $("error").textContent="";
-
 };
 
-
 /* ================= AVATAR ================= */
-
 function initAvatar(){
-
  const canvas=$("avatarCanvas");
-
  if(avatarRenderer){
-
-  avatarRenderer.setSize(
-   canvas.clientWidth,
-   canvas.clientHeight,
-   false
-  );
-
+  avatarRenderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
   return;
-
  }
-
- avatarScene=
-  new THREE.Scene();
-
- avatarScene.background=
-  new THREE.Color(0x10161f);
-
- avatarCamera=
-  new THREE.PerspectiveCamera(
-   45,
-   canvas.clientWidth/canvas.clientHeight,
-   .1,
-   100
-  );
-
- avatarCamera.position.set(
-  0,1.5,5
- );
-
- avatarRenderer=
-  new THREE.WebGLRenderer({
-   canvas:canvas,
-   antialias:true
-  });
-
- avatarRenderer.setPixelRatio(
-  Math.min(devicePixelRatio,2)
- );
-
- avatarRenderer.setSize(
-  canvas.clientWidth,
-  canvas.clientHeight,
-  false
- );
-
- const light=
-  new THREE.HemisphereLight(
-   0xffffff,
-   0x444444,
-   2
-  );
-
+ avatarScene=new THREE.Scene();
+ avatarScene.background=new THREE.Color(0x10161f);
+ avatarCamera=new THREE.PerspectiveCamera(45,canvas.clientWidth/canvas.clientHeight,.1,100);
+ avatarCamera.position.set(0,1.5,5);
+ avatarRenderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+ avatarRenderer.setPixelRatio(Math.min(devicePixelRatio,2));
+ avatarRenderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
+ const light=new THREE.HemisphereLight(0xffffff,0x444444,2);
  avatarScene.add(light);
-
- const floor=
-  new THREE.Mesh(
-   new THREE.CircleGeometry(2,32),
-   new THREE.MeshStandardMaterial({
-    color:0x252e3e
-   })
-  );
-
+ const floor=new THREE.Mesh(new THREE.CircleGeometry(2,32),new THREE.MeshStandardMaterial({color:0x252e3e}));
  floor.rotation.x=-Math.PI/2;
  floor.position.y=-1;
-
  avatarScene.add(floor);
-
  createAvatar();
 
  function render(){
-
   requestAnimationFrame(render);
-
-  if(avatarModel)
-   avatarModel.rotation.y+=.005;
-
-  avatarRenderer.render(
-   avatarScene,
-   avatarCamera
-  );
-
+  if(avatarModel) avatarModel.rotation.y+=.005;
+  avatarRenderer.render(avatarScene,avatarCamera);
  }
-
  render();
-
 }
-
 
 function createAvatar(){
-
- if(avatarModel)
-  avatarScene.remove(avatarModel);
-
- avatarModel=
-  new THREE.Group();
-
- const blue=
-  new THREE.MeshStandardMaterial({
-   color:0x3d83d9
-  });
-
- const skin=
-  new THREE.MeshStandardMaterial({
-   color:0xeeb48a
-  });
-
- const dark=
-  new THREE.MeshStandardMaterial({
-   color:0x20242c
-  });
-
- const body=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(1,1.4,.55),
-   blue
-  );
-
- const head=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(.85,.85,.85),
-   skin
-  );
-
+ if(avatarModel) avatarScene.remove(avatarModel);
+ avatarModel=new THREE.Group();
+ const blue=new THREE.MeshStandardMaterial({color:0x3d83d9});
+ const skin=new THREE.MeshStandardMaterial({color:0xeeb48a});
+ const dark=new THREE.MeshStandardMaterial({color:0x20242c});
+ const body=new THREE.Mesh(new THREE.BoxGeometry(1,1.4,.55),blue);
+ const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),skin);
  head.position.y=1.12;
-
- const leg1=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(.35,1,.4),
-   dark
-  );
-
+ const leg1=new THREE.Mesh(new THREE.BoxGeometry(.35,1,.4),dark);
  leg1.position.set(-.25,-1.2,0);
-
  const leg2=leg1.clone();
  leg2.position.x=.25;
-
- const arm1=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(.35,1.1,.4),
-   blue
-  );
-
+ const arm1=new THREE.Mesh(new THREE.BoxGeometry(.35,1.1,.4),blue);
  arm1.position.set(-.68,.05,0);
-
  const arm2=arm1.clone();
  arm2.position.x=.68;
-
- avatarModel.add(
-  body,head,leg1,leg2,arm1,arm2
- );
-
- const acc=
-  makeAccessory(currentAccessory);
-
- if(acc)
-  avatarModel.add(acc);
-
+ avatarModel.add(body,head,leg1,leg2,arm1,arm2);
+ const acc=makeAccessory(currentAccessory);
+ if(acc) avatarModel.add(acc);
  avatarScene.add(avatarModel);
-
 }
-
 
 function makeAccessory(type){
-
  if(type==="cap"){
-
   const group=new THREE.Group();
-
-  const cap=
-   new THREE.Mesh(
-    new THREE.CylinderGeometry(.55,.55,.2,24),
-    new THREE.MeshStandardMaterial({
-     color:0x2679df
-    })
-   );
-
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.2,24),new THREE.MeshStandardMaterial({color:0x2679df}));
   cap.position.y=1.62;
-
-  const visor=
-   new THREE.Mesh(
-    new THREE.BoxGeometry(.7,.08,.3),
-    new THREE.MeshStandardMaterial({
-     color:0x1453a5
-    })
-   );
-
+  const visor=new THREE.Mesh(new THREE.BoxGeometry(.7,.08,.3),new THREE.MeshStandardMaterial({color:0x1453a5}));
   visor.position.set(0,1.55,.3);
-
   group.add(cap,visor);
-
   return group;
-
  }
-
  if(type==="crown"){
-
-  const crown=
-   new THREE.Mesh(
-    new THREE.ConeGeometry(.6,.5,5),
-    new THREE.MeshStandardMaterial({
-     color:0xffd12f
-    })
-   );
-
+  const crown=new THREE.Mesh(new THREE.ConeGeometry(.6,.5,5),new THREE.MeshStandardMaterial({color:0xffd12f}));
   crown.position.y=1.68;
-
   return crown;
-
  }
-
  if(type==="glasses"){
-
   const group=new THREE.Group();
-
-  const material=
-   new THREE.MeshStandardMaterial({
-    color:0x111111
-   });
-
-  const a=
-   new THREE.Mesh(
-    new THREE.BoxGeometry(.3,.18,.07),
-    material
-   );
-
+  const material=new THREE.MeshStandardMaterial({color:0x111111});
+  const a=new THREE.Mesh(new THREE.BoxGeometry(.3,.18,.07),material);
   const b=a.clone();
-
   a.position.set(-.22,1.12,.43);
   b.position.set(.22,1.12,.43);
-
-  const bar=
-   new THREE.Mesh(
-    new THREE.BoxGeometry(.2,.05,.06),
-    material
-   );
-
+  const bar=new THREE.Mesh(new THREE.BoxGeometry(.2,.05,.06),material);
   bar.position.set(0,1.12,.43);
-
   group.add(a,b,bar);
-
   return group;
-
  }
-
  if(type==="bag"){
-
-  const bag=
-   new THREE.Mesh(
-    new THREE.BoxGeometry(.75,.9,.25),
-    new THREE.MeshStandardMaterial({
-     color:0xa73e4b
-    })
-   );
-
+  const bag=new THREE.Mesh(new THREE.BoxGeometry(.75,.9,.25),new THREE.MeshStandardMaterial({color:0xa73e4b}));
   bag.position.set(0,0,-.42);
-
   return bag;
-
  }
-
  return null;
-
 }
 
-
 window.accessory=function(type){
-
  currentAccessory=type;
-
  createAvatar();
-
 };
 
-
 $("shirt").addEventListener("change",e=>{
-
  const file=e.target.files[0];
-
  if(!file)return;
-
  if(file.size>300*1024){
-
   alert("La textura supera los 300 KB.");
   e.target.value="";
   return;
-
  }
-
  const reader=new FileReader();
-
- reader.onload=()=>{
-
-  shirtData=reader.result;
-
- };
-
+ reader.onload=()=>{ shirtData=reader.result; };
  reader.readAsDataURL(file);
-
 });
 
-
 window.saveAvatar=async()=>{
-
  if(!user)return;
-
  data.accessory=currentAccessory;
  data.shirtTexture=shirtData;
-
- await updateDoc(
-  doc(db,"players",user.uid),
-  {
-   accessory:currentAccessory,
-   shirtTexture:shirtData
-  }
- );
-
+ await updateDoc(doc(db,"players",user.uid),{accessory:currentAccessory,shirtTexture:shirtData});
  alert("Avatar guardado correctamente.");
-
 };
 
-
 /* ================= MARKET ================= */
-
 const defaultItems=[
-
- {
-  id:"cap",
-  name:"Gorra azul",
-  icon:"🧢",
-  price:50,
-  desc:"Una gorra azul."
- },
-
- {
-  id:"crown",
-  name:"Corona",
-  icon:"👑",
-  price:120,
-  desc:"Una corona."
- },
-
- {
-  id:"glasses",
-  name:"Gafas",
-  icon:"🕶️",
-  price:80,
-  desc:"Gafas oscuras."
- },
-
- {
-  id:"bag",
-  name:"Mochila",
-  icon:"🎒",
-  price:100,
-  desc:"Una mochila."
- }
-
+ {id:"cap",name:"Gorra azul",icon:"🧢",price:50,desc:"Una gorra azul."},
+ {id:"crown",name:"Corona",icon:"👑",price:120,desc:"Una corona."},
+ {id:"glasses",name:"Gafas",icon:"🕶️",price:80,desc:"Gafas oscuras."},
+ {id:"bag",name:"Mochila",icon:"🎒",price:100,desc:"Una mochila."}
 ];
-
 
 let marketUnsubscribe=null;
 
 function loadMarket(){
-
  const grid=$("marketGrid");
-
  grid.innerHTML="";
-
- defaultItems.forEach(item=>
-  addMarketCard(item)
- );
-
- if(marketUnsubscribe)
-  marketUnsubscribe();
-
- marketUnsubscribe=
-  onSnapshot(
-   collection(db,"marketItems"),
-   snap=>{
-
-    snap.forEach(docSnap=>{
-
-     const item={
-      id:docSnap.id,
-      ...docSnap.data()
-     };
-
-     if(!$("item-"+item.id))
-      addMarketCard(item);
-
-    });
-
-   },
-   error=>{
-    console.error(error);
-   }
-  );
-
+ defaultItems.forEach(item=>addMarketCard(item));
+ if(marketUnsubscribe) marketUnsubscribe();
+ marketUnsubscribe=onSnapshot(collection(db,"marketItems"),snap=>{
+  snap.forEach(docSnap=>{
+   const item={id:docSnap.id,...docSnap.data()};
+   if(!$("item-"+item.id)) addMarketCard(item);
+  });
+ },error=>{
+  console.error(error);
+ });
 }
-
 
 function addMarketCard(item){
-
- const card=
-  document.createElement("div");
-
+ const card=document.createElement("div");
  card.className="card";
  card.id="item-"+item.id;
-
  card.innerHTML=`
-
-  <div class="item-icon">
-   ${escapeHTML(item.icon||"🎁")}
-  </div>
-
+  <div class="item-icon">${escapeHTML(item.icon||"🎁")}</div>
   <h3>${escapeHTML(item.name||"Artículo")}</h3>
-
   <p>${escapeHTML(item.desc||item.description||"")}</p>
-
-  <p style="color:#ffd84d;font-weight:bold">
-   🪙 ${Number(item.price||0)} YEIBUX
-  </p>
-
+  <p style="color:#ffd84d;font-weight:bold">🪙 ${Number(item.price||0)} YEIBUX</p>
   <button>COMPRAR</button>
-
  `;
-
- card.querySelector("button")
- .onclick=()=>buyItem(item);
-
+ card.querySelector("button").onclick=()=>buyItem(item);
  $("marketGrid").appendChild(card);
-
 }
-
 
 async function buyItem(item){
-
  const price=Number(item.price||0);
-
  if(Number(data.yeibux||0)<price){
-
   alert("No tienes suficientes YEIBUX.");
-
   return;
-
  }
-
- data.yeibux=
-  Number(data.yeibux||0)-price;
-
- const owned=
-  Array.isArray(data.ownedItems)
-   ?data.ownedItems
-   :[];
-
- if(!owned.includes(item.id))
-  owned.push(item.id);
-
- await updateDoc(
-  doc(db,"players",user.uid),
-  {
-   yeibux:data.yeibux,
-   ownedItems:owned
-  }
- );
-
+ data.yeibux=Number(data.yeibux||0)-price;
+ const owned=Array.isArray(data.ownedItems)?data.ownedItems:[];
+ if(!owned.includes(item.id)) owned.push(item.id);
+ await updateDoc(doc(db,"players",user.uid),{yeibux:data.yeibux,ownedItems:owned});
  data.ownedItems=owned;
-
  updateUI();
-
  alert("Artículo comprado 🎉");
-
 }
-
 
 /* ================= CREAR ITEM ================= */
-
 $("createBtn").onclick=async()=>{
-
- const name=
-  $("itemName").value.trim();
-
- const icon=
-  $("itemIcon").value.trim()||"🎁";
-
- const price=
-  Number($("itemPrice").value);
-
- const desc=
-  $("itemDesc").value.trim();
-
+ const name=$("itemName").value.trim();
+ const icon=$("itemIcon").value.trim()||"🎁";
+ const price=Number($("itemPrice").value);
+ const desc=$("itemDesc").value.trim();
  $("createResult").textContent="";
-
- if(!name){
-
-  $("createResult").textContent=
-   "Escribe un nombre.";
-
-  return;
-
- }
-
- if(!price||price<1){
-
-  $("createResult").textContent=
-   "Precio inválido.";
-
-  return;
-
- }
-
+ if(!name){ $("createResult").textContent="Escribe un nombre."; return; }
+ if(!price||price<1){ $("createResult").textContent="Precio inválido."; return; }
  try{
-
-  await addDoc(
-   collection(db,"marketItems"),
-   {
-    name:name,
-    icon:icon,
-    price:price,
-    desc:desc,
-    creatorId:user.uid,
-    createdAt:serverTimestamp()
-   }
-  );
-
-  $("createResult").textContent=
-   "Artículo publicado.";
-
-  $("itemName").value="";
-  $("itemIcon").value="";
-  $("itemDesc").value="";
-
+  await addDoc(collection(db,"marketItems"),{
+   name:name,icon:icon,price:price,desc:desc,creatorId:user.uid,createdAt:serverTimestamp()
+  });
+  $("createResult").textContent="Artículo publicado.";
+  $("itemName").value=""; $("itemIcon").value=""; $("itemDesc").value="";
  }catch(e){
-
   console.error(e);
-
-  $("createResult").textContent=
-   errorText(e);
-
+  $("createResult").textContent=errorText(e);
  }
-
 };
-
 
 /* ================= GAME ================= */
-
 window.play=function(type){
-
  currentGame=type;
-
- $("gameName").textContent=
-  type==="parkour"
-   ?"Parkour Tower":
-  type==="coins"
-   ?"Coin Rush":
-   "Obby Runner";
-
+ $("gameName").textContent=type==="parkour"?"Parkour Tower":type==="coins"?"Coin Rush":"Obby Runner";
  $("game").classList.add("active");
-
  startGame();
-
 };
 
-
-$("leaveBtn").onclick=()=>{
- leaveGame();
-};
-
+$("leaveBtn").onclick=()=>{ leaveGame(); };
 
 async function leaveGame(){
-
- if(gameLoopId)
-  cancelAnimationFrame(gameLoopId);
-
+ if(gameLoopId) cancelAnimationFrame(gameLoopId);
  gameLoopId=null;
-
  await removeRoomPlayer();
-
  if(gameRenderer){
-
   gameRenderer.dispose();
-
   gameRenderer=null;
-
  }
-
- gameScene=null;
- gameCamera=null;
- player=null;
-
+ gameScene=null; gameCamera=null; player=null;
  $("game").classList.remove("active");
-
  currentGame=null;
-
- window.removeEventListener(
-  "keydown",
-  keyDown
- );
-
- window.removeEventListener(
-  "keyup",
-  keyUp
- );
-
- window.removeEventListener(
-  "resize",
-  resizeGame
- );
-
+ window.removeEventListener("keydown",keyDown);
+ window.removeEventListener("keyup",keyUp);
+ window.removeEventListener("resize",resizeGame);
 }
-
 
 function startGame(){
-
  const canvas=$("gameCanvas");
-
- gameScene=
-  new THREE.Scene();
-
- gameScene.background=
-  new THREE.Color(0x78b3df);
-
- gameCamera=
-  new THREE.PerspectiveCamera(
-   70,
-   innerWidth/innerHeight,
-   .1,
-   500
-  );
-
- gameCamera.position.set(
-  0,4,8
- );
-
- gameRenderer=
-  new THREE.WebGLRenderer({
-   canvas:canvas,
-   antialias:true
-  });
-
- gameRenderer.setPixelRatio(
-  Math.min(devicePixelRatio,2)
- );
-
- gameRenderer.setSize(
-  innerWidth,
-  innerHeight
- );
-
-
- const light=
-  new THREE.HemisphereLight(
-   0xffffff,
-   0x444444,
-   2
-  );
-
+ gameScene=new THREE.Scene();
+ gameScene.background=new THREE.Color(0x78b3df);
+ gameCamera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,500);
+ gameCamera.position.set(0,4,8);
+ gameRenderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+ gameRenderer.setPixelRatio(Math.min(devicePixelRatio,2));
+ gameRenderer.setSize(innerWidth,innerHeight);
+ const light=new THREE.HemisphereLight(0xffffff,0x444444,2);
  gameScene.add(light);
-
  createWorld();
  createGamePlayer();
-
  startMultiplayer();
-
- window.addEventListener(
-  "keydown",
-  keyDown
- );
-
- window.addEventListener(
-  "keyup",
-  keyUp
- );
-
- window.addEventListener(
-  "resize",
-  resizeGame
- );
-
+ window.addEventListener("keydown",keyDown);
+ window.addEventListener("keyup",keyUp);
+ window.addEventListener("resize",resizeGame);
  renderGame();
-
 }
-
 
 function createWorld(){
-
- const ground=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(100,.5,100),
-   new THREE.MeshStandardMaterial({
-    color:0x4c833f
-   })
-  );
-
+ const ground=new THREE.Mesh(new THREE.BoxGeometry(100,.5,100),new THREE.MeshStandardMaterial({color:0x4c833f}));
  ground.position.y=-1;
-
  gameScene.add(ground);
-
-
  for(let i=0;i<30;i++){
-
-  const block=
-   new THREE.Mesh(
-    new THREE.BoxGeometry(3,1,3),
-    new THREE.MeshStandardMaterial({
-     color:
-      i%3===0
-       ?0x826742
-       :0x5276a4
-    })
-   );
-
-  block.position.set(
-   (Math.random()-.5)*70,
-   Math.random()*3,
-   (Math.random()-.5)*70
-  );
-
+  const block=new THREE.Mesh(new THREE.BoxGeometry(3,1,3),new THREE.MeshStandardMaterial({color:i%3===0?0x826742:0x5276a4}));
+  block.position.set((Math.random()-.5)*70,Math.random()*3,(Math.random()-.5)*70);
   gameScene.add(block);
-
  }
-
 }
-
 
 function createGamePlayer(){
-
- player=
-  new THREE.Group();
-
- const body=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(1,1.5,.6),
-   new THREE.MeshStandardMaterial({
-    color:0x3d83d9
-   })
-  );
-
- const head=
-  new THREE.Mesh(
-   new THREE.BoxGeometry(.85,.85,.85),
-   new THREE.MeshStandardMaterial({
-    color:0xeeb48a
-   })
-  );
-
+ player=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.BoxGeometry(1,1.5,.6),new THREE.MeshStandardMaterial({color:0x3d83d9}));
+ const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),new THREE.MeshStandardMaterial({color:0xeeb48a}));
  head.position.y=1.15;
-
  player.add(body,head);
-
  player.position.set(0,0,0);
-
  gameScene.add(player);
-
 }
 
-
-function keyDown(e){
-
- keys[e.key.toLowerCase()]=true;
-
-}
-
-
-function keyUp(e){
-
- keys[e.key.toLowerCase()]=false;
-
-}
-
+function keyDown(e){ keys[e.key.toLowerCase()]=true; }
+function keyUp(e){ keys[e.key.toLowerCase()]=false; }
 
 function renderGame(){
-
- gameLoopId=
-  requestAnimationFrame(renderGame);
-
+ gameLoopId=requestAnimationFrame(renderGame);
  if(player){
-
   const speed=.12;
-
-  if(keys.w)
-   player.position.z-=speed;
-
-  if(keys.s)
-   player.position.z+=speed;
-
-  if(keys.a)
-   player.position.x-=speed;
-
-  if(keys.d)
-   player.position.x+=speed;
-
-  gameCamera.position.x=
-   player.position.x;
-
-  gameCamera.position.z=
-   player.position.z+8;
-
-  gameCamera.lookAt(
-   player.position.x,
-   player.position.y+1,
-   player.position.z
-  );
-
+  if(keys.w) player.position.z-=speed;
+  if(keys.s) player.position.z+=speed;
+  if(keys.a) player.position.x-=speed;
+  if(keys.d) player.position.x+=speed;
+  gameCamera.position.x=player.position.x;
+  gameCamera.position.z=player.position.z+8;
+  gameCamera.lookAt(player.position.x,player.position.y+1,player.position.z);
   sendPosition();
-
  }
-
- gameRenderer.render(
-  gameScene,
-  gameCamera
- );
-
+ gameRenderer.render(gameScene,gameCamera);
 }
-
 
 function resizeGame(){
-
  if(!gameRenderer)return;
-
- gameCamera.aspect=
-  innerWidth/innerHeight;
-
+ gameCamera.aspect=innerWidth/innerHeight;
  gameCamera.updateProjectionMatrix();
-
- gameRenderer.setSize(
-  innerWidth,
-  innerHeight
- );
-
+ gameRenderer.setSize(innerWidth,innerHeight);
 }
-
 
 /* ================= MULTIPLAYER ================= */
-
 function startMultiplayer(){
-
  if(!user||!currentGame)return;
-
- const room=
-  collection(
-   db,
-   "rooms",
-   currentGame,
-   "players"
-  );
-
- unsubscribeRoom=
-  onSnapshot(
-   room,
-   snapshot=>{
-
-    const seen=new Set();
-
-    snapshot.forEach(s=>{
-
-     const uid=s.id;
-
-     if(uid===user.uid)return;
-
-     const d=s.data();
-
-     seen.add(uid);
-
-     if(!remotePlayers[uid]){
-
-      const model=
-       new THREE.Group();
-
-      const body=
-       new THREE.Mesh(
-        new THREE.BoxGeometry(1,1.5,.6),
-        new THREE.MeshStandardMaterial({
-         color:0xd34d5b
-        })
-       );
-
-      const head=
-       new THREE.Mesh(
-        new THREE.BoxGeometry(.85,.85,.85),
-        new THREE.MeshStandardMaterial({
-         color:0xeeb48a
-        })
-       );
-
-      head.position.y=1.15;
-
-      model.add(body,head);
-
-      gameScene.add(model);
-
-      remotePlayers[uid]=model;
-
-     }
-
-     remotePlayers[uid].position.set(
-      Number(d.x||0),
-      Number(d.y||0),
-      Number(d.z||0)
-     );
-
-    });
-
-
-    Object.keys(remotePlayers)
-    .forEach(uid=>{
-
-     if(!seen.has(uid)){
-
-      gameScene.remove(
-       remotePlayers[uid]
-      );
-
-      delete remotePlayers[uid];
-
-     }
-
-    });
-
-   },
-   error=>{
-    console.error(
-     "Multiplayer:",
-     error
-    );
+ const room=collection(db,"rooms",currentGame,"players");
+ unsubscribeRoom=onSnapshot(room,snapshot=>{
+  const seen=new Set();
+  snapshot.forEach(s=>{
+   const uid=s.id;
+   if(uid===user.uid)return;
+   const d=s.data();
+   seen.add(uid);
+   if(!remotePlayers[uid]){
+    const model=new THREE.Group();
+    const body=new THREE.Mesh(new THREE.BoxGeometry(1,1.5,.6),new THREE.MeshStandardMaterial({color:0xd34d5b}));
+    const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),new THREE.MeshStandardMaterial({color:0xeeb48a}));
+    head.position.y=1.15;
+    model.add(body,head);
+    gameScene.add(model);
+    remotePlayers[uid]=model;
    }
-  );
-
+   remotePlayers[uid].position.set(Number(d.x||0),Number(d.y||0),Number(d.z||0));
+  });
+  Object.keys(remotePlayers).forEach(uid=>{
+   if(!seen.has(uid)){
+    gameScene.remove(remotePlayers[uid]);
+    delete remotePlayers[uid];
+   }
+  });
+ },error=>{
+  console.error("Multiplayer:",error);
+ });
 }
-
 
 async function sendPosition(){
-
  const now=Date.now();
-
- if(now-lastPositionSend<250)
-  return;
-
+ if(now-lastPositionSend<250) return;
  lastPositionSend=now;
-
- if(!user||!currentGame||!player)
-  return;
-
+ if(!user||!currentGame||!player) return;
  try{
-
-  await setDoc(
-   doc(
-    db,
-    "rooms",
-    currentGame,
-    "players",
-    user.uid
-   ),
-   {
-    username:data.username,
-    x:player.position.x,
-    y:player.position.y,
-    z:player.position.z,
-    updatedAt:serverTimestamp()
-   }
-  );
-
+  await setDoc(doc(db,"rooms",currentGame,"players",user.uid),{
+   username:data.username,
+   x:player.position.x,
+   y:player.position.y,
+   z:player.position.z,
+   updatedAt:serverTimestamp()
+  });
  }catch(e){
-
   console.error(e);
-
  }
-
 }
-
 
 async function removeRoomPlayer(){
-
  if(unsubscribeRoom){
-
   unsubscribeRoom();
   unsubscribeRoom=null;
-
  }
-
- if(!user||!currentGame)
-  return;
-
+ if(!user||!currentGame) return;
  try{
-
-  await deleteDoc(
-   doc(
-    db,
-    "rooms",
-    currentGame,
-    "players",
-    user.uid
-   )
-  );
-
+  await deleteDoc(doc(db,"rooms",currentGame,"players",user.uid));
  }catch(e){
-
   console.error(e);
-
  }
-
- Object.keys(remotePlayers)
- .forEach(uid=>{
-
-  if(gameScene)
-   gameScene.remove(
-    remotePlayers[uid]
-   );
-
+ Object.keys(remotePlayers).forEach(uid=>{
+  if(gameScene) gameScene.remove(remotePlayers[uid]);
  });
-
  remotePlayers={};
-
 }
 
-
 /* ================= MOBILE ================= */
-
 let joystickActive=false;
-
-$("joystick").addEventListener(
- "pointerdown",
- e=>{
-
-  joystickActive=true;
-
-  $("joystick")
-   .setPointerCapture(e.pointerId);
-
+$("joystick").addEventListener("pointerdown",e=>{
+ joystickActive=true;
+ $("joystick").setPointerCapture(e.pointerId);
+});
+$("joystick").addEventListener("pointermove",e=>{
+ if(!joystickActive)return;
+ const rect=$("joystick").getBoundingClientRect();
+ const cx=rect.left+rect.width/2;
+ const cy=rect.top+rect.height/2;
+ let dx=e.clientX-cx;
+ let dy=e.clientY-cy;
+ const max=38;
+ const length=Math.hypot(dx,dy);
+ if(length>max){
+  dx=dx/length*max;
+  dy=dy/length*max;
  }
-);
-
-$("joystick").addEventListener(
- "pointermove",
- e=>{
-
-  if(!joystickActive)return;
-
-  const rect=
-   $("joystick").getBoundingClientRect();
-
-  const cx=
-   rect.left+rect.width/2;
-
-  const cy=
-   rect.top+rect.height/2;
-
-  let dx=e.clientX-cx;
-  let dy=e.clientY-cy;
-
-  const max=38;
-
-  const length=
-   Math.hypot(dx,dy);
-
-  if(length>max){
-
-   dx=dx/length*max;
-   dy=dy/length*max;
-
-  }
-
-  $("dot").style.transform=
-   `translate(${dx}px,${dy}px)`;
-
-  keys.w=dy<-10;
-  keys.s=dy>10;
-  keys.a=dx<-10;
-  keys.d=dx>10;
-
- }
-);
-
-$("joystick").addEventListener(
- "pointerup",
- ()=>{
-
-  joystickActive=false;
-
-  $("dot").style.transform="";
-
-  keys.w=false;
-  keys.s=false;
-  keys.a=false;
-  keys.d=false;
-
- }
-);
-
+ $("dot").style.transform=`translate(${dx}px,${dy}px)`;
+ keys.w=dy<-10; keys.s=dy>10; keys.a=dx<-10; keys.d=dx>10;
+});
+$("joystick").addEventListener("pointerup",()=>{
+ joystickActive=false;
+ $("dot").style.transform="";
+ keys.w=false; keys.s=false; keys.a=false; keys.d=false;
+});
 $("jump").onclick=()=>{
-
  if(!player)return;
-
  player.position.y+=1;
-
  setTimeout(()=>{
-
-  if(player)
-   player.position.y=
-    Math.max(0,player.position.y-1);
-
+  if(player) player.position.y=Math.max(0,player.position.y-1);
  },250);
-
 };
 
-
 /* ================= SAFETY ================= */
-
 function escapeHTML(value){
-
  return String(value)
  .replaceAll("&","&amp;")
  .replaceAll("<","&lt;")
  .replaceAll(">","&gt;");
-
 }
 
 </script>
