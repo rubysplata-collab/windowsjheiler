@@ -6,916 +6,1125 @@
 <title>BLOXVERSE</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,Segoe UI,sans-serif;background:#080c16;color:#fff}
-button,input,select{font:inherit}
-button{cursor:pointer}
+*{
+ box-sizing:border-box;
+ margin:0;
+ padding:0;
+}
 
-.screen{position:absolute;inset:0;display:none}
-.screen.active{display:flex}
+body{
+ font-family:Arial,sans-serif;
+ background:#111827;
+ color:white;
+ overflow:hidden;
+}
+
+button,input{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+.hidden{
+ display:none!important;
+}
 
 /* LOGIN */
+
 #loginScreen{
+ position:fixed;
+ inset:0;
+ display:flex;
  align-items:center;
  justify-content:center;
- flex-direction:column;
  background:
- radial-gradient(circle at 20% 20%,#173b58 0,#0a1020 38%,#05070d 100%);
+ radial-gradient(circle at top,#263b70,#10131d 60%);
+ z-index:1000;
+}
+
+.loginBox{
+ width:min(430px,92%);
+ background:#181d2b;
+ border:1px solid #30394e;
+ border-radius:22px;
+ padding:32px;
+ box-shadow:0 20px 70px #0008;
 }
 
 .logo{
- font-size:52px;
+ text-align:center;
+ font-size:42px;
  font-weight:900;
- letter-spacing:3px;
- color:#00d9ff;
- text-shadow:0 0 25px #00d9ff55
-}
-.logo span{color:#ff3d7f}
-
-.subtitle{
- margin:7px 0 28px;
- color:#8993b3;
- letter-spacing:2px;
- font-size:12px
+ letter-spacing:-2px;
+ margin-bottom:8px;
 }
 
-.loginCard{
- width:370px;
- max-width:92%;
- padding:28px;
- border-radius:18px;
- background:#12182a;
- border:1px solid #303b63;
- box-shadow:0 25px 70px #0009
+.logo span{
+ color:#5da9ff;
 }
 
-.loginCard h2{text-align:center;margin-bottom:18px}
+.loginSubtitle{
+ text-align:center;
+ color:#9da8bb;
+ margin-bottom:28px;
+}
 
-.input{
+.loginBox input{
  width:100%;
- padding:13px;
+ padding:14px;
  margin-bottom:12px;
- border-radius:9px;
- border:1px solid #303b63;
+ border-radius:12px;
+ border:1px solid #39445b;
+ background:#0f1420;
+ color:white;
  outline:none;
- background:#080d1b;
- color:white
 }
 
-.input:focus{border-color:#00d9ff}
+.loginBox input:focus{
+ border-color:#5da9ff;
+}
+
+.loginButtons{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ margin-top:8px;
+}
 
 .btn{
- width:100%;
- padding:13px;
  border:0;
- border-radius:9px;
- background:linear-gradient(90deg,#00d9ff,#009cff);
- color:#00121a;
- font-weight:900
+ border-radius:12px;
+ padding:13px;
+ font-weight:bold;
+ color:white;
+ background:#2a3449;
 }
 
-.btn:hover{filter:brightness(1.12)}
+.btn:hover{
+ filter:brightness(1.15);
+}
 
-.error{
- min-height:20px;
- margin-top:10px;
+.btn.primary{
+ background:#287de0;
+}
+
+.btn.green{
+ background:#159447;
+}
+
+#loginError{
+ color:#ff7777;
+ min-height:24px;
+ margin-top:15px;
  text-align:center;
- color:#ff6487;
- font-size:13px
+ font-size:14px;
 }
 
-/* LOBBY */
-#lobbyScreen{
- flex-direction:column;
- background:linear-gradient(#090d18,#131a2d)
-}
+/* APP */
 
-#topbar{
- min-height:64px;
+#app{
+ position:fixed;
+ inset:0;
  display:flex;
- align-items:center;
- gap:8px;
- padding:10px 20px;
- background:#080c16ee;
- border-bottom:1px solid #293555;
- flex-wrap:wrap
 }
 
-#topbar .logo{
- font-size:21px;
- margin-right:auto
+.sidebar{
+ width:230px;
+ background:#151a26;
+ border-right:1px solid #293246;
+ padding:18px;
+ display:flex;
+ flex-direction:column;
+}
+
+.brand{
+ font-size:27px;
+ font-weight:900;
+ margin:4px 8px 28px;
+}
+
+.brand span{
+ color:#5da9ff;
 }
 
 .nav{
- padding:8px 13px;
- border:1px solid #303b63;
- border-radius:8px;
- background:#0d1323;
- color:#aeb8d5
-}
-
-.nav.active{
- color:#00d9ff;
- border-color:#00d9ff;
- background:#00d9ff12
-}
-
-#userInfo{
  display:flex;
- align-items:center;
+ flex-direction:column;
  gap:8px;
- margin-left:7px
 }
 
-#coins{color:#ffd700;font-weight:900}
+.nav button{
+ text-align:left;
+ border:0;
+ background:transparent;
+ color:#aeb7c9;
+ padding:13px;
+ border-radius:11px;
+}
 
-#avatarSmall{
- width:34px;
- height:34px;
- border-radius:50%;
+.nav button:hover,
+.nav button.active{
+ background:#27334a;
+ color:white;
+}
+
+.userCard{
+ margin-top:auto;
+ background:#20283a;
+ padding:14px;
+ border-radius:14px;
+}
+
+.userName{
+ font-weight:bold;
+}
+
+.coins{
+ color:#ffd54d;
+ margin-top:6px;
+ font-weight:bold;
+}
+
+.logout{
+ width:100%;
+ margin-top:10px;
+ background:#3a2027;
+ color:#ff9ba5;
+ border:0;
+ padding:10px;
+ border-radius:10px;
+}
+
+.main{
+ flex:1;
+ overflow:auto;
+ padding:24px;
+}
+
+.topbar{
  display:flex;
+ justify-content:space-between;
  align-items:center;
- justify-content:center;
- background:linear-gradient(135deg,#00d9ff,#ff3d7f);
- font-weight:900
+ margin-bottom:24px;
 }
 
-#logout{
- background:#151c30;
- color:#ff6688;
- border:1px solid #553047;
- border-radius:7px;
- padding:7px 10px
+.title{
+ font-size:30px;
+ font-weight:900;
 }
 
-.tab{display:none;flex:1;overflow:auto;padding:28px}
-.tab.active{display:block}
-
-/* GAMES */
-.pageTitle{
- max-width:1100px;
- margin:0 auto 20px;
- font-size:28px
+.mobileMenu{
+ display:none;
 }
 
-.pageSub{
- max-width:1100px;
- margin:-13px auto 20px;
- color:#8993b3
+.section{
+ display:none;
 }
 
-#gameGrid{
- max-width:1100px;
- margin:auto;
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
- gap:20px
-}
-
-.gameCard{
- background:#141a2d;
- border:1px solid #303b63;
- border-radius:15px;
- overflow:hidden;
- transition:.2s
-}
-
-.gameCard:hover{
- transform:translateY(-4px);
- border-color:#00d9ff
-}
-
-.gameImage{
- height:150px;
- display:flex;
- align-items:center;
- justify-content:center;
- font-size:65px
-}
-
-.gameBody{padding:16px}
-.gameBody h3{margin-bottom:7px}
-.gameBody p{color:#8e97b6;font-size:13px;line-height:1.5}
-
-.playTag{
+.section.active{
  display:block;
- margin-top:13px;
- color:#00d9ff;
- font-weight:bold
+}
+
+/* CARDS */
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+ gap:18px;
+}
+
+.card{
+ background:#181e2c;
+ border:1px solid #2b3548;
+ border-radius:18px;
+ padding:16px;
+ transition:.2s;
+}
+
+.card:hover{
+ transform:translateY(-3px);
+ border-color:#4e668d;
+}
+
+.gamePreview{
+ height:130px;
+ border-radius:14px;
+ background:linear-gradient(135deg,#2454a6,#6d42aa);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:45px;
+ margin-bottom:13px;
+}
+
+.card h3{
+ margin-bottom:7px;
+}
+
+.card p{
+ color:#909bad;
+ font-size:14px;
+ margin-bottom:13px;
+}
+
+.card button{
+ width:100%;
+ border:0;
+ padding:11px;
+ border-radius:10px;
+ background:#287de0;
+ color:white;
+ font-weight:bold;
 }
 
 /* AVATAR */
-.avatarWrap{
- max-width:1050px;
- margin:auto;
- display:flex;
- gap:30px;
- flex-wrap:wrap
+
+.avatarLayout{
+ display:grid;
+ grid-template-columns:1fr 300px;
+ gap:20px;
 }
 
-.avatarPreview{
- width:390px;
- height:470px;
- background:#101629;
- border:1px solid #303b63;
- border-radius:16px
+.avatarBox{
+ min-height:520px;
+ background:#10151f;
+ border:1px solid #2c3648;
+ border-radius:20px;
+ position:relative;
+ overflow:hidden;
 }
 
-.avatarControls{flex:1;min-width:280px}
+#avatarCanvas{
+ width:100%;
+ height:100%;
+ min-height:520px;
+}
 
-.group{margin-bottom:20px}
-.group h4{
+.avatarControls{
+ background:#181e2c;
+ border:1px solid #2c3648;
+ border-radius:18px;
+ padding:18px;
+}
+
+.controlGroup{
+ margin-bottom:18px;
+}
+
+.controlGroup h3{
  margin-bottom:10px;
- color:#c5cce5;
- font-size:13px;
- text-transform:uppercase;
- letter-spacing:1px
 }
 
-.colors{display:flex;gap:9px;flex-wrap:wrap}
-
-.color{
- width:36px;
- height:36px;
- border-radius:50%;
- border:2px solid transparent
+.optionGrid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:8px;
 }
 
-.color.selected{
- border-color:white;
- box-shadow:0 0 0 2px #00d9ff
-}
-
-.accessories{
- display:flex;
- gap:9px;
- flex-wrap:wrap
-}
-
-.accessory{
- min-width:75px;
+.option{
+ background:#252e40;
+ border:1px solid #39465e;
+ color:white;
  padding:10px;
- border:1px solid #303b63;
- border-radius:8px;
- background:#11182a;
- color:white
+ border-radius:9px;
 }
 
-.accessory.selected{
- border-color:#00d9ff;
- color:#00d9ff
+.option:hover{
+ background:#34425c;
 }
 
-.upload{
- display:block;
- padding:11px;
- border:1px dashed #45547d;
- border-radius:8px;
- color:#aeb8d5;
- cursor:pointer;
- margin-bottom:12px
+.saveBtn{
+ width:100%;
+ padding:12px;
+ border:0;
+ border-radius:10px;
+ background:#159447;
+ color:white;
+ font-weight:bold;
 }
-
-.upload input{display:none}
 
 /* MARKET */
-#marketGrid{
- max-width:1100px;
- margin:auto;
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
- gap:18px
-}
 
-.item{
- background:#141a2d;
- border:1px solid #303b63;
- border-radius:14px;
- padding:14px
-}
-
-.itemPreview{
- height:130px;
- border-radius:9px;
+.marketTop{
  display:flex;
+ justify-content:space-between;
  align-items:center;
+ margin-bottom:18px;
+}
+
+.balance{
+ background:#20283a;
+ padding:12px 16px;
+ border-radius:12px;
+ color:#ffd54d;
+ font-weight:bold;
+}
+
+.itemIcon{
+ height:120px;
+ border-radius:14px;
+ background:#222b3c;
+ display:flex;
  justify-content:center;
- font-size:55px;
+ align-items:center;
+ font-size:50px;
  margin-bottom:12px;
- background:#0b1120
-}
-
-.item h3{margin-bottom:5px}
-.item small{color:#8792b1}
-.price{color:#ffd700;font-weight:bold;margin-top:8px}
-
-.buy{
- margin-top:10px;
- width:100%;
- padding:9px;
- border-radius:7px;
- border:1px solid #00d9ff;
- background:#00d9ff15;
- color:#00d9ff
-}
-
-.buy.owned{
- border-color:#4d5a78;
- color:#7885a5;
- background:#10172a
 }
 
 /* CREATE */
-.createBox{
+
+.formBox{
  max-width:600px;
- margin:auto;
+ background:#181e2c;
  padding:22px;
- border:1px solid #303b63;
- border-radius:15px;
- background:#11182a
+ border-radius:18px;
+ border:1px solid #2b3548;
 }
 
-.createBox label{
- display:block;
- color:#9ca7c5;
- margin:12px 0 6px;
- font-size:13px
-}
-
-.createBox select,
-.createBox input[type="number"]{
+.formBox input,
+.formBox textarea,
+.formBox select{
  width:100%;
- padding:11px;
- border-radius:8px;
- border:1px solid #303b63;
- background:#080d1b;
- color:white
+ background:#10151f;
+ border:1px solid #354057;
+ color:white;
+ border-radius:10px;
+ padding:12px;
+ margin:7px 0 14px;
+}
+
+.formBox textarea{
+ min-height:120px;
+ resize:vertical;
+}
+
+.info{
+ color:#98a3b7;
+ font-size:13px;
+ line-height:1.5;
 }
 
 /* GAME */
-#gameScreen{background:#87ceeb}
 
-#gameCanvas{
- position:absolute;
+#gameOverlay{
+ position:fixed;
  inset:0;
- width:100%;
- height:100%;
- display:block
+ background:#10151f;
+ z-index:900;
+ display:none;
 }
 
-#gameHud{
+#gameOverlay.active{
+ display:block;
+}
+
+#gameCanvas{
+ width:100%;
+ height:100%;
+ display:block;
+}
+
+.gameHUD{
  position:absolute;
  top:15px;
  left:15px;
  right:15px;
  display:flex;
  justify-content:space-between;
- pointer-events:none
+ pointer-events:none;
 }
 
-.hud{
- background:#090f1dcc;
- border:1px solid #394668;
- border-radius:9px;
- padding:9px 14px
-}
-
-#exitGame{
- position:absolute;
- top:65px;
- right:15px;
- background:#10182acc;
- color:white;
- border:1px solid #394668;
- border-radius:8px;
- padding:9px 14px
-}
-
-#roomInfo{
- position:absolute;
- bottom:18px;
- left:18px;
- background:#090f1dcc;
- border:1px solid #394668;
- border-radius:9px;
+.hudBox{
+ background:#111827dd;
+ border:1px solid #ffffff18;
  padding:10px 14px;
- color:#aeb7d2
+ border-radius:12px;
+}
+
+#leaveGame{
+ pointer-events:auto;
+ border:0;
+ background:#b73545;
+ color:white;
+ padding:10px 15px;
+ border-radius:10px;
+ font-weight:bold;
+}
+
+#gameInfo{
+ position:absolute;
+ left:15px;
+ bottom:15px;
+ background:#111827dd;
+ padding:12px;
+ border-radius:12px;
+ color:#d8deea;
 }
 
 #mobileControls{
  display:none;
  position:absolute;
- bottom:20px;
- left:20px;
- right:20px;
- justify-content:space-between;
- pointer-events:none
+ inset:0;
+ pointer-events:none;
 }
 
-.mobileGroup{
- display:flex;
- gap:8px;
- pointer-events:auto
-}
-
-.mobileBtn{
- width:60px;
- height:60px;
- border-radius:50%;
- background:#11182acc;
- border:2px solid #ffffff66;
- color:white;
- font-size:22px
-}
-
-#gameMessage{
+.joystick{
  position:absolute;
- top:50%;
- left:50%;
- transform:translate(-50%,-50%);
- background:#080d1eee;
- padding:20px 28px;
- border-radius:13px;
- border:1px solid #405078;
- display:none;
- text-align:center
+ left:25px;
+ bottom:30px;
+ width:120px;
+ height:120px;
+ border-radius:50%;
+ background:#ffffff18;
+ border:2px solid #ffffff22;
+ pointer-events:auto;
 }
 
-@media(max-width:700px){
- .logo{font-size:36px}
- .tab{padding:18px}
- .avatarPreview{width:100%;height:400px}
- #mobileControls{display:flex}
- #topbar .logo{width:100%}
- #usernameDisplay{display:none}
+.joyDot{
+ position:absolute;
+ width:48px;
+ height:48px;
+ border-radius:50%;
+ background:#ffffff44;
+ left:34px;
+ top:34px;
 }
 
-/* SCROLL */
-::-webkit-scrollbar{width:8px}
-::-webkit-scrollbar-thumb{background:#303b63;border-radius:20px}
+.mobileJump{
+ position:absolute;
+ right:30px;
+ bottom:40px;
+ width:80px;
+ height:80px;
+ border:0;
+ border-radius:50%;
+ background:#287de0cc;
+ color:white;
+ font-weight:bold;
+ pointer-events:auto;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:800px){
+
+ .sidebar{
+  position:fixed;
+  left:-240px;
+  top:0;
+  bottom:0;
+  z-index:800;
+  transition:.2s;
+ }
+
+ .sidebar.open{
+  left:0;
+ }
+
+ .mobileMenu{
+  display:block;
+  border:0;
+  background:#253047;
+  color:white;
+  padding:9px 12px;
+  border-radius:9px;
+ }
+
+ .main{
+  padding:15px;
+ }
+
+ .avatarLayout{
+  grid-template-columns:1fr;
+ }
+
+ .avatarControls{
+  order:2;
+ }
+
+ .loginButtons{
+  grid-template-columns:1fr;
+ }
+
+ #mobileControls{
+  display:block;
+ }
+}
 </style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 
-<section id="loginScreen" class="screen active">
+<div id="loginScreen">
 
- <div class="logo">BLOX<span>VERSE</span></div>
- <div class="subtitle">MINIJUEGOS 3D · AVATARES · YEIBUX · MULTIJUGADOR</div>
+ <div class="loginBox">
 
- <div class="loginCard">
+  <div class="logo">
+   BLOX<span>VERSE</span>
+  </div>
 
-  <h2>Entrar a BLOXVERSE</h2>
+  <div class="loginSubtitle">
+   Tu plataforma de juegos.
+  </div>
 
   <input
    id="username"
-   class="input"
-   maxlength="16"
+   placeholder="Nombre de usuario"
    autocomplete="username"
-   placeholder="Nombre de usuario">
+  >
 
   <input
    id="password"
-   class="input"
    type="password"
+   placeholder="Contraseña"
    autocomplete="current-password"
-   placeholder="Contraseña">
+  >
 
-  <button id="loginButton" class="btn">
-   ENTRAR / CREAR CUENTA
-  </button>
+  <div class="loginButtons">
 
-  <div id="loginError" class="error"></div>
+   <button
+    id="loginButton"
+    class="btn primary">
+    ENTRAR
+   </button>
 
- </div>
-
-</section>
-
-
-<!-- ================= LOBBY ================= -->
-
-<section id="lobbyScreen" class="screen">
-
- <div id="topbar">
-
-  <div class="logo">BLOX<span>VERSE</span></div>
-
-  <button class="nav active" data-tab="games">🎮 JUEGOS</button>
-  <button class="nav" data-tab="avatar">🧍 AVATAR</button>
-  <button class="nav" data-tab="market">🛒 MARKET</button>
-  <button class="nav" data-tab="create">🛠️ CREAR</button>
-
-  <div id="userInfo">
-
-   <span id="coins">🪙 20</span>
-
-   <div id="avatarSmall">?</div>
-
-   <span id="usernameDisplay"></span>
-
-   <button id="logout">Salir</button>
+   <button
+    id="registerButton"
+    class="btn green">
+    CREAR CUENTA
+   </button>
 
   </div>
 
- </div>
-
-
- <!-- GAMES -->
-
- <div id="tab-games" class="tab active">
-
-  <h1 class="pageTitle">Juegos</h1>
-
-  <p class="pageSub">
-   Entra a un juego y aparecerás con los demás jugadores que estén jugando el mismo mapa.
-  </p>
-
-  <div id="gameGrid"></div>
+  <div id="loginError"></div>
 
  </div>
 
+</div>
 
- <!-- AVATAR -->
 
- <div id="tab-avatar" class="tab">
+<!-- APP -->
 
-  <div class="avatarWrap">
+<div id="app" class="hidden">
 
-   <canvas id="avatarCanvas" class="avatarPreview"></canvas>
+ <aside class="sidebar" id="sidebar">
 
-   <div class="avatarControls">
+  <div class="brand">
+   BLOX<span>VERSE</span>
+  </div>
 
-    <div class="group">
+  <div class="nav">
 
-     <h4>Color de piel</h4>
+   <button data-section="games" class="active">
+    🎮 Juegos
+   </button>
 
-     <div id="skinColors" class="colors"></div>
+   <button data-section="avatar">
+    🧍 Avatar
+   </button>
 
-    </div>
+   <button data-section="market">
+    🛒 Marketplace
+   </button>
 
-    <div class="group">
+   <button data-section="create">
+    🛠️ Crear
+   </button>
 
-     <h4>Camisa</h4>
+  </div>
 
-     <div id="shirtColors" class="colors"></div>
+  <div class="userCard">
 
-    </div>
+   <div class="userName" id="sideUsername">
+    Usuario
+   </div>
 
-    <div class="group">
+   <div class="coins">
+    🪙 <span id="sideCoins">0</span> YEIBUX
+   </div>
 
-     <h4>Pantalón</h4>
+   <button class="logout" id="logoutButton">
+    Cerrar sesión
+   </button>
 
-     <div id="pantsColors" class="colors"></div>
+  </div>
 
-    </div>
+ </aside>
 
-    <div class="group">
 
-     <h4>Accesorios 3D</h4>
+ <main class="main">
 
-     <div id="accessories" class="accessories"></div>
+  <div class="topbar">
 
-    </div>
+   <button class="mobileMenu" id="mobileMenu">
+    ☰
+   </button>
 
-    <div class="group">
+   <div class="title" id="pageTitle">
+    Juegos
+   </div>
 
-     <h4>Textura de camisa</h4>
-
-     <label class="upload">
-      📁 Elegir imagen, máximo 300 KB
-      <input id="shirtTexture" type="file" accept="image/*">
-     </label>
-    </div>
-
-    <button id="saveAvatar" class="btn">
-     💾 GUARDAR AVATAR
-    </button>
-
+   <div class="balance">
+    🪙 <span id="topCoins">0</span>
    </div>
 
   </div>
 
- </div>
+
+  <!-- GAMES -->
+
+  <section class="section active" id="section-games">
+
+   <div class="grid">
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🏃
+     </div>
+
+     <h3>Parkour Tower</h3>
+
+     <p>
+      Sube la torre y llega hasta la meta.
+     </p>
+
+     <button onclick="playGame('parkour')">
+      JUGAR
+     </button>
+
+    </div>
 
 
- <!-- MARKET -->
+    <div class="card">
 
- <div id="tab-market" class="tab">
+     <div class="gamePreview">
+      🪙
+     </div>
 
-  <h1 class="pageTitle">Marketplace</h1>
+     <h3>Coin Rush</h3>
 
-  <p class="pageSub">
-   Compra objetos usando tus YEIBUX.
-  </p>
+     <p>
+      Recolecta monedas por el mapa.
+     </p>
 
-  <div id="marketGrid"></div>
+     <button onclick="playGame('coins')">
+      JUGAR
+     </button>
 
- </div>
-
-
- <!-- CREATE -->
-
- <div id="tab-create" class="tab">
-
-  <h1 class="pageTitle">Crear objeto</h1>
-
-  <div class="createBox">
-
-   <label>Nombre</label>
-
-   <input id="itemName" class="input" maxlength="30" placeholder="Mi objeto">
-
-   <label>Tipo</label>
-
-   <select id="itemType" class="input">
-    <option value="accessory">Accesorio 3D</option>
-    <option value="shirt">Camisa</option>
-    <option value="pants">Pantalón</option>
-   </select>
-
-   <label>Precio YEIBUX</label>
-
-   <input id="itemPrice" type="number" min="1" max="9999" value="25" class="input">
-
-   <label>Color</label>
-
-   <input id="itemColor" type="color" value="#00d9ff"
-    style="width:100%;height:45px;border:0;background:none">
-
-   <button id="publishItem" class="btn">
-    🚀 PUBLICAR OBJETO
-   </button>
-
-   <div id="publishStatus" class="error"></div>
-
-  </div>
-
- </div>
-
-</section>
+    </div>
 
 
-<!-- ================= GAME ================= -->
+    <div class="card">
 
-<section id="gameScreen" class="screen">
+     <div class="gamePreview">
+      🧱
+     </div>
+
+     <h3>Obby Runner</h3>
+
+     <p>
+      Supera obstáculos y compite.
+     </p>
+
+     <button onclick="playGame('obby')">
+      JUGAR
+     </button>
+
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- AVATAR -->
+
+  <section class="section" id="section-avatar">
+
+   <div class="avatarLayout">
+
+    <div class="avatarBox">
+
+     <canvas id="avatarCanvas"></canvas>
+
+    </div>
+
+    <div class="avatarControls">
+
+     <div class="controlGroup">
+
+      <h3>👕 Ropa</h3>
+
+      <input
+       type="file"
+       id="shirtInput"
+       accept="image/png,image/jpeg,image/webp"
+      >
+
+      <div class="info">
+       Máximo 300 KB.
+      </div>
+
+     </div>
+
+
+     <div class="controlGroup">
+
+      <h3>🧢 Accesorios</h3>
+
+      <div class="optionGrid">
+
+       <button
+        class="option"
+        onclick="setAccessory('none')">
+        Ninguno
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('cap')">
+        🧢 Gorra
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('crown')">
+        👑 Corona
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('glasses')">
+        🕶️ Gafas
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('backpack')">
+        🎒 Mochila
+       </button>
+
+      </div>
+
+     </div>
+
+
+     <button
+      class="saveBtn"
+      onclick="saveAvatar()">
+      💾 GUARDAR AVATAR
+     </button>
+
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- MARKET -->
+
+  <section class="section" id="section-market">
+
+   <div class="marketTop">
+
+    <div>
+     <h2>Marketplace</h2>
+     <p class="info">
+      Compra accesorios usando YEIBUX.
+     </p>
+    </div>
+
+    <div class="balance">
+     🪙 <span id="marketCoins">0</span> YEIBUX
+    </div>
+
+   </div>
+
+
+   <div class="grid" id="marketGrid"></div>
+
+  </section>
+
+
+  <!-- CREATE -->
+
+  <section class="section" id="section-create">
+
+   <div class="formBox">
+
+    <h2>Crear artículo</h2>
+
+    <p class="info">
+     Publica un accesorio sencillo para el marketplace.
+    </p>
+
+    <label>Nombre</label>
+
+    <input
+     id="itemName"
+     placeholder="Ej: Gorra azul"
+    >
+
+    <label>Icono</label>
+
+    <input
+     id="itemIcon"
+     placeholder="🧢"
+     maxlength="4"
+    >
+
+    <label>Precio YEIBUX</label>
+
+    <input
+     id="itemPrice"
+     type="number"
+     min="1"
+     value="50"
+    >
+
+    <label>Descripción</label>
+
+    <textarea
+     id="itemDescription"
+     placeholder="Describe el artículo..."
+    ></textarea>
+
+    <button
+     class="btn primary"
+     id="createItemButton">
+     PUBLICAR
+    </button>
+
+    <p
+     id="createMessage"
+     class="info"
+     style="margin-top:12px">
+    </p>
+
+   </div>
+
+  </section>
+
+ </main>
+
+</div>
+
+
+<!-- GAME -->
+
+<div id="gameOverlay">
 
  <canvas id="gameCanvas"></canvas>
 
- <div id="gameHud">
+ <div class="gameHUD">
 
-  <div id="hudLeft" class="hud">
-   👥 Jugadores: 1
+  <div class="hudBox">
+   🎮 <span id="gameName">Juego</span>
   </div>
 
-  <div id="hudRight" class="hud">
-   ⏱️ 00:00
-  </div>
+  <button id="leaveGame">
+   SALIR
+  </button>
 
  </div>
 
- <button id="exitGame">← SALIR</button>
-
- <div id="roomInfo">
-  🌐 Sala pública
+ <div id="gameInfo">
+  WASD para moverte · Mouse para mirar
  </div>
-
- <div id="gameMessage"></div>
 
  <div id="mobileControls">
 
-  <div class="mobileGroup">
-
-   <button id="mobileLeft" class="mobileBtn">◀</button>
-   <button id="mobileRight" class="mobileBtn">▶</button>
-
+  <div class="joystick">
+   <div class="joyDot"></div>
   </div>
 
-  <div class="mobileGroup">
-
-   <button id="mobileJump" class="mobileBtn">▲</button>
-
-  </div>
+  <button class="mobileJump" id="mobileJump">
+   SALTAR
+  </button>
 
  </div>
 
-</section>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</div>
 
 
 <script type="module">
 
-/* =========================================================
-   FIREBASE
-========================================================= */
+/* FIREBASE */
 
 import {
  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
 import {
  getAuth,
- createUserWithEmailAndPassword,
  signInWithEmailAndPassword,
+ createUserWithEmailAndPassword,
  signOut
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
  getFirestore,
  doc,
  getDoc,
  setDoc,
- addDoc,
+ updateDoc,
  collection,
+ addDoc,
  onSnapshot,
- getDocs,
+ deleteDoc,
  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 
-const firebaseConfig={
- apiKey:"AIzaSyDAT9zIGnt97ojeL7TA6IRH489rERDVMgI",
- authDomain:"siano-4d901.firebaseapp.com",
- projectId:"siano-4d901",
- storageBucket:"siano-4d901.firebasestorage.app",
- messagingSenderId:"224378787783",
- appId:"1:224378787783:web:8cf1ef2409e955e0a62be2",
- measurementId:"G-8C4QPQRW6H"
+const firebaseConfig = {
+
+ apiKey:
+ "AIzaSyDATz9IGnt97ojeL7TA6IRH489rERDVMgI",
+
+ authDomain:
+ "siano-4d901.firebaseapp.com",
+
+ projectId:
+ "siano-4d901",
+
+ storageBucket:
+ "siano-4d901.firebasestorage.app",
+
+ messagingSenderId:
+ "224378787783",
+
+ appId:
+ "1:224378787783:web:8cf1ef2409e955e0a62be2",
+
+ measurementId:
+ "G-8C4QPQRW6H"
+
 };
 
-const firebaseApp=initializeApp(firebaseConfig);
-const auth=getAuth(firebaseApp);
-const db=getFirestore(firebaseApp);
+
+const firebaseApp =
+ initializeApp(firebaseConfig);
+
+const auth =
+ getAuth(firebaseApp);
+
+const db =
+ getFirestore(firebaseApp);
 
 
-/* =========================================================
-   ESTADO
-========================================================= */
+/* VARIABLES */
 
 let currentUser=null;
+let playerData=null;
 
-let playerData={
- username:"",
- coins:20,
- lastClaim:0,
- ownedItems:[],
- avatar:{
-  skin:"#ffcc99",
-  shirt:"#00a8ff",
-  pants:"#292d3d",
-  accessory:"none",
-  shirtTexture:""
- }
-};
+let accessory="none";
+let shirtTexture=null;
 
 let currentGame=null;
-let roomUnsubscribe=null;
-let gameAnimation=null;
-let lastNetworkUpdate=0;
-let remotePlayers={};
-let remoteData={};
 
 let gameScene=null;
 let gameCamera=null;
 let gameRenderer=null;
-let localCharacter=null;
-let clock=null;
-let gameStartTime=0;
+let gamePlayer=null;
+
+let remotePlayers={};
+let remoteData={};
 
 let keys={};
-let velocityY=0;
-let onGround=false;
 
-const games=[
- {
-  id:"parkour",
-  name:"Parkour Tower",
-  emoji:"🏙️",
-  description:"Sube por una torre de plataformas y llega hasta la meta.",
-  color:"#145b8a"
- },
- {
-  id:"coinrush",
-  name:"Coin Rush",
-  emoji:"🪙",
-  description:"Recolecta monedas antes de que termine el tiempo.",
-  color:"#705b13"
- },
- {
-  id:"obby",
-  name:"Obby Runner",
-  emoji:"🏃",
-  description:"Corre por el circuito evitando los obstáculos.",
-  color:"#631a5c"
- }
-];
+let gameAnimation=null;
+let sendTimer=null;
 
-const skins=[
- "#ffcc99","#e0ac69","#c68642",
- "#8d5524","#f1c27d","#ffe0bd"
-];
+let avatarScene;
+let avatarCamera;
+let avatarRenderer;
+let avatarModel;
+let avatarAccessory;
 
-const shirts=[
- "#00a8ff","#ff3d7f","#ffd700",
- "#00ff88","#6a5cff","#ffffff","#252535"
-];
-
-const pants=[
- "#292d3d","#182b4a","#4a321f",
- "#111111","#556b2f","#555555"
-];
-
-const accessories=[
- {id:"none",name:"Ninguno"},
- {id:"cap",name:"Gorra"},
- {id:"crown",name:"Corona"},
- {id:"glasses",name:"Gafas"},
- {id:"backpack",name:"Mochila"}
-];
+let ownedItems=[];
 
 
-/* =========================================================
-   UTILIDADES
-========================================================= */
+/* HELPERS */
 
-function $(id){
- return document.getElementById(id);
-}
+const $ = id =>
+ document.getElementById(id);
 
-function showScreen(id){
- document.querySelectorAll(".screen")
- .forEach(x=>x.classList.remove("active"));
 
- $(id).classList.add("active");
-}
+function usernameEmail(username){
 
-function usernameEmail(name){
- return name
- .toLowerCase()
- .replace(/[^a-z0-9]/g,"")
- +"@bloxverse.local";
-}
+ return username
+  .toLowerCase()
+  .replace(/[^a-z0-9._-]/g,"")
+  +"@bloxverse.local";
 
-function updateCoins(){
- $("coins").textContent="🪙 "+playerData.coins+" YEIBUX";
-}
-
-function escapeHTML(text){
- return String(text)
- .replaceAll("&","&amp;")
- .replaceAll("<","&lt;")
- .replaceAll(">","&gt;")
- .replaceAll('"',"&quot;");
 }
 
 
-/* =========================================================
-   LOGIN
-========================================================= */
+function validUsername(username){
+
+ return /^[a-zA-Z0-9_.-]{3,20}$/.test(username);
+
+}
+
+
+function showError(text){
+
+ $("loginError").textContent=text;
+
+}
+
+
+/* LOGIN */
 
 $("loginButton").onclick=async()=>{
 
  const username=$("username").value.trim();
  const password=$("password").value;
- const error=$("loginError");
 
- error.textContent="";
+ showError("");
 
- if(username.length<3){
-  error.textContent="El nombre necesita mínimo 3 caracteres.";
+ if(!validUsername(username)){
+
+  showError(
+   "El usuario debe tener 3-20 caracteres y solo letras, números, _, . o -."
+  );
+
   return;
+
  }
 
  if(password.length<6){
-  error.textContent="La contraseña necesita mínimo 6 caracteres.";
+
+  showError(
+   "La contraseña necesita mínimo 6 caracteres."
+  );
+
   return;
+
  }
 
- const email=usernameEmail(username);
-
  $("loginButton").disabled=true;
- $("loginButton").textContent="CARGANDO...";
+ $("registerButton").disabled=true;
+
+ $("loginButton").textContent="ENTRANDO...";
 
  try{
 
-  let credential;
-
-  try{
-
-   credential=await signInWithEmailAndPassword(
-    auth,email,password
+  const credential =
+   await signInWithEmailAndPassword(
+    auth,
+    usernameEmail(username),
+    password
    );
-
-  }catch(e){
-
-   credential=await createUserWithEmailAndPassword(
-    auth,email,password
-   );
-
-  }
 
   currentUser=credential.user;
 
@@ -927,483 +1136,676 @@ $("loginButton").onclick=async()=>{
 
   console.error(e);
 
-  if(e.code==="auth/wrong-password"){
-   error.textContent="Contraseña incorrecta.";
-  }else if(e.code==="auth/email-already-in-use"){
-   error.textContent="Ese usuario ya existe y la contraseña no coincide.";
-  }else{
-   error.textContent="Firebase: "+(e.message||"error");
-  }
+  showError(firebaseError(e));
 
  }finally{
 
   $("loginButton").disabled=false;
-  $("loginButton").textContent="ENTRAR / CREAR CUENTA";
+  $("registerButton").disabled=false;
+
+  $("loginButton").textContent="ENTRAR";
 
  }
 
 };
 
 
-async function loadPlayer(username){
+/* REGISTER */
 
- const ref=doc(db,"players",currentUser.uid);
- const snap=await getDoc(ref);
+$("registerButton").onclick=async()=>{
 
- if(snap.exists()){
+ const username=$("username").value.trim();
+ const password=$("password").value;
 
-  const data=snap.data();
+ showError("");
 
-  playerData={
-   ...playerData,
-   ...data,
-   avatar:{
-    ...playerData.avatar,
-    ...(data.avatar||{})
-   }
-  };
+ if(!validUsername(username)){
 
- }else{
+  showError(
+   "El usuario debe tener 3-20 caracteres y solo letras, números, _, . o -."
+  );
 
-  playerData.username=username;
-
-  await setDoc(ref,playerData);
+  return;
 
  }
 
- if(!playerData.username)
-  playerData.username=username;
+ if(password.length<6){
 
- updateCoins();
+  showError(
+   "La contraseña necesita mínimo 6 caracteres."
+  );
 
-}
+  return;
+
+ }
+
+ $("loginButton").disabled=true;
+ $("registerButton").disabled=true;
+
+ $("registerButton").textContent="CREANDO...";
+
+ try{
+
+  const credential =
+   await createUserWithEmailAndPassword(
+    auth,
+    usernameEmail(username),
+    password
+   );
+
+  currentUser=credential.user;
+
+  playerData={
+   username,
+   yeibux:100,
+   accessory:"none",
+   shirtTexture:null,
+   createdAt:serverTimestamp(),
+   lastDaily:Date.now()
+  };
+
+  await setDoc(
+   doc(db,"players",currentUser.uid),
+   playerData
+  );
+
+  enterLobby();
+
+ }catch(e){
+
+  console.error(e);
+
+  showError(firebaseError(e));
+
+ }finally{
+
+  $("loginButton").disabled=false;
+  $("registerButton").disabled=false;
+
+  $("registerButton").textContent="CREAR CUENTA";
+
+ }
+
+};
 
 
-/* =========================================================
-   LOBBY
-========================================================= */
+function firebaseError(e){
 
-function enterLobby(){
+ const errors={
 
- $("usernameDisplay").textContent=playerData.username;
+  "auth/invalid-api-key":
+   "La API Key de Firebase no es válida.",
 
- $("avatarSmall").textContent=
- playerData.username.charAt(0).toUpperCase();
+  "auth/api-key-not-valid":
+   "La API Key de Firebase no es válida.",
 
- updateCoins();
+  "auth/operation-not-allowed":
+   "Activa Email/Password en Firebase Authentication.",
 
- buildGames();
- buildAvatar();
- buildMarketplace();
+  "auth/email-already-in-use":
+   "Ese usuario ya existe. Usa ENTRAR.",
 
- showScreen("lobbyScreen");
+  "auth/invalid-credential":
+   "Usuario o contraseña incorrectos.",
 
-}
+  "auth/wrong-password":
+   "Contraseña incorrecta.",
 
-document.querySelectorAll(".nav").forEach(button=>{
+  "auth/user-not-found":
+   "La cuenta no existe.",
 
- button.onclick=()=>{
+  "auth/weak-password":
+   "La contraseña debe tener mínimo 6 caracteres.",
 
-  document.querySelectorAll(".nav")
-  .forEach(x=>x.classList.remove("active"));
+  "auth/network-request-failed":
+   "No hay conexión con Firebase.",
 
-  document.querySelectorAll(".tab")
-  .forEach(x=>x.classList.remove("active"));
-
-  button.classList.add("active");
-
-  $("tab-"+button.dataset.tab)
-  .classList.add("active");
+  "auth/invalid-email":
+   "El usuario no es válido."
 
  };
 
-});
+ return errors[e.code] ||
+  "Firebase: "+(e.message||"error desconocido");
+
+}
 
 
-$("logout").onclick=async()=>{
+/* LOAD PLAYER */
 
- await leaveGame();
+async function loadPlayer(username){
 
- try{
-  await signOut(auth);
- }catch(e){}
+ const ref=
+  doc(db,"players",currentUser.uid);
 
- location.reload();
+ const snap=
+  await getDoc(ref);
+
+ if(!snap.exists()){
+
+  playerData={
+   username,
+   yeibux:100,
+   accessory:"none",
+   shirtTexture:null,
+   lastDaily:Date.now()
+  };
+
+  await setDoc(ref,playerData);
+
+ }else{
+
+  playerData=snap.data();
+
+  if(!playerData.username){
+
+   playerData.username=username;
+
+  }
+
+ }
+
+ checkDailyReward();
+
+ updateUI();
+
+}
+
+
+async function checkDailyReward(){
+
+ const now=Date.now();
+
+ const last=
+  Number(playerData.lastDaily||0);
+
+ const day=86400000;
+
+ if(now-last>=day){
+
+  playerData.yeibux=
+   Number(playerData.yeibux||0)+20;
+
+  playerData.lastDaily=now;
+
+  await updateDoc(
+   doc(db,"players",currentUser.uid),
+   {
+    yeibux:playerData.yeibux,
+    lastDaily:now
+   }
+  );
+
+  updateUI();
+
+ }
+
+}
+
+
+/* LOBBY */
+
+function enterLobby(){
+
+ $("loginScreen").classList.add("hidden");
+ $("app").classList.remove("hidden");
+
+ updateUI();
+
+ loadMarketplace();
+
+}
+
+
+function updateUI(){
+
+ const coins=
+  Number(playerData?.yeibux||0);
+
+ $("sideUsername").textContent=
+  playerData?.username||"Usuario";
+
+ $("sideCoins").textContent=coins;
+ $("topCoins").textContent=coins;
+ $("marketCoins").textContent=coins;
+
+}
+
+
+/* NAV */
+
+document
+ .querySelectorAll(".nav button")
+ .forEach(button=>{
+
+  button.onclick=()=>{
+
+   document
+    .querySelectorAll(".nav button")
+    .forEach(x=>
+     x.classList.remove("active")
+    );
+
+   document
+    .querySelectorAll(".section")
+    .forEach(x=>
+     x.classList.remove("active")
+    );
+
+   button.classList.add("active");
+
+   const section=
+    button.dataset.section;
+
+   $("section-"+section)
+    .classList.add("active");
+
+   const titles={
+    games:"Juegos",
+    avatar:"Avatar",
+    market:"Marketplace",
+    create:"Crear"
+   };
+
+   $("pageTitle").textContent=
+    titles[section];
+
+   $("sidebar").classList.remove("open");
+
+   if(section==="avatar"){
+    setTimeout(initAvatar,50);
+   }
+
+  };
+
+ });
+
+
+$("mobileMenu").onclick=()=>{
+ $("sidebar").classList.toggle("open");
+};
+
+
+/* LOGOUT */
+
+$("logoutButton").onclick=async()=>{
+
+ if(currentGame){
+  await leaveGame();
+ }
+
+ await signOut(auth);
+
+ currentUser=null;
+ playerData=null;
+
+ $("app").classList.add("hidden");
+ $("loginScreen").classList.remove("hidden");
+
+ $("username").value="";
+ $("password").value="";
+ showError("");
 
 };
 
 
-/* =========================================================
-   JUEGOS
-========================================================= */
+/* AVATAR */
 
-function buildGames(){
-
- $("gameGrid").innerHTML="";
-
- games.forEach(game=>{
-
-  const card=document.createElement("div");
-  card.className="gameCard";
-
-  card.innerHTML=`
-   <div class="gameImage" style="background:${game.color}">
-    ${game.emoji}
-   </div>
-   <div class="gameBody">
-    <h3>${game.name}</h3>
-    <p>${game.description}</p>
-    <span class="playTag">▶ JUGAR MULTIJUGADOR</span>
-   </div>
-  `;
-
-  card.onclick=()=>startGame(game.id);
-
-  $("gameGrid").appendChild(card);
-
- });
-
-}
-
-
-/* =========================================================
-   AVATAR EDITOR
-========================================================= */
-
-let avatarRenderer;
-let avatarScene;
-let avatarCamera;
-let avatarGroup;
-let avatarLight;
-
-function setupAvatarPreview(){
+function initAvatar(){
 
  const canvas=$("avatarCanvas");
 
- avatarRenderer=new THREE.WebGLRenderer({
-  canvas,
-  antialias:true,
-  alpha:true
- });
+ if(!avatarRenderer){
 
- avatarRenderer.setPixelRatio(
-  Math.min(devicePixelRatio,2)
- );
+  avatarScene=
+   new THREE.Scene();
 
- avatarScene=new THREE.Scene();
+  avatarScene.background=
+   new THREE.Color(0x10151f);
 
- avatarCamera=new THREE.PerspectiveCamera(
-  35,
-  390/470,
-  .1,
-  100
- );
+  avatarCamera=
+   new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth/canvas.clientHeight,
+    .1,
+    100
+   );
 
- avatarCamera.position.set(0,1.8,5);
+  avatarCamera.position.set(
+   0,
+   1.8,
+   5
+  );
 
- avatarLight=new THREE.HemisphereLight(
-  0xffffff,
-  0x223344,
-  2
- );
+  avatarRenderer=
+   new THREE.WebGLRenderer({
+    canvas,
+    antialias:true,
+    alpha:false
+   });
 
- avatarScene.add(avatarLight);
+  avatarRenderer.setPixelRatio(
+   Math.min(devicePixelRatio,2)
+  );
 
- const light=new THREE.DirectionalLight(
-  0xffffff,2
- );
+  avatarRenderer.setSize(
+   canvas.clientWidth,
+   canvas.clientHeight,
+   false
+  );
 
- light.position.set(3,5,4);
- avatarScene.add(light);
+  const light=
+   new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    2
+   );
 
- avatarGroup=new THREE.Group();
- avatarScene.add(avatarGroup);
+  avatarScene.add(light);
 
- rebuildAvatarPreview();
+  const floor=
+   new THREE.Mesh(
+    new THREE.CircleGeometry(2,32),
+    new THREE.MeshStandardMaterial({
+     color:0x222a3a
+    })
+   );
 
- function animate(){
+  floor.rotation.x=-Math.PI/2;
+  floor.position.y=-1;
 
-  requestAnimationFrame(animate);
+  avatarScene.add(floor);
 
-  if(avatarGroup){
-   avatarGroup.rotation.y+=.008;
+  buildAvatar();
+
+  function loop(){
+
+   requestAnimationFrame(loop);
+
+   if(avatarModel)
+    avatarModel.rotation.y+=.004;
+
+   avatarRenderer.render(
+    avatarScene,
+    avatarCamera
+   );
+
   }
 
-  avatarRenderer.render(
-   avatarScene,
-   avatarCamera
-  );
+  loop();
 
  }
-
- animate();
-
-}
-
-function clearGroup(group){
-
- while(group.children.length){
-  group.remove(group.children[0]);
- }
-
-}
-
-
-function material(color){
-
- return new THREE.MeshStandardMaterial({
-  color:new THREE.Color(color),
-  roughness:.72
- });
-
-}
-
-
-function createCharacter(data,scale=1){
-
- const group=new THREE.Group();
-
- const skin=material(data.skin||"#ffcc99");
- const shirt=material(data.shirt||"#00a8ff");
- const pants=material(data.pants||"#292d3d");
-
- const torso=new THREE.Mesh(
-  new THREE.BoxGeometry(1.05,1.15,.55),
-  shirt
- );
-
- torso.position.y=1.75;
- group.add(torso);
-
- const head=new THREE.Mesh(
-  new THREE.SphereGeometry(.43,20,16),
-  skin
- );
-
- head.position.y=2.65;
- group.add(head);
-
- const armGeo=new THREE.BoxGeometry(.35,1.05,.38);
-
- const arm1=new THREE.Mesh(armGeo,skin);
- arm1.position.set(-.7,1.78,0);
- group.add(arm1);
-
- const arm2=new THREE.Mesh(armGeo,skin);
- arm2.position.set(.7,1.78,0);
- group.add(arm2);
-
- const legGeo=new THREE.BoxGeometry(.42,1.05,.42);
-
- const leg1=new THREE.Mesh(legGeo,pants);
- leg1.position.set(-.28,.65,0);
- group.add(leg1);
-
- const leg2=new THREE.Mesh(legGeo,pants);
- leg2.position.set(.28,.65,0);
- group.add(leg2);
-
- addAccessory(group,data.accessory||"none");
-
- group.scale.setScalar(scale);
-
- return group;
-
-}
-
-
-function addAccessory(group,type){
-
- if(type==="none") return;
-
- if(type==="cap"){
-
-  const brim=new THREE.Mesh(
-   new THREE.BoxGeometry(.9,.12,.65),
-   material("#222222")
-  );
-
-  brim.position.y=3.04;
-  group.add(brim);
-
-  const top=new THREE.Mesh(
-   new THREE.BoxGeometry(.7,.25,.6),
-   material("#222222")
-  );
-
-  top.position.y=3.18;
-  group.add(top);
-
- }
-
- if(type==="crown"){
-
-  const crown=new THREE.Mesh(
-   new THREE.ConeGeometry(.5,.4,5),
-   material("#ffd700")
-  );
-
-  crown.position.y=3.18;
-  group.add(crown);
-
- }
-
- if(type==="glasses"){
-
-  const g=material("#111111");
-
-  const a=new THREE.Mesh(
-   new THREE.BoxGeometry(.3,.16,.08),g
-  );
-
-  const b=a.clone();
-
-  a.position.set(-.2,2.7,-.41);
-  b.position.set(.2,2.7,-.41);
-
-  group.add(a,b);
-
-  const bridge=new THREE.Mesh(
-   new THREE.BoxGeometry(.18,.06,.06),g
-  );
-
-  bridge.position.set(0,2.7,-.43);
-
-  group.add(bridge);
-
- }
-
- if(type==="backpack"){
-
-  const bag=new THREE.Mesh(
-   new THREE.BoxGeometry(.75,.85,.25),
-   material("#5a3030")
-  );
-
-  bag.position.set(0,1.75,.42);
-  group.add(bag);
-
- }
-
-}
-
-
-function rebuildAvatarPreview(){
-
- if(!avatarGroup) return;
-
- clearGroup(avatarGroup);
-
- const character=createCharacter(
-  playerData.avatar,
-  1
- );
-
- avatarGroup.add(character);
-
-}
-
-
-function makeColorButtons(container,colors,key){
-
- $(container).innerHTML="";
-
- colors.forEach(c=>{
-
-  const b=document.createElement("button");
-
-  b.className="color";
-
-  b.style.background=c;
-
-  if(playerData.avatar[key]===c)
-   b.classList.add("selected");
-
-  b.onclick=()=>{
-
-   playerData.avatar[key]=c;
-
-   buildAvatar();
-   rebuildAvatarPreview();
-
-  };
-
-  $(container).appendChild(b);
-
- });
 
 }
 
 
 function buildAvatar(){
 
- makeColorButtons(
-  "skinColors",
-  skins,
-  "skin"
+ if(avatarModel)
+  avatarScene.remove(avatarModel);
+
+ avatarModel=
+  new THREE.Group();
+
+ const body=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    1,
+    1.4,
+    .55
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ body.position.y=.0;
+
+ const head=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .85,
+    .85,
+    .85
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xf0b98d
+   })
+  );
+
+ head.position.y=1.1;
+
+ const leg1=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .35,
+    1,
+    .4
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x222222
+   })
+  );
+
+ leg1.position.set(-.25,-1.2,0);
+
+ const leg2=
+  leg1.clone();
+
+ leg2.position.x=.25;
+
+ const arm1=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .35,
+    1.1,
+    .4
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ arm1.position.set(
+  -.7,
+  .05,
+  0
  );
 
- makeColorButtons(
-  "shirtColors",
-  shirts,
-  "shirt"
+ const arm2=
+  arm1.clone();
+
+ arm2.position.x=.7;
+
+ avatarModel.add(
+  body,
+  head,
+  leg1,
+  leg2,
+  arm1,
+  arm2
  );
 
- makeColorButtons(
-  "pantsColors",
-  pants,
-  "pants"
- );
+ avatarAccessory=
+  createAccessory(accessory);
 
- $("accessories").innerHTML="";
+ if(avatarAccessory)
+  avatarModel.add(avatarAccessory);
 
- accessories.forEach(a=>{
-
-  const b=document.createElement("button");
-
-  b.className="accessory";
-
-  if(playerData.avatar.accessory===a.id)
-   b.classList.add("selected");
-
-  b.textContent=a.name;
-
-  b.onclick=()=>{
-
-   playerData.avatar.accessory=a.id;
-
-   buildAvatar();
-   rebuildAvatarPreview();
-
-  };
-
-  $("accessories").appendChild(b);
-
- });
+ avatarScene.add(avatarModel);
 
 }
 
 
-$("shirtTexture").onchange=async event=>{
+function createAccessory(type){
 
- const file=event.target.files[0];
+ if(type==="cap"){
 
- if(!file) return;
+  const g=new THREE.Group();
+
+  const top=
+   new THREE.Mesh(
+    new THREE.CylinderGeometry(
+     .55,.55,.2,24
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x287de0
+    })
+   );
+
+  top.position.y=1.63;
+
+  const visor=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .65,.08,.35
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x1c5cad
+    })
+   );
+
+  visor.position.set(
+   0,
+   1.55,
+   .3
+  );
+
+  g.add(top,visor);
+
+  return g;
+ }
+
+
+ if(type==="crown"){
+
+  const g=new THREE.Group();
+
+  const crown=
+   new THREE.Mesh(
+    new THREE.ConeGeometry(
+     .65,.5,5
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0xffd43d
+    })
+   );
+
+  crown.position.y=1.7;
+
+  g.add(crown);
+
+  return g;
+ }
+
+
+ if(type==="glasses"){
+
+  const g=new THREE.Group();
+
+  const mat=
+   new THREE.MeshStandardMaterial({
+    color:0x111111
+   });
+
+  const a=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .3,.18,.06
+    ),
+    mat
+   );
+
+  const b=a.clone();
+
+  a.position.set(-.23,1.13,.43);
+  b.position.set(.23,1.13,.43);
+
+  const bar=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .2,.05,.05
+    ),
+    mat
+   );
+
+  bar.position.set(
+   0,
+   1.13,
+   .43
+  );
+
+  g.add(a,b,bar);
+
+  return g;
+ }
+
+
+ if(type==="backpack"){
+
+  const bag=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .75,.9,.25
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x9b3f43
+    })
+   );
+
+  bag.position.set(
+   0,
+   0,
+   -.42
+  );
+
+  return bag;
+ }
+
+
+ return null;
+
+}
+
+
+window.setAccessory=function(type){
+
+ accessory=type;
+
+ buildAvatar();
+
+};
+
+
+$("shirtInput").onchange=e=>{
+
+ const file=e.target.files[0];
+
+ if(!file)
+  return;
 
  if(file.size>300*1024){
 
-  alert("La textura supera los 300 KB.");
-  event.target.value="";
+  alert(
+   "La textura supera los 300 KB."
+  );
+
+  e.target.value="";
+
   return;
 
  }
 
- const reader=new FileReader();
+ const reader=
+  new FileReader();
 
  reader.onload=()=>{
 
-  playerData.avatar.shirtTexture=
+  shirtTexture=
    reader.result;
+
+  playerData.shirtTexture=
+   shirtTexture;
 
  };
 
@@ -1412,854 +1814,546 @@ $("shirtTexture").onchange=async event=>{
 };
 
 
-$("saveAvatar").onclick=async()=>{
+window.saveAvatar=async()=>{
 
- await savePlayer();
+ if(!currentUser)
+  return;
 
- $("saveAvatar").textContent="✓ GUARDADO";
+ playerData.accessory=
+  accessory;
 
- setTimeout(()=>{
-  $("saveAvatar").textContent="💾 GUARDAR AVATAR";
- },1500);
+ playerData.shirtTexture=
+  shirtTexture||playerData.shirtTexture||null;
+
+ await updateDoc(
+  doc(db,"players",currentUser.uid),
+  {
+   accessory:playerData.accessory,
+   shirtTexture:playerData.shirtTexture
+  }
+ );
+
+ alert("Avatar guardado.");
 
 };
 
 
-/* =========================================================
-   FIRESTORE PLAYER
-========================================================= */
+/* MARKETPLACE */
 
-async function savePlayer(){
+const defaultItems=[
 
- if(!currentUser)return;
-
- await setDoc(
-  doc(db,"players",currentUser.uid),
-  playerData,
-  {merge:true}
- );
-
-}
-
-
-/* =========================================================
-   MARKETPLACE
-========================================================= */
-
-const builtInItems=[
  {
-  id:"blue_cap",
-  name:"Gorra Azul",
-  type:"accessory",
-  accessory:"cap",
-  color:"#168cff",
-  price:50
+  id:"cap",
+  name:"Gorra azul",
+  icon:"🧢",
+  price:50,
+  description:"Una gorra azul."
  },
+
  {
-  id:"gold_crown",
-  name:"Corona Dorada",
-  type:"accessory",
-  accessory:"crown",
-  color:"#ffd700",
-  price:150
+  id:"crown",
+  name:"Corona",
+  icon:"👑",
+  price:120,
+  description:"Corona de YEIBUX."
  },
+
  {
-  id:"black_glasses",
+  id:"glasses",
   name:"Gafas",
-  type:"accessory",
-  accessory:"glasses",
-  color:"#111111",
-  price:80
+  icon:"🕶️",
+  price:80,
+  description:"Gafas oscuras."
  },
+
  {
-  id:"red_backpack",
-  name:"Mochila Roja",
-  type:"accessory",
-  accessory:"backpack",
-  color:"#d62d45",
-  price:100
- },
- {
-  id:"green_shirt",
-  name:"Camisa Verde",
-  type:"shirt",
-  color:"#00c875",
-  price:40
- },
- {
-  id:"purple_pants",
-  name:"Pantalón Morado",
-  type:"pants",
-  color:"#6a5cff",
-  price:40
+  id:"backpack",
+  name:"Mochila",
+  icon:"🎒",
+  price:100,
+  description:"Una mochila."
  }
+
 ];
 
-let customItems=[];
 
+async function loadMarketplace(){
 
-async function loadCustomItems(){
+ const grid=$("marketGrid");
 
- customItems=[];
+ grid.innerHTML="";
+
+ defaultItems.forEach(
+  item=>renderItem(item)
+ );
 
  try{
 
-  const snap=await getDocs(
-   collection(db,"marketItems")
-  );
+  const ref=
+   collection(db,"marketItems");
 
-  snap.forEach(d=>{
+  onSnapshot(ref,snapshot=>{
 
-   customItems.push({
-    id:d.id,
-    ...d.data()
+   snapshot.forEach(snap=>{
+
+    const item={
+     id:snap.id,
+     ...snap.data()
+    };
+
+    if(
+     !document.getElementById(
+      "item-"+item.id
+     )
+    ){
+
+     renderItem(item);
+
+    }
+
    });
 
   });
 
  }catch(e){
 
-  console.warn("Marketplace Firebase:",e);
+  console.error(e);
 
  }
 
 }
 
 
-async function buildMarketplace(){
+function renderItem(item){
 
- await loadCustomItems();
+ const grid=$("marketGrid");
 
- const items=[
-  ...builtInItems,
-  ...customItems
- ];
+ const card=
+  document.createElement("div");
 
- $("marketGrid").innerHTML="";
+ card.className="card";
 
- items.forEach(item=>{
+ card.id=
+  "item-"+item.id;
 
-  const owned=
-   playerData.ownedItems.includes(item.id);
+ card.innerHTML=`
 
-  const div=document.createElement("div");
+  <div class="itemIcon">
+   ${item.icon||"🎁"}
+  </div>
 
-  div.className="item";
+  <h3>${escapeHTML(item.name||"Artículo")}</h3>
 
-  div.innerHTML=`
-   <div class="itemPreview"
-        style="background:${item.color||"#10182a"}">
-     ${
-      item.type==="accessory" ? "👑" :
-      item.type==="shirt" ? "👕" : "👖"
-     }
-   </div>
+  <p>${escapeHTML(item.description||"")}</p>
 
-   <h3>${escapeHTML(item.name||"Objeto")}</h3>
+  <p style="color:#ffd54d;font-weight:bold">
+   🪙 ${Number(item.price||0)} YEIBUX
+  </p>
 
-   <small>${item.type}</small>
+  <button>
+   COMPRAR
+  </button>
 
-   <div class="price">
-    🪙 ${Number(item.price)||0}
-   </div>
+ `;
 
-   <button
-    class="buy ${owned?"owned":""}"
-    ${owned?"disabled":""}>
-    ${owned?"✓ COMPRADO":"COMPRAR"}
-   </button>
-  `;
+ card.querySelector("button")
+  .onclick=()=>buyItem(item);
 
-  div.querySelector(".buy").onclick=()=>{
-   buyItem(item);
-  };
-
-  $("marketGrid").appendChild(div);
-
- });
+ grid.appendChild(card);
 
 }
 
 
 async function buyItem(item){
 
- if(playerData.ownedItems.includes(item.id)){
-  return;
- }
+ const price=
+  Number(item.price||0);
 
- const price=Number(item.price)||0;
+ const balance=
+  Number(playerData.yeibux||0);
 
- if(playerData.coins<price){
+ if(balance<price){
 
   alert("No tienes suficientes YEIBUX.");
+
   return;
 
  }
 
- playerData.coins-=price;
+ playerData.yeibux=
+  balance-price;
 
- playerData.ownedItems.push(item.id);
+ ownedItems.push(item.id);
 
- if(item.type==="accessory"){
-  playerData.avatar.accessory=item.accessory||"none";
- }
+ await updateDoc(
+  doc(db,"players",currentUser.uid),
+  {
+   yeibux:playerData.yeibux,
+   ownedItems
+  }
+ );
 
- if(item.type==="shirt"){
-  playerData.avatar.shirt=item.color||playerData.avatar.shirt;
- }
+ updateUI();
 
- if(item.type==="pants"){
-  playerData.avatar.pants=item.color||playerData.avatar.pants;
- }
-
- await savePlayer();
-
- updateCoins();
- buildAvatar();
- rebuildAvatarPreview();
- buildMarketplace();
+ alert(
+  "Compraste "+item.name+" 🎉"
+ );
 
 }
 
 
-/* =========================================================
-   CREAR OBJETOS
-========================================================= */
+/* CREATE ITEM */
 
-$("publishItem").onclick=async()=>{
+$("createItemButton").onclick=
+ async()=>{
 
- const name=$("itemName").value.trim();
- const type=$("itemType").value;
- const price=Math.max(
-  1,
-  Math.min(9999,Number($("itemPrice").value)||1)
- );
- const color=$("itemColor").value;
- const status=$("publishStatus");
+  const name=
+   $("itemName").value.trim();
 
- status.textContent="";
+  const icon=
+   $("itemIcon").value.trim()||"🎁";
 
- if(name.length<2){
+  const price=
+   Number($("itemPrice").value);
 
-  status.textContent="Ponle un nombre al objeto.";
-  return;
+  const description=
+   $("itemDescription").value.trim();
 
- }
+  if(!name){
 
- try{
+   $("createMessage").textContent=
+    "Escribe un nombre.";
 
-  const data={
-   name,
-   type,
-   price,
-   color,
-   creatorId:currentUser.uid,
-   creator:playerData.username,
-   createdAt:serverTimestamp()
-  };
-
-  if(type==="accessory"){
-
-   data.accessory="cap";
+   return;
 
   }
 
-  const ref=await addDoc(
-   collection(db,"marketItems"),
-   data
-  );
+  if(!price||price<1){
 
-  customItems.push({
-   id:ref.id,
-   ...data
-  });
+   $("createMessage").textContent=
+    "El precio no es válido.";
 
-  status.style.color="#55e6a5";
-  status.textContent="✓ Objeto publicado.";
+   return;
 
-  $("itemName").value="";
+  }
 
-  buildMarketplace();
+  try{
 
- }catch(e){
+   await addDoc(
+    collection(db,"marketItems"),
+    {
+     name,
+     icon,
+     price,
+     description,
+     creatorId:currentUser.uid,
+     createdAt:serverTimestamp()
+    }
+   );
 
-  console.error(e);
+   $("createMessage").textContent=
+    "Artículo publicado correctamente.";
 
-  status.style.color="#ff6487";
-  status.textContent="No se pudo publicar.";
+   $("itemName").value="";
+   $("itemDescription").value="";
 
- }
+  }catch(e){
+
+   console.error(e);
+
+   $("createMessage").textContent=
+    "Error: "+e.message;
+
+  }
+
+ };
+
+
+/* GAME */
+
+window.playGame=function(game){
+
+ currentGame=game;
+
+ $("gameOverlay").classList.add("active");
+
+ const names={
+  parkour:"Parkour Tower",
+  coins:"Coin Rush",
+  obby:"Obby Runner"
+ };
+
+ $("gameName").textContent=
+  names[game]||game;
+
+ startGame();
 
 };
 
 
-/* =========================================================
-   YEIBUX DIARIOS
-========================================================= */
+$("leaveGame").onclick=
+ async()=>{
 
-async function dailyReward(){
+  await leaveGame();
 
- const now=Date.now();
- const day=86400000;
+ };
 
- if(!playerData.lastClaim ||
-    now-playerData.lastClaim>day){
 
-  playerData.coins+=20;
-  playerData.lastClaim=now;
+async function leaveGame(){
 
-  await savePlayer();
+ cancelAnimationFrame(gameAnimation);
 
-  updateCoins();
+ gameAnimation=null;
 
-  alert("🎁 Recibiste 20 YEIBUX diarios.");
+ stopMultiplayer();
+
+ if(gameRenderer){
+
+  gameRenderer.dispose();
 
  }
+
+ gameRenderer=null;
+ gameScene=null;
+ gameCamera=null;
+ gamePlayer=null;
+
+ $("gameOverlay").classList.remove("active");
+
+ currentGame=null;
 
 }
 
 
-/* =========================================================
-   THREE.JS JUEGO
-========================================================= */
+/* THREE GAME */
 
-function createRenderer(){
+function startGame(){
 
- const canvas=$("gameCanvas");
+ const canvas=
+  $("gameCanvas");
 
- gameRenderer=new THREE.WebGLRenderer({
-  canvas,
-  antialias:true
- });
+ gameScene=
+  new THREE.Scene();
 
- gameRenderer.setPixelRatio(
-  Math.min(devicePixelRatio,2)
+ gameScene.background=
+  new THREE.Color(0x7db7e8);
+
+ gameCamera=
+  new THREE.PerspectiveCamera(
+   70,
+   innerWidth/innerHeight,
+   .1,
+   500
+  );
+
+ gameCamera.position.set(
+  0,
+  4,
+  8
  );
+
+ gameRenderer=
+  new THREE.WebGLRenderer({
+   canvas,
+   antialias:true
+  });
 
  gameRenderer.setSize(
   innerWidth,
   innerHeight
  );
 
-}
-
-
-function createGameBase(){
-
- gameScene=new THREE.Scene();
-
- gameScene.background=
-  new THREE.Color("#87ceeb");
-
- gameCamera=new THREE.PerspectiveCamera(
-  70,
-  innerWidth/innerHeight,
-  .1,
-  500
+ gameRenderer.setPixelRatio(
+  Math.min(devicePixelRatio,2)
  );
 
- gameCamera.position.set(
-  0,5,9
- );
 
- const ambient=
+ const light=
   new THREE.HemisphereLight(
    0xffffff,
-   0x334455,
+   0x555555,
    2
   );
 
- gameScene.add(ambient);
+ gameScene.add(light);
 
- const sun=
-  new THREE.DirectionalLight(
-   0xffffff,
-   2
-  );
 
- sun.position.set(10,20,10);
+ createWorld();
 
- gameScene.add(sun);
-
- const floor=new THREE.Mesh(
-  new THREE.BoxGeometry(80,1,80),
-  new THREE.MeshStandardMaterial({
-   color:0x38a852
-  })
- );
-
- floor.position.y=-.5;
-
- gameScene.add(floor);
-
-}
-
-
-function box(x,y,z,sx,sy,sz,color){
-
- const mesh=new THREE.Mesh(
-  new THREE.BoxGeometry(sx,sy,sz),
-  new THREE.MeshStandardMaterial({
-   color
-  })
- );
-
- mesh.position.set(x,y,z);
-
- gameScene.add(mesh);
-
- return mesh;
-
-}
-
-
-function createParkour(){
-
- for(let i=0;i<14;i++){
-
-  const x=
-   Math.sin(i*.8)*5;
-
-  const z=
-   -i*4;
-
-  const y=
-   .4+i*.35;
-
-  box(
-   x,y,z,
-   3,0.5,3,
-   0x2798ff
-  );
-
- }
-
- box(
-  0,2,-58,
-  7,1,5,
-  0xffd21f
- );
-
-}
-
-
-function createCoinRush(){
-
- for(let i=0;i<25;i++){
-
-  const coin=new THREE.Mesh(
-   new THREE.TorusGeometry(
-    .35,.12,10,20
-   ),
-   new THREE.MeshStandardMaterial({
-    color:0xffd700,
-    emissive:0x664400
-   })
-  );
-
-  coin.position.set(
-   (Math.random()-.5)*25,
-   .6+Math.random()*2,
-   -Math.random()*70
-  );
-
-  gameScene.add(coin);
-
- }
-
-}
-
-
-function createObby(){
-
- for(let i=0;i<18;i++){
-
-  const z=-i*4;
-
-  box(
-   (i%2===0?3:-3),
-   .5,
-   z,
-   2,
-   1,
-   2,
-   0xff3d7f
-  );
-
- }
-
-}
-
-
-/* =========================================================
-   PERSONA LOCAL
-========================================================= */
-
-function spawnLocal(){
-
- localCharacter=createCharacter(
-  playerData.avatar,
-  1
- );
-
- localCharacter.position.set(
-  0,
-  0,
-  2
- );
-
- gameScene.add(localCharacter);
-
-}
-
-
-function clearGame(){
-
- if(gameAnimation)
-  cancelAnimationFrame(gameAnimation);
-
- gameAnimation=null;
-
- if(gameRenderer){
-
-  gameRenderer.dispose();
-
-  gameRenderer=null;
-
- }
-
- remotePlayers={};
- remoteData={};
- localCharacter=null;
- gameScene=null;
- gameCamera=null;
-
-}
-
-
-/* =========================================================
-   MULTIJUGADOR FIRESTORE
-========================================================= */
-
-function startMultiplayer(){
-
- if(roomUnsubscribe)
-  roomUnsubscribe();
-
- const roomRef=collection(
-  db,
-  "rooms",
-  currentGame,
-  "players"
- );
-
- roomUnsubscribe=onSnapshot(
-  roomRef,
-  snapshot=>{
-
-   let count=0;
-
-   snapshot.forEach(snap=>{
-
-    const data=snap.data();
-
-    if(snap.id===currentUser.uid)
-     return;
-
-    count++;
-
-    remoteData[snap.id]=data;
-
-    if(!remotePlayers[snap.id]){
-
-     const avatar=createCharacter(
-      data.avatar||playerData.avatar,
-      .85
-     );
-
-     gameScene.add(avatar);
-
-     remotePlayers[snap.id]=avatar;
-
-    }
-
-    const obj=remotePlayers[snap.id];
-
-    obj.position.x=
-     Number(data.x)||0;
-
-    obj.position.y=
-     Number(data.y)||0;
-
-    obj.position.z=
-     Number(data.z)||0;
-
-    obj.rotation.y=
-     Number(data.ry)||0;
-
-   });
-
-   $("hudLeft").textContent=
-    "👥 Jugadores: "+(count+1);
-
-  },
-  error=>{
-   console.warn("Multijugador:",error);
-  }
- );
-
-}
-
-
-async function sendPosition(){
-
- if(!currentUser ||
-    !currentGame ||
-    !localCharacter)
-  return;
-
- const now=Date.now();
-
- if(now-lastNetworkUpdate<120)
-  return;
-
- lastNetworkUpdate=now;
-
- try{
-
-  await setDoc(
-   doc(
-    db,
-    "rooms",
-    currentGame,
-    "players",
-    currentUser.uid
-   ),
-   {
-    uid:currentUser.uid,
-    username:playerData.username,
-    avatar:playerData.avatar,
-    x:localCharacter.position.x,
-    y:localCharacter.position.y,
-    z:localCharacter.position.z,
-    ry:localCharacter.rotation.y,
-    clientAt:now
-   },
-   {merge:true}
-  );
-
- }catch(e){
-
-  console.warn(e);
-
- }
-
-}
-
-
-async function removeFromRoom(){
-
- if(!currentUser || !currentGame)
-  return;
-
- try{
-
-  await setDoc(
-   doc(
-    db,
-    "rooms",
-    currentGame,
-    "players",
-    currentUser.uid
-   ),
-   {
-    clientAt:0
-   },
-   {merge:true}
-  );
-
- }catch(e){}
-
-}
-
-
-/* =========================================================
-   MOVIMIENTO
-========================================================= */
-
-window.addEventListener("keydown",e=>{
-
- keys[e.code]=true;
-
- if(
-  ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"]
-  .includes(e.code)
- ){
-  e.preventDefault();
- }
-
-});
-
-window.addEventListener("keyup",e=>{
- keys[e.code]=false;
-});
-
-
-function movement(delta){
-
- if(!localCharacter)
-  return;
-
- const speed=7;
-
- let dx=0;
- let dz=0;
-
- if(keys.KeyW||keys.ArrowUp)dz-=1;
- if(keys.KeyS||keys.ArrowDown)dz+=1;
- if(keys.KeyA||keys.ArrowLeft)dx-=1;
- if(keys.KeyD||keys.ArrowRight)dx+=1;
-
- if(dx||dz){
-
-  const len=Math.hypot(dx,dz);
-
-  dx/=len;
-  dz/=len;
-
-  localCharacter.position.x+=dx*speed*delta;
-  localCharacter.position.z+=dz*speed*delta;
-
-  localCharacter.rotation.y=
-   Math.atan2(dx,dz);
-
- }
-
- if(
-  (keys.Space||keys.ArrowUp) &&
-  onGround
- ){
-
-  velocityY=8;
-  onGround=false;
-
- }
-
- velocityY-=20*delta;
-
- localCharacter.position.y+=velocityY*delta;
-
- if(localCharacter.position.y<=0){
-
-  localCharacter.position.y=0;
-  velocityY=0;
-  onGround=true;
-
- }
-
-}
-
-
-function cameraFollow(){
-
- if(!localCharacter)return;
-
- const target=new THREE.Vector3(
-  localCharacter.position.x,
-  localCharacter.position.y+3,
-  localCharacter.position.z+7
- );
-
- gameCamera.position.lerp(
-  target,
-  .08
- );
-
- gameCamera.lookAt(
-  localCharacter.position.x,
-  localCharacter.position.y+1.4,
-  localCharacter.position.z
- );
-
-}
-
-
-/* =========================================================
-   JUGAR
-========================================================= */
-
-async function startGame(gameId){
-
- await leaveGame();
-
- currentGame=gameId;
-
- showScreen("gameScreen");
-
- createRenderer();
- createGameBase();
-
- if(gameId==="parkour")
-  createParkour();
-
- if(gameId==="coinrush")
-  createCoinRush();
-
- if(gameId==="obby")
-  createObby();
-
- spawnLocal();
+ createPlayer();
 
  startMultiplayer();
 
- gameStartTime=Date.now();
+ window.addEventListener(
+  "keydown",
+  keyDown
+ );
 
- $("roomInfo").textContent=
-  "🌐 Sala: "+gameId+" · Multijugador activo";
+ window.addEventListener(
+  "keyup",
+  keyUp
+ );
+
+ window.addEventListener(
+  "resize",
+  resizeGame
+ );
 
  gameLoop();
 
 }
 
 
-function gameLoop(){
+function createWorld(){
 
- if(!gameRenderer||!gameScene)
-  return;
+ const ground=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    100,
+    .5,
+    100
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x477b3d
+   })
+  );
+
+ ground.position.y=-1;
+
+ gameScene.add(ground);
+
+
+ for(let i=0;i<25;i++){
+
+  const x=
+   (Math.random()-.5)*60;
+
+  const z=
+   (Math.random()-.5)*60;
+
+  const block=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     3,
+     1,
+     3
+    ),
+    new THREE.MeshStandardMaterial({
+     color:
+      i%2?
+       0x5c78a3:
+       0x896c45
+    })
+   );
+
+  block.position.set(
+   x,
+   Math.random()*3,
+   z
+  );
+
+  gameScene.add(block);
+
+ }
+
+}
+
+
+function createPlayer(){
+
+ gamePlayer=
+  new THREE.Group();
+
+ const body=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    1,
+    1.5,
+    .6
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ const head=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .85,.85,.85
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xf0b98d
+   })
+  );
+
+ head.position.y=1.15;
+
+ gamePlayer.add(
+  body,
+  head
+ );
+
+ gamePlayer.position.set(
+  0,
+  0,
+  0
+ );
+
+ gameScene.add(gamePlayer);
+
+}
+
+
+function keyDown(e){
+
+ keys[e.key.toLowerCase()]=true;
+
+}
+
+
+function keyUp(e){
+
+ keys[e.key.toLowerCase()]=false;
+
+}
+
+
+function gameLoop(){
 
  gameAnimation=
   requestAnimationFrame(gameLoop);
 
- const now=performance.now();
+ if(gamePlayer){
 
- if(!clock)
-  clock=new THREE.Clock();
+  const speed=.12;
 
- const delta=Math.min(
-  clock.getDelta(),
-  .05
- );
+  if(keys.w)
+   gamePlayer.position.z-=speed;
 
- movement(delta);
- cameraFollow();
+  if(keys.s)
+   gamePlayer.position.z+=speed;
 
- if(localCharacter)
+  if(keys.a)
+   gamePlayer.position.x-=speed;
+
+  if(keys.d)
+   gamePlayer.position.x+=speed;
+
+  gameCamera.position.x=
+   gamePlayer.position.x;
+
+  gameCamera.position.z=
+   gamePlayer.position.z+8;
+
+  gameCamera.lookAt(
+   gamePlayer.position.x,
+   gamePlayer.position.y+1,
+   gamePlayer.position.z
+  );
+
   sendPosition();
 
- const seconds=Math.floor(
-  (Date.now()-gameStartTime)/1000
- );
-
- const min=String(
-  Math.floor(seconds/60)
- ).padStart(2,"0");
-
- const sec=String(
-  seconds%60
- ).padStart(2,"0");
-
- $("hudRight").textContent=
-  "⏱️ "+min+":"+sec;
+ }
 
  gameRenderer.render(
   gameScene,
@@ -2269,142 +2363,5742 @@ function gameLoop(){
 }
 
 
-/* =========================================================
-   SALIR DEL JUEGO
-========================================================= */
+function resizeGame(){
 
-$("exitGame").onclick=async()=>{
+ if(!gameRenderer)
+  return;
 
- await leaveGame();
+ gameCamera.aspect=
+  innerWidth/innerHeight;
 
- showScreen("lobbyScreen");
+ gameCamera.updateProjectionMatrix();
 
-};
+ gameRenderer.setSize(
+  innerWidth,
+  innerHeight
+ );
+
+}
 
 
-async function leaveGame(){
+/* MULTIPLAYER */
 
- if(roomUnsubscribe){
+function startMultiplayer(){
 
-  roomUnsubscribe();
-  roomUnsubscribe=null;
+ if(!currentUser||!currentGame)
+  return;
+
+ const ref=
+  collection(
+   db,
+   "rooms",
+   currentGame,
+   "players"
+  );
+
+ onSnapshot(ref,snapshot=>{
+
+  const seen=new Set();
+
+  snapshot.forEach(snap=>{
+
+   const uid=snap.id;
+
+   if(uid===currentUser.uid)
+    return;
+
+   const data=snap.data();
+
+   seen.add(uid);
+
+   remoteData[uid]=data;
+
+   if(!remotePlayers[uid]){
+
+    const model=
+     new THREE.Group();
+
+    const body=
+     new THREE.Mesh(
+      new THREE.BoxGeometry(
+       1,
+       1.5,
+       .6
+      ),
+      new THREE.MeshStandardMaterial({
+       color:0xd34f5f
+      })
+     );
+
+    const head=
+     new THREE.Mesh(
+      new THREE.BoxGeometry(
+       .85,
+       .85,
+       .85
+      ),
+      new THREE.MeshStandardMaterial({
+       color:0xf0b98d
+      })
+     );
+
+    head.position.y=1.15;
+
+    model.add(body,head);
+
+    gameScene.add(model);
+
+    remotePlayers[uid]=model;
+
+   }
+
+   remotePlayers[uid].position.set(
+    Number(data.x||0),
+    Number(data.y||0),
+    Number(data.z||0)
+   );
+
+  });
+
+
+  for(const uid of Object.keys(remotePlayers)){
+
+   if(!seen.has(uid)){
+
+    gameScene.remove(
+     remotePlayers[uid]
+    );
+
+    delete remotePlayers[uid];
+    delete remoteData[uid];
+
+   }
+
+  }
+
+ });
+
+}
+
+
+let lastSend=0;
+
+async function sendPosition(){
+
+ const now=Date.now();
+
+ if(now-lastSend<250)
+  return;
+
+ lastSend=now;
+
+ if(
+  !currentUser||
+  !currentGame||
+  !gamePlayer
+ )
+  return;
+
+ try{
+
+  await setDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   ),
+   {
+    username:
+     playerData.username,
+
+    x:gamePlayer.position.x,
+    y:gamePlayer.position.y,
+    z:gamePlayer.position.z,
+
+    updatedAt:serverTimestamp()
+   }
+  );
+
+ }catch(e){
+
+  console.error(e);
 
  }
 
- await removeFromRoom();
+}
 
- currentGame=null;
 
- if(gameAnimation)
-  cancelAnimationFrame(gameAnimation);
+async function stopMultiplayer(){
 
- gameAnimation=null;
+ if(
+  !currentUser||
+  !currentGame
+ )
+  return;
 
- if(gameRenderer){
+ try{
 
-  gameRenderer.dispose();
-  gameRenderer=null;
+  await deleteDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   )
+  );
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+ for(const uid of Object.keys(remotePlayers)){
+
+  if(gameScene)
+   gameScene.remove(
+    remotePlayers[uid]
+   );
 
  }
 
  remotePlayers={};
  remoteData={};
- localCharacter=null;
- gameScene=null;
- gameCamera=null;
-
- clock=null;
 
 }
 
 
-/* =========================================================
-   BOTONES MÓVILES
-========================================================= */
+/* MOBILE */
 
-function mobileKey(id,key){
+$("mobileJump").onclick=()=>{
 
- const button=$(id);
+ if(gamePlayer){
 
- button.addEventListener("touchstart",e=>{
-  e.preventDefault();
-  keys[key]=true;
- });
+  gamePlayer.position.y+=1;
 
- button.addEventListener("touchend",e=>{
-  e.preventDefault();
-  keys[key]=false;
- });
+  setTimeout(()=>{
 
- button.addEventListener("mousedown",()=>{
-  keys[key]=true;
- });
+   if(gamePlayer)
+    gamePlayer.position.y=
+     Math.max(
+      0,
+      gamePlayer.position.y-1
+     );
 
- button.addEventListener("mouseup",()=>{
-  keys[key]=false;
- });
-
- button.addEventListener("mouseleave",()=>{
-  keys[key]=false;
- });
-
-}
-
-mobileKey("mobileLeft","ArrowLeft");
-mobileKey("mobileRight","ArrowRight");
-mobileKey("mobileJump","Space");
-
-
-/* =========================================================
-   RESIZE
-========================================================= */
-
-window.addEventListener("resize",()=>{
-
- if(gameCamera&&gameRenderer){
-
-  gameCamera.aspect=
-   innerWidth/innerHeight;
-
-  gameCamera.updateProjectionMatrix();
-
-  gameRenderer.setSize(
-   innerWidth,
-   innerHeight
-  );
+  },250);
 
  }
 
- if(avatarRenderer&&avatarCamera){
+};
 
-  const canvas=$("avatarCanvas");
 
-  const w=canvas.clientWidth||390;
-  const h=canvas.clientHeight||470;
+let joyActive=false;
 
-  avatarCamera.aspect=w/h;
-  avatarCamera.updateProjectionMatrix();
+const joystick=
+ document.querySelector(".joystick");
+
+const joyDot=
+ document.querySelector(".joyDot");
+
+joystick.addEventListener(
+ "pointerdown",
+ e=>{
+
+  joyActive=true;
+
+  joystick.setPointerCapture(
+   e.pointerId
+  );
+
+ }
+);
+
+joystick.addEventListener(
+ "pointermove",
+ e=>{
+
+  if(!joyActive)
+   return;
+
+  const rect=
+   joystick.getBoundingClientRect();
+
+  const cx=
+   rect.left+rect.width/2;
+
+  const cy=
+   rect.top+rect.height/2;
+
+  let dx=e.clientX-cx;
+  let dy=e.clientY-cy;
+
+  const max=38;
+
+  const length=
+   Math.hypot(dx,dy);
+
+  if(length>max){
+
+   dx=
+    dx/length*max;
+
+   dy=
+    dy/length*max;
+
+  }
+
+  joyDot.style.transform=
+   `translate(${dx}px,${dy}px)`;
+
+  keys.w=dy<-12;
+  keys.s=dy>12;
+  keys.a=dx<-12;
+  keys.d=dx>12;
+
+ }
+);
+
+joystick.addEventListener(
+ "pointerup",
+ ()=>{
+
+  joyActive=false;
+
+  joyDot.style.transform="";
+
+  keys.w=false;
+  keys.s=false;
+  keys.a=false;
+  keys.d=false;
+
+ }
+);
+
+
+/* HTML SAFETY */
+
+function escapeHTML(value){
+
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+
+<!-- THREE.JS -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BLOXVERSE</title>
+
+<style>
+*{
+ box-sizing:border-box;
+ margin:0;
+ padding:0;
+}
+
+body{
+ font-family:Arial,sans-serif;
+ background:#111827;
+ color:white;
+ overflow:hidden;
+}
+
+button,input{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+.hidden{
+ display:none!important;
+}
+
+/* LOGIN */
+
+#loginScreen{
+ position:fixed;
+ inset:0;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:
+ radial-gradient(circle at top,#263b70,#10131d 60%);
+ z-index:1000;
+}
+
+.loginBox{
+ width:min(430px,92%);
+ background:#181d2b;
+ border:1px solid #30394e;
+ border-radius:22px;
+ padding:32px;
+ box-shadow:0 20px 70px #0008;
+}
+
+.logo{
+ text-align:center;
+ font-size:42px;
+ font-weight:900;
+ letter-spacing:-2px;
+ margin-bottom:8px;
+}
+
+.logo span{
+ color:#5da9ff;
+}
+
+.loginSubtitle{
+ text-align:center;
+ color:#9da8bb;
+ margin-bottom:28px;
+}
+
+.loginBox input{
+ width:100%;
+ padding:14px;
+ margin-bottom:12px;
+ border-radius:12px;
+ border:1px solid #39445b;
+ background:#0f1420;
+ color:white;
+ outline:none;
+}
+
+.loginBox input:focus{
+ border-color:#5da9ff;
+}
+
+.loginButtons{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ margin-top:8px;
+}
+
+.btn{
+ border:0;
+ border-radius:12px;
+ padding:13px;
+ font-weight:bold;
+ color:white;
+ background:#2a3449;
+}
+
+.btn:hover{
+ filter:brightness(1.15);
+}
+
+.btn.primary{
+ background:#287de0;
+}
+
+.btn.green{
+ background:#159447;
+}
+
+#loginError{
+ color:#ff7777;
+ min-height:24px;
+ margin-top:15px;
+ text-align:center;
+ font-size:14px;
+}
+
+/* APP */
+
+#app{
+ position:fixed;
+ inset:0;
+ display:flex;
+}
+
+.sidebar{
+ width:230px;
+ background:#151a26;
+ border-right:1px solid #293246;
+ padding:18px;
+ display:flex;
+ flex-direction:column;
+}
+
+.brand{
+ font-size:27px;
+ font-weight:900;
+ margin:4px 8px 28px;
+}
+
+.brand span{
+ color:#5da9ff;
+}
+
+.nav{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+}
+
+.nav button{
+ text-align:left;
+ border:0;
+ background:transparent;
+ color:#aeb7c9;
+ padding:13px;
+ border-radius:11px;
+}
+
+.nav button:hover,
+.nav button.active{
+ background:#27334a;
+ color:white;
+}
+
+.userCard{
+ margin-top:auto;
+ background:#20283a;
+ padding:14px;
+ border-radius:14px;
+}
+
+.userName{
+ font-weight:bold;
+}
+
+.coins{
+ color:#ffd54d;
+ margin-top:6px;
+ font-weight:bold;
+}
+
+.logout{
+ width:100%;
+ margin-top:10px;
+ background:#3a2027;
+ color:#ff9ba5;
+ border:0;
+ padding:10px;
+ border-radius:10px;
+}
+
+.main{
+ flex:1;
+ overflow:auto;
+ padding:24px;
+}
+
+.topbar{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:24px;
+}
+
+.title{
+ font-size:30px;
+ font-weight:900;
+}
+
+.mobileMenu{
+ display:none;
+}
+
+.section{
+ display:none;
+}
+
+.section.active{
+ display:block;
+}
+
+/* CARDS */
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+ gap:18px;
+}
+
+.card{
+ background:#181e2c;
+ border:1px solid #2b3548;
+ border-radius:18px;
+ padding:16px;
+ transition:.2s;
+}
+
+.card:hover{
+ transform:translateY(-3px);
+ border-color:#4e668d;
+}
+
+.gamePreview{
+ height:130px;
+ border-radius:14px;
+ background:linear-gradient(135deg,#2454a6,#6d42aa);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:45px;
+ margin-bottom:13px;
+}
+
+.card h3{
+ margin-bottom:7px;
+}
+
+.card p{
+ color:#909bad;
+ font-size:14px;
+ margin-bottom:13px;
+}
+
+.card button{
+ width:100%;
+ border:0;
+ padding:11px;
+ border-radius:10px;
+ background:#287de0;
+ color:white;
+ font-weight:bold;
+}
+
+/* AVATAR */
+
+.avatarLayout{
+ display:grid;
+ grid-template-columns:1fr 300px;
+ gap:20px;
+}
+
+.avatarBox{
+ min-height:520px;
+ background:#10151f;
+ border:1px solid #2c3648;
+ border-radius:20px;
+ position:relative;
+ overflow:hidden;
+}
+
+#avatarCanvas{
+ width:100%;
+ height:100%;
+ min-height:520px;
+}
+
+.avatarControls{
+ background:#181e2c;
+ border:1px solid #2c3648;
+ border-radius:18px;
+ padding:18px;
+}
+
+.controlGroup{
+ margin-bottom:18px;
+}
+
+.controlGroup h3{
+ margin-bottom:10px;
+}
+
+.optionGrid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:8px;
+}
+
+.option{
+ background:#252e40;
+ border:1px solid #39465e;
+ color:white;
+ padding:10px;
+ border-radius:9px;
+}
+
+.option:hover{
+ background:#34425c;
+}
+
+.saveBtn{
+ width:100%;
+ padding:12px;
+ border:0;
+ border-radius:10px;
+ background:#159447;
+ color:white;
+ font-weight:bold;
+}
+
+/* MARKET */
+
+.marketTop{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:18px;
+}
+
+.balance{
+ background:#20283a;
+ padding:12px 16px;
+ border-radius:12px;
+ color:#ffd54d;
+ font-weight:bold;
+}
+
+.itemIcon{
+ height:120px;
+ border-radius:14px;
+ background:#222b3c;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ font-size:50px;
+ margin-bottom:12px;
+}
+
+/* CREATE */
+
+.formBox{
+ max-width:600px;
+ background:#181e2c;
+ padding:22px;
+ border-radius:18px;
+ border:1px solid #2b3548;
+}
+
+.formBox input,
+.formBox textarea,
+.formBox select{
+ width:100%;
+ background:#10151f;
+ border:1px solid #354057;
+ color:white;
+ border-radius:10px;
+ padding:12px;
+ margin:7px 0 14px;
+}
+
+.formBox textarea{
+ min-height:120px;
+ resize:vertical;
+}
+
+.info{
+ color:#98a3b7;
+ font-size:13px;
+ line-height:1.5;
+}
+
+/* GAME */
+
+#gameOverlay{
+ position:fixed;
+ inset:0;
+ background:#10151f;
+ z-index:900;
+ display:none;
+}
+
+#gameOverlay.active{
+ display:block;
+}
+
+#gameCanvas{
+ width:100%;
+ height:100%;
+ display:block;
+}
+
+.gameHUD{
+ position:absolute;
+ top:15px;
+ left:15px;
+ right:15px;
+ display:flex;
+ justify-content:space-between;
+ pointer-events:none;
+}
+
+.hudBox{
+ background:#111827dd;
+ border:1px solid #ffffff18;
+ padding:10px 14px;
+ border-radius:12px;
+}
+
+#leaveGame{
+ pointer-events:auto;
+ border:0;
+ background:#b73545;
+ color:white;
+ padding:10px 15px;
+ border-radius:10px;
+ font-weight:bold;
+}
+
+#gameInfo{
+ position:absolute;
+ left:15px;
+ bottom:15px;
+ background:#111827dd;
+ padding:12px;
+ border-radius:12px;
+ color:#d8deea;
+}
+
+#mobileControls{
+ display:none;
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+}
+
+.joystick{
+ position:absolute;
+ left:25px;
+ bottom:30px;
+ width:120px;
+ height:120px;
+ border-radius:50%;
+ background:#ffffff18;
+ border:2px solid #ffffff22;
+ pointer-events:auto;
+}
+
+.joyDot{
+ position:absolute;
+ width:48px;
+ height:48px;
+ border-radius:50%;
+ background:#ffffff44;
+ left:34px;
+ top:34px;
+}
+
+.mobileJump{
+ position:absolute;
+ right:30px;
+ bottom:40px;
+ width:80px;
+ height:80px;
+ border:0;
+ border-radius:50%;
+ background:#287de0cc;
+ color:white;
+ font-weight:bold;
+ pointer-events:auto;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:800px){
+
+ .sidebar{
+  position:fixed;
+  left:-240px;
+  top:0;
+  bottom:0;
+  z-index:800;
+  transition:.2s;
+ }
+
+ .sidebar.open{
+  left:0;
+ }
+
+ .mobileMenu{
+  display:block;
+  border:0;
+  background:#253047;
+  color:white;
+  padding:9px 12px;
+  border-radius:9px;
+ }
+
+ .main{
+  padding:15px;
+ }
+
+ .avatarLayout{
+  grid-template-columns:1fr;
+ }
+
+ .avatarControls{
+  order:2;
+ }
+
+ .loginButtons{
+  grid-template-columns:1fr;
+ }
+
+ #mobileControls{
+  display:block;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginScreen">
+
+ <div class="loginBox">
+
+  <div class="logo">
+   BLOX<span>VERSE</span>
+  </div>
+
+  <div class="loginSubtitle">
+   Tu plataforma de juegos.
+  </div>
+
+  <input
+   id="username"
+   placeholder="Nombre de usuario"
+   autocomplete="username"
+  >
+
+  <input
+   id="password"
+   type="password"
+   placeholder="Contraseña"
+   autocomplete="current-password"
+  >
+
+  <div class="loginButtons">
+
+   <button
+    id="loginButton"
+    class="btn primary">
+    ENTRAR
+   </button>
+
+   <button
+    id="registerButton"
+    class="btn green">
+    CREAR CUENTA
+   </button>
+
+  </div>
+
+  <div id="loginError"></div>
+
+ </div>
+
+</div>
+
+
+<!-- APP -->
+
+<div id="app" class="hidden">
+
+ <aside class="sidebar" id="sidebar">
+
+  <div class="brand">
+   BLOX<span>VERSE</span>
+  </div>
+
+  <div class="nav">
+
+   <button data-section="games" class="active">
+    🎮 Juegos
+   </button>
+
+   <button data-section="avatar">
+    🧍 Avatar
+   </button>
+
+   <button data-section="market">
+    🛒 Marketplace
+   </button>
+
+   <button data-section="create">
+    🛠️ Crear
+   </button>
+
+  </div>
+
+  <div class="userCard">
+
+   <div class="userName" id="sideUsername">
+    Usuario
+   </div>
+
+   <div class="coins">
+    🪙 <span id="sideCoins">0</span> YEIBUX
+   </div>
+
+   <button class="logout" id="logoutButton">
+    Cerrar sesión
+   </button>
+
+  </div>
+
+ </aside>
+
+
+ <main class="main">
+
+  <div class="topbar">
+
+   <button class="mobileMenu" id="mobileMenu">
+    ☰
+   </button>
+
+   <div class="title" id="pageTitle">
+    Juegos
+   </div>
+
+   <div class="balance">
+    🪙 <span id="topCoins">0</span>
+   </div>
+
+  </div>
+
+
+  <!-- GAMES -->
+
+  <section class="section active" id="section-games">
+
+   <div class="grid">
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🏃
+     </div>
+
+     <h3>Parkour Tower</h3>
+
+     <p>
+      Sube la torre y llega hasta la meta.
+     </p>
+
+     <button onclick="playGame('parkour')">
+      JUGAR
+     </button>
+
+    </div>
+
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🪙
+     </div>
+
+     <h3>Coin Rush</h3>
+
+     <p>
+      Recolecta monedas por el mapa.
+     </p>
+
+     <button onclick="playGame('coins')">
+      JUGAR
+     </button>
+
+    </div>
+
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🧱
+     </div>
+
+     <h3>Obby Runner</h3>
+
+     <p>
+      Supera obstáculos y compite.
+     </p>
+
+     <button onclick="playGame('obby')">
+      JUGAR
+     </button>
+
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- AVATAR -->
+
+  <section class="section" id="section-avatar">
+
+   <div class="avatarLayout">
+
+    <div class="avatarBox">
+
+     <canvas id="avatarCanvas"></canvas>
+
+    </div>
+
+    <div class="avatarControls">
+
+     <div class="controlGroup">
+
+      <h3>👕 Ropa</h3>
+
+      <input
+       type="file"
+       id="shirtInput"
+       accept="image/png,image/jpeg,image/webp"
+      >
+
+      <div class="info">
+       Máximo 300 KB.
+      </div>
+
+     </div>
+
+
+     <div class="controlGroup">
+
+      <h3>🧢 Accesorios</h3>
+
+      <div class="optionGrid">
+
+       <button
+        class="option"
+        onclick="setAccessory('none')">
+        Ninguno
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('cap')">
+        🧢 Gorra
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('crown')">
+        👑 Corona
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('glasses')">
+        🕶️ Gafas
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('backpack')">
+        🎒 Mochila
+       </button>
+
+      </div>
+
+     </div>
+
+
+     <button
+      class="saveBtn"
+      onclick="saveAvatar()">
+      💾 GUARDAR AVATAR
+     </button>
+
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- MARKET -->
+
+  <section class="section" id="section-market">
+
+   <div class="marketTop">
+
+    <div>
+     <h2>Marketplace</h2>
+     <p class="info">
+      Compra accesorios usando YEIBUX.
+     </p>
+    </div>
+
+    <div class="balance">
+     🪙 <span id="marketCoins">0</span> YEIBUX
+    </div>
+
+   </div>
+
+
+   <div class="grid" id="marketGrid"></div>
+
+  </section>
+
+
+  <!-- CREATE -->
+
+  <section class="section" id="section-create">
+
+   <div class="formBox">
+
+    <h2>Crear artículo</h2>
+
+    <p class="info">
+     Publica un accesorio sencillo para el marketplace.
+    </p>
+
+    <label>Nombre</label>
+
+    <input
+     id="itemName"
+     placeholder="Ej: Gorra azul"
+    >
+
+    <label>Icono</label>
+
+    <input
+     id="itemIcon"
+     placeholder="🧢"
+     maxlength="4"
+    >
+
+    <label>Precio YEIBUX</label>
+
+    <input
+     id="itemPrice"
+     type="number"
+     min="1"
+     value="50"
+    >
+
+    <label>Descripción</label>
+
+    <textarea
+     id="itemDescription"
+     placeholder="Describe el artículo..."
+    ></textarea>
+
+    <button
+     class="btn primary"
+     id="createItemButton">
+     PUBLICAR
+    </button>
+
+    <p
+     id="createMessage"
+     class="info"
+     style="margin-top:12px">
+    </p>
+
+   </div>
+
+  </section>
+
+ </main>
+
+</div>
+
+
+<!-- GAME -->
+
+<div id="gameOverlay">
+
+ <canvas id="gameCanvas"></canvas>
+
+ <div class="gameHUD">
+
+  <div class="hudBox">
+   🎮 <span id="gameName">Juego</span>
+  </div>
+
+  <button id="leaveGame">
+   SALIR
+  </button>
+
+ </div>
+
+ <div id="gameInfo">
+  WASD para moverte · Mouse para mirar
+ </div>
+
+ <div id="mobileControls">
+
+  <div class="joystick">
+   <div class="joyDot"></div>
+  </div>
+
+  <button class="mobileJump" id="mobileJump">
+   SALTAR
+  </button>
+
+ </div>
+
+</div>
+
+
+<script type="module">
+
+/* FIREBASE */
+
+import {
+ initializeApp
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+ getAuth,
+ signInWithEmailAndPassword,
+ createUserWithEmailAndPassword,
+ signOut
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+ getFirestore,
+ doc,
+ getDoc,
+ setDoc,
+ updateDoc,
+ collection,
+ addDoc,
+ onSnapshot,
+ deleteDoc,
+ serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+ apiKey:
+ "AIzaSyDATz9IGnt97ojeL7TA6IRH489rERDVMgI",
+
+ authDomain:
+ "siano-4d901.firebaseapp.com",
+
+ projectId:
+ "siano-4d901",
+
+ storageBucket:
+ "siano-4d901.firebasestorage.app",
+
+ messagingSenderId:
+ "224378787783",
+
+ appId:
+ "1:224378787783:web:8cf1ef2409e955e0a62be2",
+
+ measurementId:
+ "G-8C4QPQRW6H"
+
+};
+
+
+const firebaseApp =
+ initializeApp(firebaseConfig);
+
+const auth =
+ getAuth(firebaseApp);
+
+const db =
+ getFirestore(firebaseApp);
+
+
+/* VARIABLES */
+
+let currentUser=null;
+let playerData=null;
+
+let accessory="none";
+let shirtTexture=null;
+
+let currentGame=null;
+
+let gameScene=null;
+let gameCamera=null;
+let gameRenderer=null;
+let gamePlayer=null;
+
+let remotePlayers={};
+let remoteData={};
+
+let keys={};
+
+let gameAnimation=null;
+let sendTimer=null;
+
+let avatarScene;
+let avatarCamera;
+let avatarRenderer;
+let avatarModel;
+let avatarAccessory;
+
+let ownedItems=[];
+
+
+/* HELPERS */
+
+const $ = id =>
+ document.getElementById(id);
+
+
+function usernameEmail(username){
+
+ return username
+  .toLowerCase()
+  .replace(/[^a-z0-9._-]/g,"")
+  +"@bloxverse.local";
+
+}
+
+
+function validUsername(username){
+
+ return /^[a-zA-Z0-9_.-]{3,20}$/.test(username);
+
+}
+
+
+function showError(text){
+
+ $("loginError").textContent=text;
+
+}
+
+
+/* LOGIN */
+
+$("loginButton").onclick=async()=>{
+
+ const username=$("username").value.trim();
+ const password=$("password").value;
+
+ showError("");
+
+ if(!validUsername(username)){
+
+  showError(
+   "El usuario debe tener 3-20 caracteres y solo letras, números, _, . o -."
+  );
+
+  return;
+
+ }
+
+ if(password.length<6){
+
+  showError(
+   "La contraseña necesita mínimo 6 caracteres."
+  );
+
+  return;
+
+ }
+
+ $("loginButton").disabled=true;
+ $("registerButton").disabled=true;
+
+ $("loginButton").textContent="ENTRANDO...";
+
+ try{
+
+  const credential =
+   await signInWithEmailAndPassword(
+    auth,
+    usernameEmail(username),
+    password
+   );
+
+  currentUser=credential.user;
+
+  await loadPlayer(username);
+
+  enterLobby();
+
+ }catch(e){
+
+  console.error(e);
+
+  showError(firebaseError(e));
+
+ }finally{
+
+  $("loginButton").disabled=false;
+  $("registerButton").disabled=false;
+
+  $("loginButton").textContent="ENTRAR";
+
+ }
+
+};
+
+
+/* REGISTER */
+
+$("registerButton").onclick=async()=>{
+
+ const username=$("username").value.trim();
+ const password=$("password").value;
+
+ showError("");
+
+ if(!validUsername(username)){
+
+  showError(
+   "El usuario debe tener 3-20 caracteres y solo letras, números, _, . o -."
+  );
+
+  return;
+
+ }
+
+ if(password.length<6){
+
+  showError(
+   "La contraseña necesita mínimo 6 caracteres."
+  );
+
+  return;
+
+ }
+
+ $("loginButton").disabled=true;
+ $("registerButton").disabled=true;
+
+ $("registerButton").textContent="CREANDO...";
+
+ try{
+
+  const credential =
+   await createUserWithEmailAndPassword(
+    auth,
+    usernameEmail(username),
+    password
+   );
+
+  currentUser=credential.user;
+
+  playerData={
+   username,
+   yeibux:100,
+   accessory:"none",
+   shirtTexture:null,
+   createdAt:serverTimestamp(),
+   lastDaily:Date.now()
+  };
+
+  await setDoc(
+   doc(db,"players",currentUser.uid),
+   playerData
+  );
+
+  enterLobby();
+
+ }catch(e){
+
+  console.error(e);
+
+  showError(firebaseError(e));
+
+ }finally{
+
+  $("loginButton").disabled=false;
+  $("registerButton").disabled=false;
+
+  $("registerButton").textContent="CREAR CUENTA";
+
+ }
+
+};
+
+
+function firebaseError(e){
+
+ const errors={
+
+  "auth/invalid-api-key":
+   "La API Key de Firebase no es válida.",
+
+  "auth/api-key-not-valid":
+   "La API Key de Firebase no es válida.",
+
+  "auth/operation-not-allowed":
+   "Activa Email/Password en Firebase Authentication.",
+
+  "auth/email-already-in-use":
+   "Ese usuario ya existe. Usa ENTRAR.",
+
+  "auth/invalid-credential":
+   "Usuario o contraseña incorrectos.",
+
+  "auth/wrong-password":
+   "Contraseña incorrecta.",
+
+  "auth/user-not-found":
+   "La cuenta no existe.",
+
+  "auth/weak-password":
+   "La contraseña debe tener mínimo 6 caracteres.",
+
+  "auth/network-request-failed":
+   "No hay conexión con Firebase.",
+
+  "auth/invalid-email":
+   "El usuario no es válido."
+
+ };
+
+ return errors[e.code] ||
+  "Firebase: "+(e.message||"error desconocido");
+
+}
+
+
+/* LOAD PLAYER */
+
+async function loadPlayer(username){
+
+ const ref=
+  doc(db,"players",currentUser.uid);
+
+ const snap=
+  await getDoc(ref);
+
+ if(!snap.exists()){
+
+  playerData={
+   username,
+   yeibux:100,
+   accessory:"none",
+   shirtTexture:null,
+   lastDaily:Date.now()
+  };
+
+  await setDoc(ref,playerData);
+
+ }else{
+
+  playerData=snap.data();
+
+  if(!playerData.username){
+
+   playerData.username=username;
+
+  }
+
+ }
+
+ checkDailyReward();
+
+ updateUI();
+
+}
+
+
+async function checkDailyReward(){
+
+ const now=Date.now();
+
+ const last=
+  Number(playerData.lastDaily||0);
+
+ const day=86400000;
+
+ if(now-last>=day){
+
+  playerData.yeibux=
+   Number(playerData.yeibux||0)+20;
+
+  playerData.lastDaily=now;
+
+  await updateDoc(
+   doc(db,"players",currentUser.uid),
+   {
+    yeibux:playerData.yeibux,
+    lastDaily:now
+   }
+  );
+
+  updateUI();
+
+ }
+
+}
+
+
+/* LOBBY */
+
+function enterLobby(){
+
+ $("loginScreen").classList.add("hidden");
+ $("app").classList.remove("hidden");
+
+ updateUI();
+
+ loadMarketplace();
+
+}
+
+
+function updateUI(){
+
+ const coins=
+  Number(playerData?.yeibux||0);
+
+ $("sideUsername").textContent=
+  playerData?.username||"Usuario";
+
+ $("sideCoins").textContent=coins;
+ $("topCoins").textContent=coins;
+ $("marketCoins").textContent=coins;
+
+}
+
+
+/* NAV */
+
+document
+ .querySelectorAll(".nav button")
+ .forEach(button=>{
+
+  button.onclick=()=>{
+
+   document
+    .querySelectorAll(".nav button")
+    .forEach(x=>
+     x.classList.remove("active")
+    );
+
+   document
+    .querySelectorAll(".section")
+    .forEach(x=>
+     x.classList.remove("active")
+    );
+
+   button.classList.add("active");
+
+   const section=
+    button.dataset.section;
+
+   $("section-"+section)
+    .classList.add("active");
+
+   const titles={
+    games:"Juegos",
+    avatar:"Avatar",
+    market:"Marketplace",
+    create:"Crear"
+   };
+
+   $("pageTitle").textContent=
+    titles[section];
+
+   $("sidebar").classList.remove("open");
+
+   if(section==="avatar"){
+    setTimeout(initAvatar,50);
+   }
+
+  };
+
+ });
+
+
+$("mobileMenu").onclick=()=>{
+ $("sidebar").classList.toggle("open");
+};
+
+
+/* LOGOUT */
+
+$("logoutButton").onclick=async()=>{
+
+ if(currentGame){
+  await leaveGame();
+ }
+
+ await signOut(auth);
+
+ currentUser=null;
+ playerData=null;
+
+ $("app").classList.add("hidden");
+ $("loginScreen").classList.remove("hidden");
+
+ $("username").value="";
+ $("password").value="";
+ showError("");
+
+};
+
+
+/* AVATAR */
+
+function initAvatar(){
+
+ const canvas=$("avatarCanvas");
+
+ if(!avatarRenderer){
+
+  avatarScene=
+   new THREE.Scene();
+
+  avatarScene.background=
+   new THREE.Color(0x10151f);
+
+  avatarCamera=
+   new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth/canvas.clientHeight,
+    .1,
+    100
+   );
+
+  avatarCamera.position.set(
+   0,
+   1.8,
+   5
+  );
+
+  avatarRenderer=
+   new THREE.WebGLRenderer({
+    canvas,
+    antialias:true,
+    alpha:false
+   });
+
+  avatarRenderer.setPixelRatio(
+   Math.min(devicePixelRatio,2)
+  );
 
   avatarRenderer.setSize(
-   w,
-   h,
+   canvas.clientWidth,
+   canvas.clientHeight,
    false
   );
 
+  const light=
+   new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    2
+   );
+
+  avatarScene.add(light);
+
+  const floor=
+   new THREE.Mesh(
+    new THREE.CircleGeometry(2,32),
+    new THREE.MeshStandardMaterial({
+     color:0x222a3a
+    })
+   );
+
+  floor.rotation.x=-Math.PI/2;
+  floor.position.y=-1;
+
+  avatarScene.add(floor);
+
+  buildAvatar();
+
+  function loop(){
+
+   requestAnimationFrame(loop);
+
+   if(avatarModel)
+    avatarModel.rotation.y+=.004;
+
+   avatarRenderer.render(
+    avatarScene,
+    avatarCamera
+   );
+
+  }
+
+  loop();
+
  }
 
-});
+}
 
 
-/* =========================================================
-   INICIALIZAR
-========================================================= */
+function buildAvatar(){
 
-setupAvatarPreview();
+ if(avatarModel)
+  avatarScene.remove(avatarModel);
 
-dailyReward().catch(()=>{});
+ avatarModel=
+  new THREE.Group();
+
+ const body=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    1,
+    1.4,
+    .55
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ body.position.y=.0;
+
+ const head=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .85,
+    .85,
+    .85
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xf0b98d
+   })
+  );
+
+ head.position.y=1.1;
+
+ const leg1=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .35,
+    1,
+    .4
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x222222
+   })
+  );
+
+ leg1.position.set(-.25,-1.2,0);
+
+ const leg2=
+  leg1.clone();
+
+ leg2.position.x=.25;
+
+ const arm1=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .35,
+    1.1,
+    .4
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ arm1.position.set(
+  -.7,
+  .05,
+  0
+ );
+
+ const arm2=
+  arm1.clone();
+
+ arm2.position.x=.7;
+
+ avatarModel.add(
+  body,
+  head,
+  leg1,
+  leg2,
+  arm1,
+  arm2
+ );
+
+ avatarAccessory=
+  createAccessory(accessory);
+
+ if(avatarAccessory)
+  avatarModel.add(avatarAccessory);
+
+ avatarScene.add(avatarModel);
+
+}
+
+
+function createAccessory(type){
+
+ if(type==="cap"){
+
+  const g=new THREE.Group();
+
+  const top=
+   new THREE.Mesh(
+    new THREE.CylinderGeometry(
+     .55,.55,.2,24
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x287de0
+    })
+   );
+
+  top.position.y=1.63;
+
+  const visor=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .65,.08,.35
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x1c5cad
+    })
+   );
+
+  visor.position.set(
+   0,
+   1.55,
+   .3
+  );
+
+  g.add(top,visor);
+
+  return g;
+ }
+
+
+ if(type==="crown"){
+
+  const g=new THREE.Group();
+
+  const crown=
+   new THREE.Mesh(
+    new THREE.ConeGeometry(
+     .65,.5,5
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0xffd43d
+    })
+   );
+
+  crown.position.y=1.7;
+
+  g.add(crown);
+
+  return g;
+ }
+
+
+ if(type==="glasses"){
+
+  const g=new THREE.Group();
+
+  const mat=
+   new THREE.MeshStandardMaterial({
+    color:0x111111
+   });
+
+  const a=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .3,.18,.06
+    ),
+    mat
+   );
+
+  const b=a.clone();
+
+  a.position.set(-.23,1.13,.43);
+  b.position.set(.23,1.13,.43);
+
+  const bar=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .2,.05,.05
+    ),
+    mat
+   );
+
+  bar.position.set(
+   0,
+   1.13,
+   .43
+  );
+
+  g.add(a,b,bar);
+
+  return g;
+ }
+
+
+ if(type==="backpack"){
+
+  const bag=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .75,.9,.25
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x9b3f43
+    })
+   );
+
+  bag.position.set(
+   0,
+   0,
+   -.42
+  );
+
+  return bag;
+ }
+
+
+ return null;
+
+}
+
+
+window.setAccessory=function(type){
+
+ accessory=type;
+
+ buildAvatar();
+
+};
+
+
+$("shirtInput").onchange=e=>{
+
+ const file=e.target.files[0];
+
+ if(!file)
+  return;
+
+ if(file.size>300*1024){
+
+  alert(
+   "La textura supera los 300 KB."
+  );
+
+  e.target.value="";
+
+  return;
+
+ }
+
+ const reader=
+  new FileReader();
+
+ reader.onload=()=>{
+
+  shirtTexture=
+   reader.result;
+
+  playerData.shirtTexture=
+   shirtTexture;
+
+ };
+
+ reader.readAsDataURL(file);
+
+};
+
+
+window.saveAvatar=async()=>{
+
+ if(!currentUser)
+  return;
+
+ playerData.accessory=
+  accessory;
+
+ playerData.shirtTexture=
+  shirtTexture||playerData.shirtTexture||null;
+
+ await updateDoc(
+  doc(db,"players",currentUser.uid),
+  {
+   accessory:playerData.accessory,
+   shirtTexture:playerData.shirtTexture
+  }
+ );
+
+ alert("Avatar guardado.");
+
+};
+
+
+/* MARKETPLACE */
+
+const defaultItems=[
+
+ {
+  id:"cap",
+  name:"Gorra azul",
+  icon:"🧢",
+  price:50,
+  description:"Una gorra azul."
+ },
+
+ {
+  id:"crown",
+  name:"Corona",
+  icon:"👑",
+  price:120,
+  description:"Corona de YEIBUX."
+ },
+
+ {
+  id:"glasses",
+  name:"Gafas",
+  icon:"🕶️",
+  price:80,
+  description:"Gafas oscuras."
+ },
+
+ {
+  id:"backpack",
+  name:"Mochila",
+  icon:"🎒",
+  price:100,
+  description:"Una mochila."
+ }
+
+];
+
+
+async function loadMarketplace(){
+
+ const grid=$("marketGrid");
+
+ grid.innerHTML="";
+
+ defaultItems.forEach(
+  item=>renderItem(item)
+ );
+
+ try{
+
+  const ref=
+   collection(db,"marketItems");
+
+  onSnapshot(ref,snapshot=>{
+
+   snapshot.forEach(snap=>{
+
+    const item={
+     id:snap.id,
+     ...snap.data()
+    };
+
+    if(
+     !document.getElementById(
+      "item-"+item.id
+     )
+    ){
+
+     renderItem(item);
+
+    }
+
+   });
+
+  });
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+}
+
+
+function renderItem(item){
+
+ const grid=$("marketGrid");
+
+ const card=
+  document.createElement("div");
+
+ card.className="card";
+
+ card.id=
+  "item-"+item.id;
+
+ card.innerHTML=`
+
+  <div class="itemIcon">
+   ${item.icon||"🎁"}
+  </div>
+
+  <h3>${escapeHTML(item.name||"Artículo")}</h3>
+
+  <p>${escapeHTML(item.description||"")}</p>
+
+  <p style="color:#ffd54d;font-weight:bold">
+   🪙 ${Number(item.price||0)} YEIBUX
+  </p>
+
+  <button>
+   COMPRAR
+  </button>
+
+ `;
+
+ card.querySelector("button")
+  .onclick=()=>buyItem(item);
+
+ grid.appendChild(card);
+
+}
+
+
+async function buyItem(item){
+
+ const price=
+  Number(item.price||0);
+
+ const balance=
+  Number(playerData.yeibux||0);
+
+ if(balance<price){
+
+  alert("No tienes suficientes YEIBUX.");
+
+  return;
+
+ }
+
+ playerData.yeibux=
+  balance-price;
+
+ ownedItems.push(item.id);
+
+ await updateDoc(
+  doc(db,"players",currentUser.uid),
+  {
+   yeibux:playerData.yeibux,
+   ownedItems
+  }
+ );
+
+ updateUI();
+
+ alert(
+  "Compraste "+item.name+" 🎉"
+ );
+
+}
+
+
+/* CREATE ITEM */
+
+$("createItemButton").onclick=
+ async()=>{
+
+  const name=
+   $("itemName").value.trim();
+
+  const icon=
+   $("itemIcon").value.trim()||"🎁";
+
+  const price=
+   Number($("itemPrice").value);
+
+  const description=
+   $("itemDescription").value.trim();
+
+  if(!name){
+
+   $("createMessage").textContent=
+    "Escribe un nombre.";
+
+   return;
+
+  }
+
+  if(!price||price<1){
+
+   $("createMessage").textContent=
+    "El precio no es válido.";
+
+   return;
+
+  }
+
+  try{
+
+   await addDoc(
+    collection(db,"marketItems"),
+    {
+     name,
+     icon,
+     price,
+     description,
+     creatorId:currentUser.uid,
+     createdAt:serverTimestamp()
+    }
+   );
+
+   $("createMessage").textContent=
+    "Artículo publicado correctamente.";
+
+   $("itemName").value="";
+   $("itemDescription").value="";
+
+  }catch(e){
+
+   console.error(e);
+
+   $("createMessage").textContent=
+    "Error: "+e.message;
+
+  }
+
+ };
+
+
+/* GAME */
+
+window.playGame=function(game){
+
+ currentGame=game;
+
+ $("gameOverlay").classList.add("active");
+
+ const names={
+  parkour:"Parkour Tower",
+  coins:"Coin Rush",
+  obby:"Obby Runner"
+ };
+
+ $("gameName").textContent=
+  names[game]||game;
+
+ startGame();
+
+};
+
+
+$("leaveGame").onclick=
+ async()=>{
+
+  await leaveGame();
+
+ };
+
+
+async function leaveGame(){
+
+ cancelAnimationFrame(gameAnimation);
+
+ gameAnimation=null;
+
+ stopMultiplayer();
+
+ if(gameRenderer){
+
+  gameRenderer.dispose();
+
+ }
+
+ gameRenderer=null;
+ gameScene=null;
+ gameCamera=null;
+ gamePlayer=null;
+
+ $("gameOverlay").classList.remove("active");
+
+ currentGame=null;
+
+}
+
+
+/* THREE GAME */
+
+function startGame(){
+
+ const canvas=
+  $("gameCanvas");
+
+ gameScene=
+  new THREE.Scene();
+
+ gameScene.background=
+  new THREE.Color(0x7db7e8);
+
+ gameCamera=
+  new THREE.PerspectiveCamera(
+   70,
+   innerWidth/innerHeight,
+   .1,
+   500
+  );
+
+ gameCamera.position.set(
+  0,
+  4,
+  8
+ );
+
+ gameRenderer=
+  new THREE.WebGLRenderer({
+   canvas,
+   antialias:true
+  });
+
+ gameRenderer.setSize(
+  innerWidth,
+  innerHeight
+ );
+
+ gameRenderer.setPixelRatio(
+  Math.min(devicePixelRatio,2)
+ );
+
+
+ const light=
+  new THREE.HemisphereLight(
+   0xffffff,
+   0x555555,
+   2
+  );
+
+ gameScene.add(light);
+
+
+ createWorld();
+
+ createPlayer();
+
+ startMultiplayer();
+
+ window.addEventListener(
+  "keydown",
+  keyDown
+ );
+
+ window.addEventListener(
+  "keyup",
+  keyUp
+ );
+
+ window.addEventListener(
+  "resize",
+  resizeGame
+ );
+
+ gameLoop();
+
+}
+
+
+function createWorld(){
+
+ const ground=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    100,
+    .5,
+    100
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x477b3d
+   })
+  );
+
+ ground.position.y=-1;
+
+ gameScene.add(ground);
+
+
+ for(let i=0;i<25;i++){
+
+  const x=
+   (Math.random()-.5)*60;
+
+  const z=
+   (Math.random()-.5)*60;
+
+  const block=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     3,
+     1,
+     3
+    ),
+    new THREE.MeshStandardMaterial({
+     color:
+      i%2?
+       0x5c78a3:
+       0x896c45
+    })
+   );
+
+  block.position.set(
+   x,
+   Math.random()*3,
+   z
+  );
+
+  gameScene.add(block);
+
+ }
+
+}
+
+
+function createPlayer(){
+
+ gamePlayer=
+  new THREE.Group();
+
+ const body=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    1,
+    1.5,
+    .6
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ const head=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .85,.85,.85
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xf0b98d
+   })
+  );
+
+ head.position.y=1.15;
+
+ gamePlayer.add(
+  body,
+  head
+ );
+
+ gamePlayer.position.set(
+  0,
+  0,
+  0
+ );
+
+ gameScene.add(gamePlayer);
+
+}
+
+
+function keyDown(e){
+
+ keys[e.key.toLowerCase()]=true;
+
+}
+
+
+function keyUp(e){
+
+ keys[e.key.toLowerCase()]=false;
+
+}
+
+
+function gameLoop(){
+
+ gameAnimation=
+  requestAnimationFrame(gameLoop);
+
+ if(gamePlayer){
+
+  const speed=.12;
+
+  if(keys.w)
+   gamePlayer.position.z-=speed;
+
+  if(keys.s)
+   gamePlayer.position.z+=speed;
+
+  if(keys.a)
+   gamePlayer.position.x-=speed;
+
+  if(keys.d)
+   gamePlayer.position.x+=speed;
+
+  gameCamera.position.x=
+   gamePlayer.position.x;
+
+  gameCamera.position.z=
+   gamePlayer.position.z+8;
+
+  gameCamera.lookAt(
+   gamePlayer.position.x,
+   gamePlayer.position.y+1,
+   gamePlayer.position.z
+  );
+
+  sendPosition();
+
+ }
+
+ gameRenderer.render(
+  gameScene,
+  gameCamera
+ );
+
+}
+
+
+function resizeGame(){
+
+ if(!gameRenderer)
+  return;
+
+ gameCamera.aspect=
+  innerWidth/innerHeight;
+
+ gameCamera.updateProjectionMatrix();
+
+ gameRenderer.setSize(
+  innerWidth,
+  innerHeight
+ );
+
+}
+
+
+/* MULTIPLAYER */
+
+function startMultiplayer(){
+
+ if(!currentUser||!currentGame)
+  return;
+
+ const ref=
+  collection(
+   db,
+   "rooms",
+   currentGame,
+   "players"
+  );
+
+ onSnapshot(ref,snapshot=>{
+
+  const seen=new Set();
+
+  snapshot.forEach(snap=>{
+
+   const uid=snap.id;
+
+   if(uid===currentUser.uid)
+    return;
+
+   const data=snap.data();
+
+   seen.add(uid);
+
+   remoteData[uid]=data;
+
+   if(!remotePlayers[uid]){
+
+    const model=
+     new THREE.Group();
+
+    const body=
+     new THREE.Mesh(
+      new THREE.BoxGeometry(
+       1,
+       1.5,
+       .6
+      ),
+      new THREE.MeshStandardMaterial({
+       color:0xd34f5f
+      })
+     );
+
+    const head=
+     new THREE.Mesh(
+      new THREE.BoxGeometry(
+       .85,
+       .85,
+       .85
+      ),
+      new THREE.MeshStandardMaterial({
+       color:0xf0b98d
+      })
+     );
+
+    head.position.y=1.15;
+
+    model.add(body,head);
+
+    gameScene.add(model);
+
+    remotePlayers[uid]=model;
+
+   }
+
+   remotePlayers[uid].position.set(
+    Number(data.x||0),
+    Number(data.y||0),
+    Number(data.z||0)
+   );
+
+  });
+
+
+  for(const uid of Object.keys(remotePlayers)){
+
+   if(!seen.has(uid)){
+
+    gameScene.remove(
+     remotePlayers[uid]
+    );
+
+    delete remotePlayers[uid];
+    delete remoteData[uid];
+
+   }
+
+  }
+
+ });
+
+}
+
+
+let lastSend=0;
+
+async function sendPosition(){
+
+ const now=Date.now();
+
+ if(now-lastSend<250)
+  return;
+
+ lastSend=now;
+
+ if(
+  !currentUser||
+  !currentGame||
+  !gamePlayer
+ )
+  return;
+
+ try{
+
+  await setDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   ),
+   {
+    username:
+     playerData.username,
+
+    x:gamePlayer.position.x,
+    y:gamePlayer.position.y,
+    z:gamePlayer.position.z,
+
+    updatedAt:serverTimestamp()
+   }
+  );
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+}
+
+
+async function stopMultiplayer(){
+
+ if(
+  !currentUser||
+  !currentGame
+ )
+  return;
+
+ try{
+
+  await deleteDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   )
+  );
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+ for(const uid of Object.keys(remotePlayers)){
+
+  if(gameScene)
+   gameScene.remove(
+    remotePlayers[uid]
+   );
+
+ }
+
+ remotePlayers={};
+ remoteData={};
+
+}
+
+
+/* MOBILE */
+
+$("mobileJump").onclick=()=>{
+
+ if(gamePlayer){
+
+  gamePlayer.position.y+=1;
+
+  setTimeout(()=>{
+
+   if(gamePlayer)
+    gamePlayer.position.y=
+     Math.max(
+      0,
+      gamePlayer.position.y-1
+     );
+
+  },250);
+
+ }
+
+};
+
+
+let joyActive=false;
+
+const joystick=
+ document.querySelector(".joystick");
+
+const joyDot=
+ document.querySelector(".joyDot");
+
+joystick.addEventListener(
+ "pointerdown",
+ e=>{
+
+  joyActive=true;
+
+  joystick.setPointerCapture(
+   e.pointerId
+  );
+
+ }
+);
+
+joystick.addEventListener(
+ "pointermove",
+ e=>{
+
+  if(!joyActive)
+   return;
+
+  const rect=
+   joystick.getBoundingClientRect();
+
+  const cx=
+   rect.left+rect.width/2;
+
+  const cy=
+   rect.top+rect.height/2;
+
+  let dx=e.clientX-cx;
+  let dy=e.clientY-cy;
+
+  const max=38;
+
+  const length=
+   Math.hypot(dx,dy);
+
+  if(length>max){
+
+   dx=
+    dx/length*max;
+
+   dy=
+    dy/length*max;
+
+  }
+
+  joyDot.style.transform=
+   `translate(${dx}px,${dy}px)`;
+
+  keys.w=dy<-12;
+  keys.s=dy>12;
+  keys.a=dx<-12;
+  keys.d=dx>12;
+
+ }
+);
+
+joystick.addEventListener(
+ "pointerup",
+ ()=>{
+
+  joyActive=false;
+
+  joyDot.style.transform="";
+
+  keys.w=false;
+  keys.s=false;
+  keys.a=false;
+  keys.d=false;
+
+ }
+);
+
+
+/* HTML SAFETY */
+
+function escapeHTML(value){
+
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
 
 </script>
+
+
+<!-- THREE.JS -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BLOXVERSE</title>
+
+<style>
+*{
+ box-sizing:border-box;
+ margin:0;
+ padding:0;
+}
+
+body{
+ font-family:Arial,sans-serif;
+ background:#111827;
+ color:white;
+ overflow:hidden;
+}
+
+button,input{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+.hidden{
+ display:none!important;
+}
+
+/* LOGIN */
+
+#loginScreen{
+ position:fixed;
+ inset:0;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:
+ radial-gradient(circle at top,#263b70,#10131d 60%);
+ z-index:1000;
+}
+
+.loginBox{
+ width:min(430px,92%);
+ background:#181d2b;
+ border:1px solid #30394e;
+ border-radius:22px;
+ padding:32px;
+ box-shadow:0 20px 70px #0008;
+}
+
+.logo{
+ text-align:center;
+ font-size:42px;
+ font-weight:900;
+ letter-spacing:-2px;
+ margin-bottom:8px;
+}
+
+.logo span{
+ color:#5da9ff;
+}
+
+.loginSubtitle{
+ text-align:center;
+ color:#9da8bb;
+ margin-bottom:28px;
+}
+
+.loginBox input{
+ width:100%;
+ padding:14px;
+ margin-bottom:12px;
+ border-radius:12px;
+ border:1px solid #39445b;
+ background:#0f1420;
+ color:white;
+ outline:none;
+}
+
+.loginBox input:focus{
+ border-color:#5da9ff;
+}
+
+.loginButtons{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ margin-top:8px;
+}
+
+.btn{
+ border:0;
+ border-radius:12px;
+ padding:13px;
+ font-weight:bold;
+ color:white;
+ background:#2a3449;
+}
+
+.btn:hover{
+ filter:brightness(1.15);
+}
+
+.btn.primary{
+ background:#287de0;
+}
+
+.btn.green{
+ background:#159447;
+}
+
+#loginError{
+ color:#ff7777;
+ min-height:24px;
+ margin-top:15px;
+ text-align:center;
+ font-size:14px;
+}
+
+/* APP */
+
+#app{
+ position:fixed;
+ inset:0;
+ display:flex;
+}
+
+.sidebar{
+ width:230px;
+ background:#151a26;
+ border-right:1px solid #293246;
+ padding:18px;
+ display:flex;
+ flex-direction:column;
+}
+
+.brand{
+ font-size:27px;
+ font-weight:900;
+ margin:4px 8px 28px;
+}
+
+.brand span{
+ color:#5da9ff;
+}
+
+.nav{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+}
+
+.nav button{
+ text-align:left;
+ border:0;
+ background:transparent;
+ color:#aeb7c9;
+ padding:13px;
+ border-radius:11px;
+}
+
+.nav button:hover,
+.nav button.active{
+ background:#27334a;
+ color:white;
+}
+
+.userCard{
+ margin-top:auto;
+ background:#20283a;
+ padding:14px;
+ border-radius:14px;
+}
+
+.userName{
+ font-weight:bold;
+}
+
+.coins{
+ color:#ffd54d;
+ margin-top:6px;
+ font-weight:bold;
+}
+
+.logout{
+ width:100%;
+ margin-top:10px;
+ background:#3a2027;
+ color:#ff9ba5;
+ border:0;
+ padding:10px;
+ border-radius:10px;
+}
+
+.main{
+ flex:1;
+ overflow:auto;
+ padding:24px;
+}
+
+.topbar{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:24px;
+}
+
+.title{
+ font-size:30px;
+ font-weight:900;
+}
+
+.mobileMenu{
+ display:none;
+}
+
+.section{
+ display:none;
+}
+
+.section.active{
+ display:block;
+}
+
+/* CARDS */
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+ gap:18px;
+}
+
+.card{
+ background:#181e2c;
+ border:1px solid #2b3548;
+ border-radius:18px;
+ padding:16px;
+ transition:.2s;
+}
+
+.card:hover{
+ transform:translateY(-3px);
+ border-color:#4e668d;
+}
+
+.gamePreview{
+ height:130px;
+ border-radius:14px;
+ background:linear-gradient(135deg,#2454a6,#6d42aa);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:45px;
+ margin-bottom:13px;
+}
+
+.card h3{
+ margin-bottom:7px;
+}
+
+.card p{
+ color:#909bad;
+ font-size:14px;
+ margin-bottom:13px;
+}
+
+.card button{
+ width:100%;
+ border:0;
+ padding:11px;
+ border-radius:10px;
+ background:#287de0;
+ color:white;
+ font-weight:bold;
+}
+
+/* AVATAR */
+
+.avatarLayout{
+ display:grid;
+ grid-template-columns:1fr 300px;
+ gap:20px;
+}
+
+.avatarBox{
+ min-height:520px;
+ background:#10151f;
+ border:1px solid #2c3648;
+ border-radius:20px;
+ position:relative;
+ overflow:hidden;
+}
+
+#avatarCanvas{
+ width:100%;
+ height:100%;
+ min-height:520px;
+}
+
+.avatarControls{
+ background:#181e2c;
+ border:1px solid #2c3648;
+ border-radius:18px;
+ padding:18px;
+}
+
+.controlGroup{
+ margin-bottom:18px;
+}
+
+.controlGroup h3{
+ margin-bottom:10px;
+}
+
+.optionGrid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:8px;
+}
+
+.option{
+ background:#252e40;
+ border:1px solid #39465e;
+ color:white;
+ padding:10px;
+ border-radius:9px;
+}
+
+.option:hover{
+ background:#34425c;
+}
+
+.saveBtn{
+ width:100%;
+ padding:12px;
+ border:0;
+ border-radius:10px;
+ background:#159447;
+ color:white;
+ font-weight:bold;
+}
+
+/* MARKET */
+
+.marketTop{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:18px;
+}
+
+.balance{
+ background:#20283a;
+ padding:12px 16px;
+ border-radius:12px;
+ color:#ffd54d;
+ font-weight:bold;
+}
+
+.itemIcon{
+ height:120px;
+ border-radius:14px;
+ background:#222b3c;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ font-size:50px;
+ margin-bottom:12px;
+}
+
+/* CREATE */
+
+.formBox{
+ max-width:600px;
+ background:#181e2c;
+ padding:22px;
+ border-radius:18px;
+ border:1px solid #2b3548;
+}
+
+.formBox input,
+.formBox textarea,
+.formBox select{
+ width:100%;
+ background:#10151f;
+ border:1px solid #354057;
+ color:white;
+ border-radius:10px;
+ padding:12px;
+ margin:7px 0 14px;
+}
+
+.formBox textarea{
+ min-height:120px;
+ resize:vertical;
+}
+
+.info{
+ color:#98a3b7;
+ font-size:13px;
+ line-height:1.5;
+}
+
+/* GAME */
+
+#gameOverlay{
+ position:fixed;
+ inset:0;
+ background:#10151f;
+ z-index:900;
+ display:none;
+}
+
+#gameOverlay.active{
+ display:block;
+}
+
+#gameCanvas{
+ width:100%;
+ height:100%;
+ display:block;
+}
+
+.gameHUD{
+ position:absolute;
+ top:15px;
+ left:15px;
+ right:15px;
+ display:flex;
+ justify-content:space-between;
+ pointer-events:none;
+}
+
+.hudBox{
+ background:#111827dd;
+ border:1px solid #ffffff18;
+ padding:10px 14px;
+ border-radius:12px;
+}
+
+#leaveGame{
+ pointer-events:auto;
+ border:0;
+ background:#b73545;
+ color:white;
+ padding:10px 15px;
+ border-radius:10px;
+ font-weight:bold;
+}
+
+#gameInfo{
+ position:absolute;
+ left:15px;
+ bottom:15px;
+ background:#111827dd;
+ padding:12px;
+ border-radius:12px;
+ color:#d8deea;
+}
+
+#mobileControls{
+ display:none;
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+}
+
+.joystick{
+ position:absolute;
+ left:25px;
+ bottom:30px;
+ width:120px;
+ height:120px;
+ border-radius:50%;
+ background:#ffffff18;
+ border:2px solid #ffffff22;
+ pointer-events:auto;
+}
+
+.joyDot{
+ position:absolute;
+ width:48px;
+ height:48px;
+ border-radius:50%;
+ background:#ffffff44;
+ left:34px;
+ top:34px;
+}
+
+.mobileJump{
+ position:absolute;
+ right:30px;
+ bottom:40px;
+ width:80px;
+ height:80px;
+ border:0;
+ border-radius:50%;
+ background:#287de0cc;
+ color:white;
+ font-weight:bold;
+ pointer-events:auto;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:800px){
+
+ .sidebar{
+  position:fixed;
+  left:-240px;
+  top:0;
+  bottom:0;
+  z-index:800;
+  transition:.2s;
+ }
+
+ .sidebar.open{
+  left:0;
+ }
+
+ .mobileMenu{
+  display:block;
+  border:0;
+  background:#253047;
+  color:white;
+  padding:9px 12px;
+  border-radius:9px;
+ }
+
+ .main{
+  padding:15px;
+ }
+
+ .avatarLayout{
+  grid-template-columns:1fr;
+ }
+
+ .avatarControls{
+  order:2;
+ }
+
+ .loginButtons{
+  grid-template-columns:1fr;
+ }
+
+ #mobileControls{
+  display:block;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginScreen">
+
+ <div class="loginBox">
+
+  <div class="logo">
+   BLOX<span>VERSE</span>
+  </div>
+
+  <div class="loginSubtitle">
+   Tu plataforma de juegos.
+  </div>
+
+  <input
+   id="username"
+   placeholder="Nombre de usuario"
+   autocomplete="username"
+  >
+
+  <input
+   id="password"
+   type="password"
+   placeholder="Contraseña"
+   autocomplete="current-password"
+  >
+
+  <div class="loginButtons">
+
+   <button
+    id="loginButton"
+    class="btn primary">
+    ENTRAR
+   </button>
+
+   <button
+    id="registerButton"
+    class="btn green">
+    CREAR CUENTA
+   </button>
+
+  </div>
+
+  <div id="loginError"></div>
+
+ </div>
+
+</div>
+
+
+<!-- APP -->
+
+<div id="app" class="hidden">
+
+ <aside class="sidebar" id="sidebar">
+
+  <div class="brand">
+   BLOX<span>VERSE</span>
+  </div>
+
+  <div class="nav">
+
+   <button data-section="games" class="active">
+    🎮 Juegos
+   </button>
+
+   <button data-section="avatar">
+    🧍 Avatar
+   </button>
+
+   <button data-section="market">
+    🛒 Marketplace
+   </button>
+
+   <button data-section="create">
+    🛠️ Crear
+   </button>
+
+  </div>
+
+  <div class="userCard">
+
+   <div class="userName" id="sideUsername">
+    Usuario
+   </div>
+
+   <div class="coins">
+    🪙 <span id="sideCoins">0</span> YEIBUX
+   </div>
+
+   <button class="logout" id="logoutButton">
+    Cerrar sesión
+   </button>
+
+  </div>
+
+ </aside>
+
+
+ <main class="main">
+
+  <div class="topbar">
+
+   <button class="mobileMenu" id="mobileMenu">
+    ☰
+   </button>
+
+   <div class="title" id="pageTitle">
+    Juegos
+   </div>
+
+   <div class="balance">
+    🪙 <span id="topCoins">0</span>
+   </div>
+
+  </div>
+
+
+  <!-- GAMES -->
+
+  <section class="section active" id="section-games">
+
+   <div class="grid">
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🏃
+     </div>
+
+     <h3>Parkour Tower</h3>
+
+     <p>
+      Sube la torre y llega hasta la meta.
+     </p>
+
+     <button onclick="playGame('parkour')">
+      JUGAR
+     </button>
+
+    </div>
+
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🪙
+     </div>
+
+     <h3>Coin Rush</h3>
+
+     <p>
+      Recolecta monedas por el mapa.
+     </p>
+
+     <button onclick="playGame('coins')">
+      JUGAR
+     </button>
+
+    </div>
+
+
+    <div class="card">
+
+     <div class="gamePreview">
+      🧱
+     </div>
+
+     <h3>Obby Runner</h3>
+
+     <p>
+      Supera obstáculos y compite.
+     </p>
+
+     <button onclick="playGame('obby')">
+      JUGAR
+     </button>
+
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- AVATAR -->
+
+  <section class="section" id="section-avatar">
+
+   <div class="avatarLayout">
+
+    <div class="avatarBox">
+
+     <canvas id="avatarCanvas"></canvas>
+
+    </div>
+
+    <div class="avatarControls">
+
+     <div class="controlGroup">
+
+      <h3>👕 Ropa</h3>
+
+      <input
+       type="file"
+       id="shirtInput"
+       accept="image/png,image/jpeg,image/webp"
+      >
+
+      <div class="info">
+       Máximo 300 KB.
+      </div>
+
+     </div>
+
+
+     <div class="controlGroup">
+
+      <h3>🧢 Accesorios</h3>
+
+      <div class="optionGrid">
+
+       <button
+        class="option"
+        onclick="setAccessory('none')">
+        Ninguno
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('cap')">
+        🧢 Gorra
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('crown')">
+        👑 Corona
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('glasses')">
+        🕶️ Gafas
+       </button>
+
+       <button
+        class="option"
+        onclick="setAccessory('backpack')">
+        🎒 Mochila
+       </button>
+
+      </div>
+
+     </div>
+
+
+     <button
+      class="saveBtn"
+      onclick="saveAvatar()">
+      💾 GUARDAR AVATAR
+     </button>
+
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- MARKET -->
+
+  <section class="section" id="section-market">
+
+   <div class="marketTop">
+
+    <div>
+     <h2>Marketplace</h2>
+     <p class="info">
+      Compra accesorios usando YEIBUX.
+     </p>
+    </div>
+
+    <div class="balance">
+     🪙 <span id="marketCoins">0</span> YEIBUX
+    </div>
+
+   </div>
+
+
+   <div class="grid" id="marketGrid"></div>
+
+  </section>
+
+
+  <!-- CREATE -->
+
+  <section class="section" id="section-create">
+
+   <div class="formBox">
+
+    <h2>Crear artículo</h2>
+
+    <p class="info">
+     Publica un accesorio sencillo para el marketplace.
+    </p>
+
+    <label>Nombre</label>
+
+    <input
+     id="itemName"
+     placeholder="Ej: Gorra azul"
+    >
+
+    <label>Icono</label>
+
+    <input
+     id="itemIcon"
+     placeholder="🧢"
+     maxlength="4"
+    >
+
+    <label>Precio YEIBUX</label>
+
+    <input
+     id="itemPrice"
+     type="number"
+     min="1"
+     value="50"
+    >
+
+    <label>Descripción</label>
+
+    <textarea
+     id="itemDescription"
+     placeholder="Describe el artículo..."
+    ></textarea>
+
+    <button
+     class="btn primary"
+     id="createItemButton">
+     PUBLICAR
+    </button>
+
+    <p
+     id="createMessage"
+     class="info"
+     style="margin-top:12px">
+    </p>
+
+   </div>
+
+  </section>
+
+ </main>
+
+</div>
+
+
+<!-- GAME -->
+
+<div id="gameOverlay">
+
+ <canvas id="gameCanvas"></canvas>
+
+ <div class="gameHUD">
+
+  <div class="hudBox">
+   🎮 <span id="gameName">Juego</span>
+  </div>
+
+  <button id="leaveGame">
+   SALIR
+  </button>
+
+ </div>
+
+ <div id="gameInfo">
+  WASD para moverte · Mouse para mirar
+ </div>
+
+ <div id="mobileControls">
+
+  <div class="joystick">
+   <div class="joyDot"></div>
+  </div>
+
+  <button class="mobileJump" id="mobileJump">
+   SALTAR
+  </button>
+
+ </div>
+
+</div>
+
+
+<script type="module">
+
+/* FIREBASE */
+
+import {
+ initializeApp
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+ getAuth,
+ signInWithEmailAndPassword,
+ createUserWithEmailAndPassword,
+ signOut
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+ getFirestore,
+ doc,
+ getDoc,
+ setDoc,
+ updateDoc,
+ collection,
+ addDoc,
+ onSnapshot,
+ deleteDoc,
+ serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+ apiKey:
+ "AIzaSyDATz9IGnt97ojeL7TA6IRH489rERDVMgI",
+
+ authDomain:
+ "siano-4d901.firebaseapp.com",
+
+ projectId:
+ "siano-4d901",
+
+ storageBucket:
+ "siano-4d901.firebasestorage.app",
+
+ messagingSenderId:
+ "224378787783",
+
+ appId:
+ "1:224378787783:web:8cf1ef2409e955e0a62be2",
+
+ measurementId:
+ "G-8C4QPQRW6H"
+
+};
+
+
+const firebaseApp =
+ initializeApp(firebaseConfig);
+
+const auth =
+ getAuth(firebaseApp);
+
+const db =
+ getFirestore(firebaseApp);
+
+
+/* VARIABLES */
+
+let currentUser=null;
+let playerData=null;
+
+let accessory="none";
+let shirtTexture=null;
+
+let currentGame=null;
+
+let gameScene=null;
+let gameCamera=null;
+let gameRenderer=null;
+let gamePlayer=null;
+
+let remotePlayers={};
+let remoteData={};
+
+let keys={};
+
+let gameAnimation=null;
+let sendTimer=null;
+
+let avatarScene;
+let avatarCamera;
+let avatarRenderer;
+let avatarModel;
+let avatarAccessory;
+
+let ownedItems=[];
+
+
+/* HELPERS */
+
+const $ = id =>
+ document.getElementById(id);
+
+
+function usernameEmail(username){
+
+ return username
+  .toLowerCase()
+  .replace(/[^a-z0-9._-]/g,"")
+  +"@bloxverse.local";
+
+}
+
+
+function validUsername(username){
+
+ return /^[a-zA-Z0-9_.-]{3,20}$/.test(username);
+
+}
+
+
+function showError(text){
+
+ $("loginError").textContent=text;
+
+}
+
+
+/* LOGIN */
+
+$("loginButton").onclick=async()=>{
+
+ const username=$("username").value.trim();
+ const password=$("password").value;
+
+ showError("");
+
+ if(!validUsername(username)){
+
+  showError(
+   "El usuario debe tener 3-20 caracteres y solo letras, números, _, . o -."
+  );
+
+  return;
+
+ }
+
+ if(password.length<6){
+
+  showError(
+   "La contraseña necesita mínimo 6 caracteres."
+  );
+
+  return;
+
+ }
+
+ $("loginButton").disabled=true;
+ $("registerButton").disabled=true;
+
+ $("loginButton").textContent="ENTRANDO...";
+
+ try{
+
+  const credential =
+   await signInWithEmailAndPassword(
+    auth,
+    usernameEmail(username),
+    password
+   );
+
+  currentUser=credential.user;
+
+  await loadPlayer(username);
+
+  enterLobby();
+
+ }catch(e){
+
+  console.error(e);
+
+  showError(firebaseError(e));
+
+ }finally{
+
+  $("loginButton").disabled=false;
+  $("registerButton").disabled=false;
+
+  $("loginButton").textContent="ENTRAR";
+
+ }
+
+};
+
+
+/* REGISTER */
+
+$("registerButton").onclick=async()=>{
+
+ const username=$("username").value.trim();
+ const password=$("password").value;
+
+ showError("");
+
+ if(!validUsername(username)){
+
+  showError(
+   "El usuario debe tener 3-20 caracteres y solo letras, números, _, . o -."
+  );
+
+  return;
+
+ }
+
+ if(password.length<6){
+
+  showError(
+   "La contraseña necesita mínimo 6 caracteres."
+  );
+
+  return;
+
+ }
+
+ $("loginButton").disabled=true;
+ $("registerButton").disabled=true;
+
+ $("registerButton").textContent="CREANDO...";
+
+ try{
+
+  const credential =
+   await createUserWithEmailAndPassword(
+    auth,
+    usernameEmail(username),
+    password
+   );
+
+  currentUser=credential.user;
+
+  playerData={
+   username,
+   yeibux:100,
+   accessory:"none",
+   shirtTexture:null,
+   createdAt:serverTimestamp(),
+   lastDaily:Date.now()
+  };
+
+  await setDoc(
+   doc(db,"players",currentUser.uid),
+   playerData
+  );
+
+  enterLobby();
+
+ }catch(e){
+
+  console.error(e);
+
+  showError(firebaseError(e));
+
+ }finally{
+
+  $("loginButton").disabled=false;
+  $("registerButton").disabled=false;
+
+  $("registerButton").textContent="CREAR CUENTA";
+
+ }
+
+};
+
+
+function firebaseError(e){
+
+ const errors={
+
+  "auth/invalid-api-key":
+   "La API Key de Firebase no es válida.",
+
+  "auth/api-key-not-valid":
+   "La API Key de Firebase no es válida.",
+
+  "auth/operation-not-allowed":
+   "Activa Email/Password en Firebase Authentication.",
+
+  "auth/email-already-in-use":
+   "Ese usuario ya existe. Usa ENTRAR.",
+
+  "auth/invalid-credential":
+   "Usuario o contraseña incorrectos.",
+
+  "auth/wrong-password":
+   "Contraseña incorrecta.",
+
+  "auth/user-not-found":
+   "La cuenta no existe.",
+
+  "auth/weak-password":
+   "La contraseña debe tener mínimo 6 caracteres.",
+
+  "auth/network-request-failed":
+   "No hay conexión con Firebase.",
+
+  "auth/invalid-email":
+   "El usuario no es válido."
+
+ };
+
+ return errors[e.code] ||
+  "Firebase: "+(e.message||"error desconocido");
+
+}
+
+
+/* LOAD PLAYER */
+
+async function loadPlayer(username){
+
+ const ref=
+  doc(db,"players",currentUser.uid);
+
+ const snap=
+  await getDoc(ref);
+
+ if(!snap.exists()){
+
+  playerData={
+   username,
+   yeibux:100,
+   accessory:"none",
+   shirtTexture:null,
+   lastDaily:Date.now()
+  };
+
+  await setDoc(ref,playerData);
+
+ }else{
+
+  playerData=snap.data();
+
+  if(!playerData.username){
+
+   playerData.username=username;
+
+  }
+
+ }
+
+ checkDailyReward();
+
+ updateUI();
+
+}
+
+
+async function checkDailyReward(){
+
+ const now=Date.now();
+
+ const last=
+  Number(playerData.lastDaily||0);
+
+ const day=86400000;
+
+ if(now-last>=day){
+
+  playerData.yeibux=
+   Number(playerData.yeibux||0)+20;
+
+  playerData.lastDaily=now;
+
+  await updateDoc(
+   doc(db,"players",currentUser.uid),
+   {
+    yeibux:playerData.yeibux,
+    lastDaily:now
+   }
+  );
+
+  updateUI();
+
+ }
+
+}
+
+
+/* LOBBY */
+
+function enterLobby(){
+
+ $("loginScreen").classList.add("hidden");
+ $("app").classList.remove("hidden");
+
+ updateUI();
+
+ loadMarketplace();
+
+}
+
+
+function updateUI(){
+
+ const coins=
+  Number(playerData?.yeibux||0);
+
+ $("sideUsername").textContent=
+  playerData?.username||"Usuario";
+
+ $("sideCoins").textContent=coins;
+ $("topCoins").textContent=coins;
+ $("marketCoins").textContent=coins;
+
+}
+
+
+/* NAV */
+
+document
+ .querySelectorAll(".nav button")
+ .forEach(button=>{
+
+  button.onclick=()=>{
+
+   document
+    .querySelectorAll(".nav button")
+    .forEach(x=>
+     x.classList.remove("active")
+    );
+
+   document
+    .querySelectorAll(".section")
+    .forEach(x=>
+     x.classList.remove("active")
+    );
+
+   button.classList.add("active");
+
+   const section=
+    button.dataset.section;
+
+   $("section-"+section)
+    .classList.add("active");
+
+   const titles={
+    games:"Juegos",
+    avatar:"Avatar",
+    market:"Marketplace",
+    create:"Crear"
+   };
+
+   $("pageTitle").textContent=
+    titles[section];
+
+   $("sidebar").classList.remove("open");
+
+   if(section==="avatar"){
+    setTimeout(initAvatar,50);
+   }
+
+  };
+
+ });
+
+
+$("mobileMenu").onclick=()=>{
+ $("sidebar").classList.toggle("open");
+};
+
+
+/* LOGOUT */
+
+$("logoutButton").onclick=async()=>{
+
+ if(currentGame){
+  await leaveGame();
+ }
+
+ await signOut(auth);
+
+ currentUser=null;
+ playerData=null;
+
+ $("app").classList.add("hidden");
+ $("loginScreen").classList.remove("hidden");
+
+ $("username").value="";
+ $("password").value="";
+ showError("");
+
+};
+
+
+/* AVATAR */
+
+function initAvatar(){
+
+ const canvas=$("avatarCanvas");
+
+ if(!avatarRenderer){
+
+  avatarScene=
+   new THREE.Scene();
+
+  avatarScene.background=
+   new THREE.Color(0x10151f);
+
+  avatarCamera=
+   new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth/canvas.clientHeight,
+    .1,
+    100
+   );
+
+  avatarCamera.position.set(
+   0,
+   1.8,
+   5
+  );
+
+  avatarRenderer=
+   new THREE.WebGLRenderer({
+    canvas,
+    antialias:true,
+    alpha:false
+   });
+
+  avatarRenderer.setPixelRatio(
+   Math.min(devicePixelRatio,2)
+  );
+
+  avatarRenderer.setSize(
+   canvas.clientWidth,
+   canvas.clientHeight,
+   false
+  );
+
+  const light=
+   new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    2
+   );
+
+  avatarScene.add(light);
+
+  const floor=
+   new THREE.Mesh(
+    new THREE.CircleGeometry(2,32),
+    new THREE.MeshStandardMaterial({
+     color:0x222a3a
+    })
+   );
+
+  floor.rotation.x=-Math.PI/2;
+  floor.position.y=-1;
+
+  avatarScene.add(floor);
+
+  buildAvatar();
+
+  function loop(){
+
+   requestAnimationFrame(loop);
+
+   if(avatarModel)
+    avatarModel.rotation.y+=.004;
+
+   avatarRenderer.render(
+    avatarScene,
+    avatarCamera
+   );
+
+  }
+
+  loop();
+
+ }
+
+}
+
+
+function buildAvatar(){
+
+ if(avatarModel)
+  avatarScene.remove(avatarModel);
+
+ avatarModel=
+  new THREE.Group();
+
+ const body=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    1,
+    1.4,
+    .55
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ body.position.y=.0;
+
+ const head=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .85,
+    .85,
+    .85
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xf0b98d
+   })
+  );
+
+ head.position.y=1.1;
+
+ const leg1=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .35,
+    1,
+    .4
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x222222
+   })
+  );
+
+ leg1.position.set(-.25,-1.2,0);
+
+ const leg2=
+  leg1.clone();
+
+ leg2.position.x=.25;
+
+ const arm1=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .35,
+    1.1,
+    .4
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ arm1.position.set(
+  -.7,
+  .05,
+  0
+ );
+
+ const arm2=
+  arm1.clone();
+
+ arm2.position.x=.7;
+
+ avatarModel.add(
+  body,
+  head,
+  leg1,
+  leg2,
+  arm1,
+  arm2
+ );
+
+ avatarAccessory=
+  createAccessory(accessory);
+
+ if(avatarAccessory)
+  avatarModel.add(avatarAccessory);
+
+ avatarScene.add(avatarModel);
+
+}
+
+
+function createAccessory(type){
+
+ if(type==="cap"){
+
+  const g=new THREE.Group();
+
+  const top=
+   new THREE.Mesh(
+    new THREE.CylinderGeometry(
+     .55,.55,.2,24
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x287de0
+    })
+   );
+
+  top.position.y=1.63;
+
+  const visor=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .65,.08,.35
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x1c5cad
+    })
+   );
+
+  visor.position.set(
+   0,
+   1.55,
+   .3
+  );
+
+  g.add(top,visor);
+
+  return g;
+ }
+
+
+ if(type==="crown"){
+
+  const g=new THREE.Group();
+
+  const crown=
+   new THREE.Mesh(
+    new THREE.ConeGeometry(
+     .65,.5,5
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0xffd43d
+    })
+   );
+
+  crown.position.y=1.7;
+
+  g.add(crown);
+
+  return g;
+ }
+
+
+ if(type==="glasses"){
+
+  const g=new THREE.Group();
+
+  const mat=
+   new THREE.MeshStandardMaterial({
+    color:0x111111
+   });
+
+  const a=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .3,.18,.06
+    ),
+    mat
+   );
+
+  const b=a.clone();
+
+  a.position.set(-.23,1.13,.43);
+  b.position.set(.23,1.13,.43);
+
+  const bar=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .2,.05,.05
+    ),
+    mat
+   );
+
+  bar.position.set(
+   0,
+   1.13,
+   .43
+  );
+
+  g.add(a,b,bar);
+
+  return g;
+ }
+
+
+ if(type==="backpack"){
+
+  const bag=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     .75,.9,.25
+    ),
+    new THREE.MeshStandardMaterial({
+     color:0x9b3f43
+    })
+   );
+
+  bag.position.set(
+   0,
+   0,
+   -.42
+  );
+
+  return bag;
+ }
+
+
+ return null;
+
+}
+
+
+window.setAccessory=function(type){
+
+ accessory=type;
+
+ buildAvatar();
+
+};
+
+
+$("shirtInput").onchange=e=>{
+
+ const file=e.target.files[0];
+
+ if(!file)
+  return;
+
+ if(file.size>300*1024){
+
+  alert(
+   "La textura supera los 300 KB."
+  );
+
+  e.target.value="";
+
+  return;
+
+ }
+
+ const reader=
+  new FileReader();
+
+ reader.onload=()=>{
+
+  shirtTexture=
+   reader.result;
+
+  playerData.shirtTexture=
+   shirtTexture;
+
+ };
+
+ reader.readAsDataURL(file);
+
+};
+
+
+window.saveAvatar=async()=>{
+
+ if(!currentUser)
+  return;
+
+ playerData.accessory=
+  accessory;
+
+ playerData.shirtTexture=
+  shirtTexture||playerData.shirtTexture||null;
+
+ await updateDoc(
+  doc(db,"players",currentUser.uid),
+  {
+   accessory:playerData.accessory,
+   shirtTexture:playerData.shirtTexture
+  }
+ );
+
+ alert("Avatar guardado.");
+
+};
+
+
+/* MARKETPLACE */
+
+const defaultItems=[
+
+ {
+  id:"cap",
+  name:"Gorra azul",
+  icon:"🧢",
+  price:50,
+  description:"Una gorra azul."
+ },
+
+ {
+  id:"crown",
+  name:"Corona",
+  icon:"👑",
+  price:120,
+  description:"Corona de YEIBUX."
+ },
+
+ {
+  id:"glasses",
+  name:"Gafas",
+  icon:"🕶️",
+  price:80,
+  description:"Gafas oscuras."
+ },
+
+ {
+  id:"backpack",
+  name:"Mochila",
+  icon:"🎒",
+  price:100,
+  description:"Una mochila."
+ }
+
+];
+
+
+async function loadMarketplace(){
+
+ const grid=$("marketGrid");
+
+ grid.innerHTML="";
+
+ defaultItems.forEach(
+  item=>renderItem(item)
+ );
+
+ try{
+
+  const ref=
+   collection(db,"marketItems");
+
+  onSnapshot(ref,snapshot=>{
+
+   snapshot.forEach(snap=>{
+
+    const item={
+     id:snap.id,
+     ...snap.data()
+    };
+
+    if(
+     !document.getElementById(
+      "item-"+item.id
+     )
+    ){
+
+     renderItem(item);
+
+    }
+
+   });
+
+  });
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+}
+
+
+function renderItem(item){
+
+ const grid=$("marketGrid");
+
+ const card=
+  document.createElement("div");
+
+ card.className="card";
+
+ card.id=
+  "item-"+item.id;
+
+ card.innerHTML=`
+
+  <div class="itemIcon">
+   ${item.icon||"🎁"}
+  </div>
+
+  <h3>${escapeHTML(item.name||"Artículo")}</h3>
+
+  <p>${escapeHTML(item.description||"")}</p>
+
+  <p style="color:#ffd54d;font-weight:bold">
+   🪙 ${Number(item.price||0)} YEIBUX
+  </p>
+
+  <button>
+   COMPRAR
+  </button>
+
+ `;
+
+ card.querySelector("button")
+  .onclick=()=>buyItem(item);
+
+ grid.appendChild(card);
+
+}
+
+
+async function buyItem(item){
+
+ const price=
+  Number(item.price||0);
+
+ const balance=
+  Number(playerData.yeibux||0);
+
+ if(balance<price){
+
+  alert("No tienes suficientes YEIBUX.");
+
+  return;
+
+ }
+
+ playerData.yeibux=
+  balance-price;
+
+ ownedItems.push(item.id);
+
+ await updateDoc(
+  doc(db,"players",currentUser.uid),
+  {
+   yeibux:playerData.yeibux,
+   ownedItems
+  }
+ );
+
+ updateUI();
+
+ alert(
+  "Compraste "+item.name+" 🎉"
+ );
+
+}
+
+
+/* CREATE ITEM */
+
+$("createItemButton").onclick=
+ async()=>{
+
+  const name=
+   $("itemName").value.trim();
+
+  const icon=
+   $("itemIcon").value.trim()||"🎁";
+
+  const price=
+   Number($("itemPrice").value);
+
+  const description=
+   $("itemDescription").value.trim();
+
+  if(!name){
+
+   $("createMessage").textContent=
+    "Escribe un nombre.";
+
+   return;
+
+  }
+
+  if(!price||price<1){
+
+   $("createMessage").textContent=
+    "El precio no es válido.";
+
+   return;
+
+  }
+
+  try{
+
+   await addDoc(
+    collection(db,"marketItems"),
+    {
+     name,
+     icon,
+     price,
+     description,
+     creatorId:currentUser.uid,
+     createdAt:serverTimestamp()
+    }
+   );
+
+   $("createMessage").textContent=
+    "Artículo publicado correctamente.";
+
+   $("itemName").value="";
+   $("itemDescription").value="";
+
+  }catch(e){
+
+   console.error(e);
+
+   $("createMessage").textContent=
+    "Error: "+e.message;
+
+  }
+
+ };
+
+
+/* GAME */
+
+window.playGame=function(game){
+
+ currentGame=game;
+
+ $("gameOverlay").classList.add("active");
+
+ const names={
+  parkour:"Parkour Tower",
+  coins:"Coin Rush",
+  obby:"Obby Runner"
+ };
+
+ $("gameName").textContent=
+  names[game]||game;
+
+ startGame();
+
+};
+
+
+$("leaveGame").onclick=
+ async()=>{
+
+  await leaveGame();
+
+ };
+
+
+async function leaveGame(){
+
+ cancelAnimationFrame(gameAnimation);
+
+ gameAnimation=null;
+
+ stopMultiplayer();
+
+ if(gameRenderer){
+
+  gameRenderer.dispose();
+
+ }
+
+ gameRenderer=null;
+ gameScene=null;
+ gameCamera=null;
+ gamePlayer=null;
+
+ $("gameOverlay").classList.remove("active");
+
+ currentGame=null;
+
+}
+
+
+/* THREE GAME */
+
+function startGame(){
+
+ const canvas=
+  $("gameCanvas");
+
+ gameScene=
+  new THREE.Scene();
+
+ gameScene.background=
+  new THREE.Color(0x7db7e8);
+
+ gameCamera=
+  new THREE.PerspectiveCamera(
+   70,
+   innerWidth/innerHeight,
+   .1,
+   500
+  );
+
+ gameCamera.position.set(
+  0,
+  4,
+  8
+ );
+
+ gameRenderer=
+  new THREE.WebGLRenderer({
+   canvas,
+   antialias:true
+  });
+
+ gameRenderer.setSize(
+  innerWidth,
+  innerHeight
+ );
+
+ gameRenderer.setPixelRatio(
+  Math.min(devicePixelRatio,2)
+ );
+
+
+ const light=
+  new THREE.HemisphereLight(
+   0xffffff,
+   0x555555,
+   2
+  );
+
+ gameScene.add(light);
+
+
+ createWorld();
+
+ createPlayer();
+
+ startMultiplayer();
+
+ window.addEventListener(
+  "keydown",
+  keyDown
+ );
+
+ window.addEventListener(
+  "keyup",
+  keyUp
+ );
+
+ window.addEventListener(
+  "resize",
+  resizeGame
+ );
+
+ gameLoop();
+
+}
+
+
+function createWorld(){
+
+ const ground=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    100,
+    .5,
+    100
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x477b3d
+   })
+  );
+
+ ground.position.y=-1;
+
+ gameScene.add(ground);
+
+
+ for(let i=0;i<25;i++){
+
+  const x=
+   (Math.random()-.5)*60;
+
+  const z=
+   (Math.random()-.5)*60;
+
+  const block=
+   new THREE.Mesh(
+    new THREE.BoxGeometry(
+     3,
+     1,
+     3
+    ),
+    new THREE.MeshStandardMaterial({
+     color:
+      i%2?
+       0x5c78a3:
+       0x896c45
+    })
+   );
+
+  block.position.set(
+   x,
+   Math.random()*3,
+   z
+  );
+
+  gameScene.add(block);
+
+ }
+
+}
+
+
+function createPlayer(){
+
+ gamePlayer=
+  new THREE.Group();
+
+ const body=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    1,
+    1.5,
+    .6
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0x4b83d1
+   })
+  );
+
+ const head=
+  new THREE.Mesh(
+   new THREE.BoxGeometry(
+    .85,.85,.85
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xf0b98d
+   })
+  );
+
+ head.position.y=1.15;
+
+ gamePlayer.add(
+  body,
+  head
+ );
+
+ gamePlayer.position.set(
+  0,
+  0,
+  0
+ );
+
+ gameScene.add(gamePlayer);
+
+}
+
+
+function keyDown(e){
+
+ keys[e.key.toLowerCase()]=true;
+
+}
+
+
+function keyUp(e){
+
+ keys[e.key.toLowerCase()]=false;
+
+}
+
+
+function gameLoop(){
+
+ gameAnimation=
+  requestAnimationFrame(gameLoop);
+
+ if(gamePlayer){
+
+  const speed=.12;
+
+  if(keys.w)
+   gamePlayer.position.z-=speed;
+
+  if(keys.s)
+   gamePlayer.position.z+=speed;
+
+  if(keys.a)
+   gamePlayer.position.x-=speed;
+
+  if(keys.d)
+   gamePlayer.position.x+=speed;
+
+  gameCamera.position.x=
+   gamePlayer.position.x;
+
+  gameCamera.position.z=
+   gamePlayer.position.z+8;
+
+  gameCamera.lookAt(
+   gamePlayer.position.x,
+   gamePlayer.position.y+1,
+   gamePlayer.position.z
+  );
+
+  sendPosition();
+
+ }
+
+ gameRenderer.render(
+  gameScene,
+  gameCamera
+ );
+
+}
+
+
+function resizeGame(){
+
+ if(!gameRenderer)
+  return;
+
+ gameCamera.aspect=
+  innerWidth/innerHeight;
+
+ gameCamera.updateProjectionMatrix();
+
+ gameRenderer.setSize(
+  innerWidth,
+  innerHeight
+ );
+
+}
+
+
+/* MULTIPLAYER */
+
+function startMultiplayer(){
+
+ if(!currentUser||!currentGame)
+  return;
+
+ const ref=
+  collection(
+   db,
+   "rooms",
+   currentGame,
+   "players"
+  );
+
+ onSnapshot(ref,snapshot=>{
+
+  const seen=new Set();
+
+  snapshot.forEach(snap=>{
+
+   const uid=snap.id;
+
+   if(uid===currentUser.uid)
+    return;
+
+   const data=snap.data();
+
+   seen.add(uid);
+
+   remoteData[uid]=data;
+
+   if(!remotePlayers[uid]){
+
+    const model=
+     new THREE.Group();
+
+    const body=
+     new THREE.Mesh(
+      new THREE.BoxGeometry(
+       1,
+       1.5,
+       .6
+      ),
+      new THREE.MeshStandardMaterial({
+       color:0xd34f5f
+      })
+     );
+
+    const head=
+     new THREE.Mesh(
+      new THREE.BoxGeometry(
+       .85,
+       .85,
+       .85
+      ),
+      new THREE.MeshStandardMaterial({
+       color:0xf0b98d
+      })
+     );
+
+    head.position.y=1.15;
+
+    model.add(body,head);
+
+    gameScene.add(model);
+
+    remotePlayers[uid]=model;
+
+   }
+
+   remotePlayers[uid].position.set(
+    Number(data.x||0),
+    Number(data.y||0),
+    Number(data.z||0)
+   );
+
+  });
+
+
+  for(const uid of Object.keys(remotePlayers)){
+
+   if(!seen.has(uid)){
+
+    gameScene.remove(
+     remotePlayers[uid]
+    );
+
+    delete remotePlayers[uid];
+    delete remoteData[uid];
+
+   }
+
+  }
+
+ });
+
+}
+
+
+let lastSend=0;
+
+async function sendPosition(){
+
+ const now=Date.now();
+
+ if(now-lastSend<250)
+  return;
+
+ lastSend=now;
+
+ if(
+  !currentUser||
+  !currentGame||
+  !gamePlayer
+ )
+  return;
+
+ try{
+
+  await setDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   ),
+   {
+    username:
+     playerData.username,
+
+    x:gamePlayer.position.x,
+    y:gamePlayer.position.y,
+    z:gamePlayer.position.z,
+
+    updatedAt:serverTimestamp()
+   }
+  );
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+}
+
+
+async function stopMultiplayer(){
+
+ if(
+  !currentUser||
+  !currentGame
+ )
+  return;
+
+ try{
+
+  await deleteDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   )
+  );
+
+ }catch(e){
+
+  console.error(e);
+
+ }
+
+ for(const uid of Object.keys(remotePlayers)){
+
+  if(gameScene)
+   gameScene.remove(
+    remotePlayers[uid]
+   );
+
+ }
+
+ remotePlayers={};
+ remoteData={};
+
+}
+
+
+/* MOBILE */
+
+$("mobileJump").onclick=()=>{
+
+ if(gamePlayer){
+
+  gamePlayer.position.y+=1;
+
+  setTimeout(()=>{
+
+   if(gamePlayer)
+    gamePlayer.position.y=
+     Math.max(
+      0,
+      gamePlayer.position.y-1
+     );
+
+  },250);
+
+ }
+
+};
+
+
+let joyActive=false;
+
+const joystick=
+ document.querySelector(".joystick");
+
+const joyDot=
+ document.querySelector(".joyDot");
+
+joystick.addEventListener(
+ "pointerdown",
+ e=>{
+
+  joyActive=true;
+
+  joystick.setPointerCapture(
+   e.pointerId
+  );
+
+ }
+);
+
+joystick.addEventListener(
+ "pointermove",
+ e=>{
+
+  if(!joyActive)
+   return;
+
+  const rect=
+   joystick.getBoundingClientRect();
+
+  const cx=
+   rect.left+rect.width/2;
+
+  const cy=
+   rect.top+rect.height/2;
+
+  let dx=e.clientX-cx;
+  let dy=e.clientY-cy;
+
+  const max=38;
+
+  const length=
+   Math.hypot(dx,dy);
+
+  if(length>max){
+
+   dx=
+    dx/length*max;
+
+   dy=
+    dy/length*max;
+
+  }
+
+  joyDot.style.transform=
+   `translate(${dx}px,${dy}px)`;
+
+  keys.w=dy<-12;
+  keys.s=dy>12;
+  keys.a=dx<-12;
+  keys.d=dx>12;
+
+ }
+);
+
+joystick.addEventListener(
+ "pointerup",
+ ()=>{
+
+  joyActive=false;
+
+  joyDot.style.transform="";
+
+  keys.w=false;
+  keys.s=false;
+  keys.a=false;
+  keys.d=false;
+
+ }
+);
+
+
+/* HTML SAFETY */
+
+function escapeHTML(value){
+
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+
+<!-- THREE.JS -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 </body>
 </html>
