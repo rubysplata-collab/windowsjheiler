@@ -6,78 +6,50 @@
 <title>BLOXVERSE</title>
 
 <style>
-*{
- box-sizing:border-box;
- margin:0;
- padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,Segoe UI,sans-serif;background:#080c16;color:#fff}
+button,input,select{font:inherit}
+button{cursor:pointer}
 
-html,body{
- width:100%;
- height:100%;
- overflow:hidden;
- font-family:Arial,Segoe UI,sans-serif;
- background:#080c16;
- color:white;
-}
+.screen{position:absolute;inset:0;display:none}
+.screen.active{display:flex}
 
-button,input{
- font:inherit;
-}
-
-.screen{
- position:absolute;
- inset:0;
- display:none;
-}
-
-.screen.active{
- display:flex;
-}
-
-/* ================= LOGIN ================= */
-
+/* LOGIN */
 #loginScreen{
  align-items:center;
  justify-content:center;
  flex-direction:column;
  background:
- radial-gradient(circle at 20% 20%,#173b58 0,#0a1020 35%,#05070d 100%);
+ radial-gradient(circle at 20% 20%,#173b58 0,#0a1020 38%,#05070d 100%);
 }
 
 .logo{
  font-size:52px;
  font-weight:900;
- letter-spacing:4px;
+ letter-spacing:3px;
  color:#00d9ff;
- text-shadow:0 0 25px #00d9ff55;
+ text-shadow:0 0 25px #00d9ff55
 }
-
-.logo span{
- color:#ff3d7f;
-}
+.logo span{color:#ff3d7f}
 
 .subtitle{
- margin-top:6px;
+ margin:7px 0 28px;
  color:#8993b3;
  letter-spacing:2px;
- font-size:13px;
- margin-bottom:30px;
+ font-size:12px
 }
 
 .loginCard{
- width:360px;
- padding:30px;
+ width:370px;
+ max-width:92%;
+ padding:28px;
  border-radius:18px;
  background:#12182a;
- border:1px solid #2c375d;
- box-shadow:0 25px 70px #0009;
+ border:1px solid #303b63;
+ box-shadow:0 25px 70px #0009
 }
 
-.loginCard h2{
- text-align:center;
- margin-bottom:18px;
-}
+.loginCard h2{text-align:center;margin-bottom:18px}
 
 .input{
  width:100%;
@@ -87,85 +59,75 @@ button,input{
  border:1px solid #303b63;
  outline:none;
  background:#080d1b;
- color:white;
+ color:white
 }
 
-.input:focus{
- border-color:#00d9ff;
-}
+.input:focus{border-color:#00d9ff}
 
 .btn{
  width:100%;
  padding:13px;
- border:none;
+ border:0;
  border-radius:9px;
  background:linear-gradient(90deg,#00d9ff,#009cff);
  color:#00121a;
- font-weight:800;
- cursor:pointer;
+ font-weight:900
 }
 
-.btn:hover{
- filter:brightness(1.1);
-}
+.btn:hover{filter:brightness(1.12)}
 
 .error{
- min-height:18px;
+ min-height:20px;
+ margin-top:10px;
  text-align:center;
  color:#ff6487;
- font-size:13px;
- margin-top:10px;
+ font-size:13px
 }
 
-/* ================= LOBBY ================= */
-
+/* LOBBY */
 #lobbyScreen{
  flex-direction:column;
- background:linear-gradient(#090d18,#131a2d);
+ background:linear-gradient(#090d18,#131a2d)
 }
 
 #topbar{
  min-height:64px;
  display:flex;
  align-items:center;
- gap:10px;
- padding:10px 22px;
+ gap:8px;
+ padding:10px 20px;
  background:#080c16ee;
  border-bottom:1px solid #293555;
- flex-wrap:wrap;
+ flex-wrap:wrap
 }
 
 #topbar .logo{
- font-size:22px;
- margin-right:auto;
+ font-size:21px;
+ margin-right:auto
 }
 
 .nav{
- background:transparent;
+ padding:8px 13px;
  border:1px solid #303b63;
- color:#bfc7e4;
- padding:8px 14px;
  border-radius:8px;
- cursor:pointer;
+ background:#0d1323;
+ color:#aeb8d5
 }
 
 .nav.active{
  color:#00d9ff;
  border-color:#00d9ff;
- background:#00d9ff12;
+ background:#00d9ff12
 }
 
 #userInfo{
  display:flex;
  align-items:center;
- gap:10px;
- margin-left:8px;
+ gap:8px;
+ margin-left:7px
 }
 
-#coins{
- color:#ffd700;
- font-weight:800;
-}
+#coins{color:#ffd700;font-weight:900}
 
 #avatarSmall{
  width:34px;
@@ -175,28 +137,39 @@ button,input{
  align-items:center;
  justify-content:center;
  background:linear-gradient(135deg,#00d9ff,#ff3d7f);
- font-weight:900;
+ font-weight:900
 }
 
-.tab{
- display:none;
- flex:1;
- overflow:auto;
- padding:28px;
+#logout{
+ background:#151c30;
+ color:#ff6688;
+ border:1px solid #553047;
+ border-radius:7px;
+ padding:7px 10px
 }
 
-.tab.active{
- display:block;
+.tab{display:none;flex:1;overflow:auto;padding:28px}
+.tab.active{display:block}
+
+/* GAMES */
+.pageTitle{
+ max-width:1100px;
+ margin:0 auto 20px;
+ font-size:28px
 }
 
-/* ================= JUEGOS ================= */
+.pageSub{
+ max-width:1100px;
+ margin:-13px auto 20px;
+ color:#8993b3
+}
 
 #gameGrid{
  max-width:1100px;
  margin:auto;
  display:grid;
  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
- gap:20px;
+ gap:20px
 }
 
 .gameCard{
@@ -204,13 +177,12 @@ button,input{
  border:1px solid #303b63;
  border-radius:15px;
  overflow:hidden;
- cursor:pointer;
- transition:.2s;
+ transition:.2s
 }
 
 .gameCard:hover{
- transform:translateY(-5px);
- border-color:#00d9ff;
+ transform:translateY(-4px);
+ border-color:#00d9ff
 }
 
 .gameImage{
@@ -218,115 +190,108 @@ button,input{
  display:flex;
  align-items:center;
  justify-content:center;
- font-size:60px;
+ font-size:65px
 }
 
-.gameBody{
- padding:16px;
-}
-
-.gameBody h3{
- margin-bottom:7px;
-}
-
-.gameBody p{
- color:#8e97b6;
- font-size:13px;
- line-height:1.5;
-}
+.gameBody{padding:16px}
+.gameBody h3{margin-bottom:7px}
+.gameBody p{color:#8e97b6;font-size:13px;line-height:1.5}
 
 .playTag{
- display:inline-block;
- margin-top:12px;
+ display:block;
+ margin-top:13px;
  color:#00d9ff;
- font-size:12px;
- font-weight:bold;
+ font-weight:bold
 }
 
-/* ================= AVATAR ================= */
-
+/* AVATAR */
 .avatarWrap{
- max-width:1000px;
+ max-width:1050px;
  margin:auto;
  display:flex;
  gap:30px;
- flex-wrap:wrap;
+ flex-wrap:wrap
 }
 
 .avatarPreview{
- width:350px;
- height:440px;
+ width:390px;
+ height:470px;
  background:#101629;
  border:1px solid #303b63;
- border-radius:16px;
+ border-radius:16px
 }
 
-.avatarControls{
- flex:1;
- min-width:280px;
-}
+.avatarControls{flex:1;min-width:280px}
 
-.group{
- margin-bottom:20px;
-}
-
+.group{margin-bottom:20px}
 .group h4{
- color:#c5cce5;
  margin-bottom:10px;
+ color:#c5cce5;
  font-size:13px;
  text-transform:uppercase;
- letter-spacing:1px;
+ letter-spacing:1px
 }
 
-.colors{
- display:flex;
- gap:9px;
- flex-wrap:wrap;
-}
+.colors{display:flex;gap:9px;flex-wrap:wrap}
 
 .color{
- width:35px;
- height:35px;
+ width:36px;
+ height:36px;
  border-radius:50%;
- border:2px solid transparent;
- cursor:pointer;
+ border:2px solid transparent
 }
 
 .color.selected{
  border-color:white;
- box-shadow:0 0 0 2px #00d9ff;
+ box-shadow:0 0 0 2px #00d9ff
+}
+
+.accessories{
+ display:flex;
+ gap:9px;
+ flex-wrap:wrap
 }
 
 .accessory{
- width:70px;
- height:45px;
+ min-width:75px;
+ padding:10px;
  border:1px solid #303b63;
  border-radius:8px;
  background:#11182a;
- color:white;
- cursor:pointer;
+ color:white
 }
 
 .accessory.selected{
  border-color:#00d9ff;
- color:#00d9ff;
+ color:#00d9ff
 }
 
-/* ================= MARKET ================= */
+.upload{
+ display:block;
+ padding:11px;
+ border:1px dashed #45547d;
+ border-radius:8px;
+ color:#aeb8d5;
+ cursor:pointer;
+ margin-bottom:12px
+}
 
+.upload input{display:none}
+
+/* MARKET */
 #marketGrid{
  max-width:1100px;
  margin:auto;
  display:grid;
  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
- gap:18px;
+ gap:18px
 }
 
 .item{
  background:#141a2d;
  border:1px solid #303b63;
  border-radius:14px;
- padding:14px;
+ padding:14px
 }
 
 .itemPreview{
@@ -335,18 +300,14 @@ button,input{
  display:flex;
  align-items:center;
  justify-content:center;
- font-size:50px;
+ font-size:55px;
  margin-bottom:12px;
+ background:#0b1120
 }
 
-.item h3{
- margin-bottom:5px;
-}
-
-.price{
- color:#ffd700;
- font-weight:bold;
-}
+.item h3{margin-bottom:5px}
+.item small{color:#8792b1}
+.price{color:#ffd700;font-weight:bold;margin-top:8px}
 
 .buy{
  margin-top:10px;
@@ -355,20 +316,51 @@ button,input{
  border-radius:7px;
  border:1px solid #00d9ff;
  background:#00d9ff15;
- color:#00d9ff;
- cursor:pointer;
+ color:#00d9ff
 }
 
-/* ================= GAME ================= */
-
-#gameScreen{
- background:#87ceeb;
+.buy.owned{
+ border-color:#4d5a78;
+ color:#7885a5;
+ background:#10172a
 }
+
+/* CREATE */
+.createBox{
+ max-width:600px;
+ margin:auto;
+ padding:22px;
+ border:1px solid #303b63;
+ border-radius:15px;
+ background:#11182a
+}
+
+.createBox label{
+ display:block;
+ color:#9ca7c5;
+ margin:12px 0 6px;
+ font-size:13px
+}
+
+.createBox select,
+.createBox input[type="number"]{
+ width:100%;
+ padding:11px;
+ border-radius:8px;
+ border:1px solid #303b63;
+ background:#080d1b;
+ color:white
+}
+
+/* GAME */
+#gameScreen{background:#87ceeb}
 
 #gameCanvas{
+ position:absolute;
+ inset:0;
  width:100%;
  height:100%;
- display:block;
+ display:block
 }
 
 #gameHud{
@@ -378,14 +370,14 @@ button,input{
  right:15px;
  display:flex;
  justify-content:space-between;
- pointer-events:none;
+ pointer-events:none
 }
 
 .hud{
  background:#090f1dcc;
  border:1px solid #394668;
  border-radius:9px;
- padding:9px 14px;
+ padding:9px 14px
 }
 
 #exitGame{
@@ -396,8 +388,7 @@ button,input{
  color:white;
  border:1px solid #394668;
  border-radius:8px;
- padding:9px 14px;
- cursor:pointer;
+ padding:9px 14px
 }
 
 #roomInfo{
@@ -408,7 +399,7 @@ button,input{
  border:1px solid #394668;
  border-radius:9px;
  padding:10px 14px;
- color:#aeb7d2;
+ color:#aeb7d2
 }
 
 #mobileControls{
@@ -418,58 +409,61 @@ button,input{
  left:20px;
  right:20px;
  justify-content:space-between;
+ pointer-events:none
+}
+
+.mobileGroup{
+ display:flex;
+ gap:8px;
+ pointer-events:auto
 }
 
 .mobileBtn{
  width:60px;
  height:60px;
  border-radius:50%;
- background:#ffffff35;
- border:2px solid #ffffff88;
+ background:#11182acc;
+ border:2px solid #ffffff66;
  color:white;
- font-size:22px;
+ font-size:22px
 }
 
-/* ================= RESPONSIVE ================= */
+#gameMessage{
+ position:absolute;
+ top:50%;
+ left:50%;
+ transform:translate(-50%,-50%);
+ background:#080d1eee;
+ padding:20px 28px;
+ border-radius:13px;
+ border:1px solid #405078;
+ display:none;
+ text-align:center
+}
 
 @media(max-width:700px){
-
- .logo{
-  font-size:36px;
- }
-
- .loginCard{
-  width:90%;
- }
-
- #topbar .logo{
-  width:100%;
- }
-
- .avatarPreview{
-  width:100%;
- }
-
- #mobileControls{
-  display:flex;
- }
+ .logo{font-size:36px}
+ .tab{padding:18px}
+ .avatarPreview{width:100%;height:400px}
+ #mobileControls{display:flex}
+ #topbar .logo{width:100%}
+ #usernameDisplay{display:none}
 }
+
+/* SCROLL */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:#303b63;border-radius:20px}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 
 <section id="loginScreen" class="screen active">
 
- <div class="logo">
-  BLOX<span>VERSE</span>
- </div>
-
- <div class="subtitle">
-  MINIJUEGOS 3D MULTIJUGADOR
- </div>
+ <div class="logo">BLOX<span>VERSE</span></div>
+ <div class="subtitle">MINIJUEGOS 3D · AVATARES · YEIBUX · MULTIJUGADOR</div>
 
  <div class="loginCard">
 
@@ -479,18 +473,18 @@ button,input{
    id="username"
    class="input"
    maxlength="16"
+   autocomplete="username"
    placeholder="Nombre de usuario">
 
   <input
    id="password"
    class="input"
    type="password"
+   autocomplete="current-password"
    placeholder="Contraseña">
 
-  <button
-   id="loginButton"
-   class="btn">
-   ENTRAR / REGISTRARSE
+  <button id="loginButton" class="btn">
+   ENTRAR / CREAR CUENTA
   </button>
 
   <div id="loginError" class="error"></div>
@@ -500,48 +494,43 @@ button,input{
 </section>
 
 
-<!-- LOBBY -->
+<!-- ================= LOBBY ================= -->
 
 <section id="lobbyScreen" class="screen">
 
  <div id="topbar">
 
-  <div class="logo">
-   BLOX<span>VERSE</span>
-  </div>
+  <div class="logo">BLOX<span>VERSE</span></div>
 
-  <button class="nav active" data-tab="games">
-   🎮 JUEGOS
-  </button>
-
-  <button class="nav" data-tab="avatar">
-   🧍 AVATAR
-  </button>
-
-  <button class="nav" data-tab="market">
-   🛒 MARKETPLACE
-  </button>
+  <button class="nav active" data-tab="games">🎮 JUEGOS</button>
+  <button class="nav" data-tab="avatar">🧍 AVATAR</button>
+  <button class="nav" data-tab="market">🛒 MARKET</button>
+  <button class="nav" data-tab="create">🛠️ CREAR</button>
 
   <div id="userInfo">
 
-   <span id="coins">
-    🪙 20 YEIBUX
-   </span>
+   <span id="coins">🪙 20</span>
 
-   <div id="avatarSmall">
-    ?
-   </div>
+   <div id="avatarSmall">?</div>
 
    <span id="usernameDisplay"></span>
+
+   <button id="logout">Salir</button>
 
   </div>
 
  </div>
 
 
- <!-- JUEGOS -->
+ <!-- GAMES -->
 
  <div id="tab-games" class="tab active">
+
+  <h1 class="pageTitle">Juegos</h1>
+
+  <p class="pageSub">
+   Entra a un juego y aparecerás con los demás jugadores que estén jugando el mismo mapa.
+  </p>
 
   <div id="gameGrid"></div>
 
@@ -554,69 +543,53 @@ button,input{
 
   <div class="avatarWrap">
 
-   <canvas
-    id="avatarCanvas"
-    class="avatarPreview">
-   </canvas>
+   <canvas id="avatarCanvas" class="avatarPreview"></canvas>
 
    <div class="avatarControls">
 
     <div class="group">
 
-     <h4>
-      Color de piel
-     </h4>
+     <h4>Color de piel</h4>
 
-     <div
-      id="skinColors"
-      class="colors">
-     </div>
+     <div id="skinColors" class="colors"></div>
 
     </div>
-
 
     <div class="group">
 
-     <h4>
-      Camisa
-     </h4>
+     <h4>Camisa</h4>
 
-     <div
-      id="shirtColors"
-      class="colors">
-     </div>
+     <div id="shirtColors" class="colors"></div>
 
     </div>
-
 
     <div class="group">
 
-     <h4>
-      Pantalón
-     </h4>
+     <h4>Pantalón</h4>
 
-     <div
-      id="pantsColors"
-      class="colors">
-     </div>
+     <div id="pantsColors" class="colors"></div>
 
     </div>
-
 
     <div class="group">
 
-     <h4>
-      Accesorios 3D
-     </h4>
+     <h4>Accesorios 3D</h4>
 
-     <div id="accessories"></div>
+     <div id="accessories" class="accessories"></div>
 
     </div>
 
+    <div class="group">
 
-    <button
-     id="saveAvatar"
-     class="btn">
+     <h4>Textura de camisa</h4>
+
+     <label class="upload">
+      📁 Elegir imagen, máximo 300 KB
+      <input id="shirtTexture" type="file" accept="image/*">
+     </label>
+    </div>
+
+    <button id="saveAvatar" class="btn">
      💾 GUARDAR AVATAR
     </button>
 
@@ -631,14 +604,60 @@ button,input{
 
  <div id="tab-market" class="tab">
 
+  <h1 class="pageTitle">Marketplace</h1>
+
+  <p class="pageSub">
+   Compra objetos usando tus YEIBUX.
+  </p>
+
   <div id="marketGrid"></div>
+
+ </div>
+
+
+ <!-- CREATE -->
+
+ <div id="tab-create" class="tab">
+
+  <h1 class="pageTitle">Crear objeto</h1>
+
+  <div class="createBox">
+
+   <label>Nombre</label>
+
+   <input id="itemName" class="input" maxlength="30" placeholder="Mi objeto">
+
+   <label>Tipo</label>
+
+   <select id="itemType" class="input">
+    <option value="accessory">Accesorio 3D</option>
+    <option value="shirt">Camisa</option>
+    <option value="pants">Pantalón</option>
+   </select>
+
+   <label>Precio YEIBUX</label>
+
+   <input id="itemPrice" type="number" min="1" max="9999" value="25" class="input">
+
+   <label>Color</label>
+
+   <input id="itemColor" type="color" value="#00d9ff"
+    style="width:100%;height:45px;border:0;background:none">
+
+   <button id="publishItem" class="btn">
+    🚀 PUBLICAR OBJETO
+   </button>
+
+   <div id="publishStatus" class="error"></div>
+
+  </div>
 
  </div>
 
 </section>
 
 
-<!-- JUEGO -->
+<!-- ================= GAME ================= -->
 
 <section id="gameScreen" class="screen">
 
@@ -646,47 +665,38 @@ button,input{
 
  <div id="gameHud">
 
-  <div
-   id="hudLeft"
-   class="hud">
-   Jugadores: 1
+  <div id="hudLeft" class="hud">
+   👥 Jugadores: 1
   </div>
 
-  <div
-   id="hudRight"
-   class="hud">
-   00:00
+  <div id="hudRight" class="hud">
+   ⏱️ 00:00
   </div>
 
  </div>
 
- <button id="exitGame">
-  ← SALIR
- </button>
+ <button id="exitGame">← SALIR</button>
 
  <div id="roomInfo">
-  Sala pública
+  🌐 Sala pública
  </div>
+
+ <div id="gameMessage"></div>
 
  <div id="mobileControls">
 
-  <button
-   id="mobileLeft"
-   class="mobileBtn">
-   ◀
-  </button>
+  <div class="mobileGroup">
 
-  <button
-   id="mobileJump"
-   class="mobileBtn">
-   ▲
-  </button>
+   <button id="mobileLeft" class="mobileBtn">◀</button>
+   <button id="mobileRight" class="mobileBtn">▶</button>
 
-  <button
-   id="mobileRight"
-   class="mobileBtn">
-   ▶
-  </button>
+  </div>
+
+  <div class="mobileGroup">
+
+   <button id="mobileJump" class="mobileBtn">▲</button>
+
+  </div>
 
  </div>
 
@@ -695,7 +705,12 @@ button,input{
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+
 <script type="module">
+
+/* =========================================================
+   FIREBASE
+========================================================= */
 
 import {
  initializeApp
@@ -704,7 +719,8 @@ import {
 import {
  getAuth,
  createUserWithEmailAndPassword,
- signInWithEmailAndPassword
+ signInWithEmailAndPassword,
+ signOut
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 import {
@@ -712,333 +728,1683 @@ import {
  doc,
  getDoc,
  setDoc,
+ addDoc,
  collection,
+ onSnapshot,
  getDocs,
- onSnapshot
+ serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 
-/* =====================================================
-   FIREBASE
-===================================================== */
-
-const firebaseConfig = {
-
- apiKey:
- "AIzaSyDAT9zIGnt97ojeL7TA6IRH489rERDVMgI",
-
- authDomain:
- "siano-4d901.firebaseapp.com",
-
- projectId:
- "siano-4d901",
-
- storageBucket:
- "siano-4d901.firebasestorage.app",
-
- messagingSenderId:
- "224378787783",
-
- appId:
- "1:224378787783:web:8cf1ef2409e955e0a62be2",
-
- measurementId:
- "G-8C4QPQRW6H"
-
+const firebaseConfig={
+ apiKey:"AIzaSyDAT9zIGnt97ojeL7TA6IRH489rERDVMgI",
+ authDomain:"siano-4d901.firebaseapp.com",
+ projectId:"siano-4d901",
+ storageBucket:"siano-4d901.firebasestorage.app",
+ messagingSenderId:"224378787783",
+ appId:"1:224378787783:web:8cf1ef2409e955e0a62be2",
+ measurementId:"G-8C4QPQRW6H"
 };
 
-
-const firebaseApp =
- initializeApp(firebaseConfig);
-
-const auth =
- getAuth(firebaseApp);
-
-const db =
- getFirestore(firebaseApp);
+const firebaseApp=initializeApp(firebaseConfig);
+const auth=getAuth(firebaseApp);
+const db=getFirestore(firebaseApp);
 
 
-/* =====================================================
-   DATOS
-===================================================== */
+/* =========================================================
+   ESTADO
+========================================================= */
 
-let currentUser = null;
+let currentUser=null;
 
-let playerData = {
-
+let playerData={
  username:"",
-
  coins:20,
-
+ lastClaim:0,
+ ownedItems:[],
  avatar:{
-
   skin:"#ffcc99",
-
   shirt:"#00a8ff",
-
   pants:"#292d3d",
-
-  accessory:"none"
-
- },
-
- ownedItems:[]
-
+  accessory:"none",
+  shirtTexture:""
+ }
 };
 
+let currentGame=null;
+let roomUnsubscribe=null;
+let gameAnimation=null;
+let lastNetworkUpdate=0;
+let remotePlayers={};
+let remoteData={};
 
-const skins = [
- "#ffcc99",
- "#e0ac69",
- "#c68642",
- "#8d5524",
- "#f1c27d",
- "#ffe0bd"
+let gameScene=null;
+let gameCamera=null;
+let gameRenderer=null;
+let localCharacter=null;
+let clock=null;
+let gameStartTime=0;
+
+let keys={};
+let velocityY=0;
+let onGround=false;
+
+const games=[
+ {
+  id:"parkour",
+  name:"Parkour Tower",
+  emoji:"🏙️",
+  description:"Sube por una torre de plataformas y llega hasta la meta.",
+  color:"#145b8a"
+ },
+ {
+  id:"coinrush",
+  name:"Coin Rush",
+  emoji:"🪙",
+  description:"Recolecta monedas antes de que termine el tiempo.",
+  color:"#705b13"
+ },
+ {
+  id:"obby",
+  name:"Obby Runner",
+  emoji:"🏃",
+  description:"Corre por el circuito evitando los obstáculos.",
+  color:"#631a5c"
+ }
 ];
 
-const shirts = [
- "#00a8ff",
- "#ff3d7f",
- "#ffd700",
- "#00ff88",
- "#6a5cff",
- "#ffffff",
- "#252535"
+const skins=[
+ "#ffcc99","#e0ac69","#c68642",
+ "#8d5524","#f1c27d","#ffe0bd"
 ];
 
-const pants = [
- "#292d3d",
- "#182b4a",
- "#4a321f",
- "#111111",
- "#556b2f",
- "#555555"
+const shirts=[
+ "#00a8ff","#ff3d7f","#ffd700",
+ "#00ff88","#6a5cff","#ffffff","#252535"
+];
+
+const pants=[
+ "#292d3d","#182b4a","#4a321f",
+ "#111111","#556b2f","#555555"
+];
+
+const accessories=[
+ {id:"none",name:"Ninguno"},
+ {id:"cap",name:"Gorra"},
+ {id:"crown",name:"Corona"},
+ {id:"glasses",name:"Gafas"},
+ {id:"backpack",name:"Mochila"}
 ];
 
 
-/* =====================================================
-   LOGIN CON FIREBASE AUTH
-===================================================== */
+/* =========================================================
+   UTILIDADES
+========================================================= */
 
-function fakeEmail(username){
+function $(id){
+ return document.getElementById(id);
+}
 
- return username
-  .toLowerCase()
-  .replace(/[^a-z0-9]/g,"")
-  +"@bloxverse.local";
+function showScreen(id){
+ document.querySelectorAll(".screen")
+ .forEach(x=>x.classList.remove("active"));
 
+ $(id).classList.add("active");
+}
+
+function usernameEmail(name){
+ return name
+ .toLowerCase()
+ .replace(/[^a-z0-9]/g,"")
+ +"@bloxverse.local";
+}
+
+function updateCoins(){
+ $("coins").textContent="🪙 "+playerData.coins+" YEIBUX";
+}
+
+function escapeHTML(text){
+ return String(text)
+ .replaceAll("&","&amp;")
+ .replaceAll("<","&lt;")
+ .replaceAll(">","&gt;")
+ .replaceAll('"',"&quot;");
 }
 
 
-document
-.getElementById("loginButton")
-.addEventListener("click",async()=>{
+/* =========================================================
+   LOGIN
+========================================================= */
 
- const username =
-  document.getElementById("username")
-  .value
-  .trim();
+$("loginButton").onclick=async()=>{
 
- const password =
-  document.getElementById("password")
-  .value;
-
- const error =
-  document.getElementById("loginError");
-
+ const username=$("username").value.trim();
+ const password=$("password").value;
+ const error=$("loginError");
 
  error.textContent="";
 
-
  if(username.length<3){
-
-  error.textContent=
-   "El nombre debe tener mínimo 3 caracteres.";
-
+  error.textContent="El nombre necesita mínimo 3 caracteres.";
   return;
-
  }
-
 
  if(password.length<6){
-
-  error.textContent=
-   "La contraseña necesita mínimo 6 caracteres.";
-
+  error.textContent="La contraseña necesita mínimo 6 caracteres.";
   return;
-
  }
 
+ const email=usernameEmail(username);
 
- const email =
-  fakeEmail(username);
-
+ $("loginButton").disabled=true;
+ $("loginButton").textContent="CARGANDO...";
 
  try{
 
+  let credential;
+
   try{
 
-   const credential =
-    await signInWithEmailAndPassword(
-     auth,
-     email,
-     password
-    );
+   credential=await signInWithEmailAndPassword(
+    auth,email,password
+   );
 
-   currentUser =
-    credential.user;
+  }catch(e){
 
-  }catch(loginError){
-
-   const credential =
-    await createUserWithEmailAndPassword(
-     auth,
-     email,
-     password
-    );
-
-   currentUser =
-    credential.user;
+   credential=await createUserWithEmailAndPassword(
+    auth,email,password
+   );
 
   }
 
+  currentUser=credential.user;
 
-  await loadPlayer();
+  await loadPlayer(username);
 
   enterLobby();
 
+ }catch(e){
 
- }catch(errorFirebase){
+  console.error(e);
 
-  console.error(errorFirebase);
+  if(e.code==="auth/wrong-password"){
+   error.textContent="Contraseña incorrecta.";
+  }else if(e.code==="auth/email-already-in-use"){
+   error.textContent="Ese usuario ya existe y la contraseña no coincide.";
+  }else{
+   error.textContent="Firebase: "+(e.message||"error");
+  }
 
-  error.textContent=
-   "No se pudo iniciar sesión.";
+ }finally{
+
+  $("loginButton").disabled=false;
+  $("loginButton").textContent="ENTRAR / CREAR CUENTA";
 
  }
 
-});
+};
 
 
-/* =====================================================
-   PLAYER FIRESTORE
-===================================================== */
+async function loadPlayer(username){
 
-async function loadPlayer(){
-
- const ref =
-  doc(
-   db,
-   "players",
-   currentUser.uid
-  );
-
- const snap =
-  await getDoc(ref);
-
+ const ref=doc(db,"players",currentUser.uid);
+ const snap=await getDoc(ref);
 
  if(snap.exists()){
 
-  playerData =
-   Object.assign(
-    playerData,
-    snap.data()
-   );
+  const data=snap.data();
+
+  playerData={
+   ...playerData,
+   ...data,
+   avatar:{
+    ...playerData.avatar,
+    ...(data.avatar||{})
+   }
+  };
 
  }else{
 
-  playerData.username =
-   document
-   .getElementById("username")
-   .value
-   .trim();
+  playerData.username=username;
 
-  await setDoc(
-   ref,
-   playerData
-  );
+  await setDoc(ref,playerData);
 
  }
 
-}
+ if(!playerData.username)
+  playerData.username=username;
 
-
-async function savePlayer(){
-
- if(!currentUser)
-  return;
-
- await setDoc(
-  doc(
-   db,
-   "players",
-   currentUser.uid
-  ),
-  playerData,
-  {
-   merge:true
-  }
- );
+ updateCoins();
 
 }
 
 
-/* =====================================================
+/* =========================================================
    LOBBY
-===================================================== */
+========================================================= */
 
 function enterLobby(){
 
- document
- .getElementById("usernameDisplay")
- .textContent=
- playerData.username;
+ $("usernameDisplay").textContent=playerData.username;
 
- document
- .getElementById("avatarSmall")
- .textContent=
- playerData.username
- .charAt(0)
- .toUpperCase();
+ $("avatarSmall").textContent=
+ playerData.username.charAt(0).toUpperCase();
 
  updateCoins();
 
  buildGames();
-
  buildAvatar();
-
  buildMarketplace();
 
  showScreen("lobbyScreen");
 
 }
 
+document.querySelectorAll(".nav").forEach(button=>{
 
-function updateCoins(){
+ button.onclick=()=>{
 
- document
- .getElementById("coins")
- .textContent=
- "🪙 "+
- playerData.coins+
- " YEIBUX";
+  document.querySelectorAll(".nav")
+  .forEach(x=>x.classList.remove("active"));
+
+  document.querySelectorAll(".tab")
+  .forEach(x=>x.classList.remove("active"));
+
+  button.classList.add("active");
+
+  $("tab-"+button.dataset.tab)
+  .classList.add("active");
+
+ };
+
+});
+
+
+$("logout").onclick=async()=>{
+
+ await leaveGame();
+
+ try{
+  await signOut(auth);
+ }catch(e){}
+
+ location.reload();
+
+};
+
+
+/* =========================================================
+   JUEGOS
+========================================================= */
+
+function buildGames(){
+
+ $("gameGrid").innerHTML="";
+
+ games.forEach(game=>{
+
+  const card=document.createElement("div");
+  card.className="gameCard";
+
+  card.innerHTML=`
+   <div class="gameImage" style="background:${game.color}">
+    ${game.emoji}
+   </div>
+   <div class="gameBody">
+    <h3>${game.name}</h3>
+    <p>${game.description}</p>
+    <span class="playTag">▶ JUGAR MULTIJUGADOR</span>
+   </div>
+  `;
+
+  card.onclick=()=>startGame(game.id);
+
+  $("gameGrid").appendChild(card);
+
+ });
 
 }
 
 
-function showScreen(id){
+/* =========================================================
+   AVATAR EDITOR
+========================================================= */
 
- document
- .querySelectorAll(".screen")
- .forEach(
-  s=>s.classList.remove("active")
+let avatarRenderer;
+let avatarScene;
+let avatarCamera;
+let avatarGroup;
+let avatarLight;
+
+function setupAvatarPreview(){
+
+ const canvas=$("avatarCanvas");
+
+ avatarRenderer=new THREE.WebGLRenderer({
+  canvas,
+  antialias:true,
+  alpha:true
+ });
+
+ avatarRenderer.setPixelRatio(
+  Math.min(devicePixelRatio,2)
  );
 
- document
- .getElementById(id)
- .classList.add("active");
+ avatarScene=new THREE.Scene();
+
+ avatarCamera=new THREE.PerspectiveCamera(
+  35,
+  390/470,
+  .1,
+  100
+ );
+
+ avatarCamera.position.set(0,1.8,5);
+
+ avatarLight=new THREE.HemisphereLight(
+  0xffffff,
+  0x223344,
+  2
+ );
+
+ avatarScene.add(avatarLight);
+
+ const light=new THREE.DirectionalLight(
+  0xffffff,2
+ );
+
+ light.position.set(3,5,4);
+ avatarScene.add(light);
+
+ avatarGroup=new THREE.Group();
+ avatarScene.add(avatarGroup);
+
+ rebuildAvatarPreview();
+
+ function animate(){
+
+  requestAnimationFrame(animate);
+
+  if(avatarGroup){
+   avatarGroup.rotation.y+=.008;
+  }
+
+  avatarRenderer.render(
+   avatarScene,
+   avatarCamera
+  );
+
+ }
+
+ animate();
+
+}
+
+function clearGroup(group){
+
+ while(group.children.length){
+  group.remove(group.children[0]);
+ }
 
 }
 
 
+function material(color){
+
+ return new THREE.MeshStandardMaterial({
+  color:new THREE.Color(color),
+  roughness:.72
+ });
+
+}
+
+
+function createCharacter(data,scale=1){
+
+ const group=new THREE.Group();
+
+ const skin=material(data.skin||"#ffcc99");
+ const shirt=material(data.shirt||"#00a8ff");
+ const pants=material(data.pants||"#292d3d");
+
+ const torso=new THREE.Mesh(
+  new THREE.BoxGeometry(1.05,1.15,.55),
+  shirt
+ );
+
+ torso.position.y=1.75;
+ group.add(torso);
+
+ const head=new THREE.Mesh(
+  new THREE.SphereGeometry(.43,20,16),
+  skin
+ );
+
+ head.position.y=2.65;
+ group.add(head);
+
+ const armGeo=new THREE.BoxGeometry(.35,1.05,.38);
+
+ const arm1=new THREE.Mesh(armGeo,skin);
+ arm1.position.set(-.7,1.78,0);
+ group.add(arm1);
+
+ const arm2=new THREE.Mesh(armGeo,skin);
+ arm2.position.set(.7,1.78,0);
+ group.add(arm2);
+
+ const legGeo=new THREE.BoxGeometry(.42,1.05,.42);
+
+ const leg1=new THREE.Mesh(legGeo,pants);
+ leg1.position.set(-.28,.65,0);
+ group.add(leg1);
+
+ const leg2=new THREE.Mesh(legGeo,pants);
+ leg2.position.set(.28,.65,0);
+ group.add(leg2);
+
+ addAccessory(group,data.accessory||"none");
+
+ group.scale.setScalar(scale);
+
+ return group;
+
+}
+
+
+function addAccessory(group,type){
+
+ if(type==="none") return;
+
+ if(type==="cap"){
+
+  const brim=new THREE.Mesh(
+   new THREE.BoxGeometry(.9,.12,.65),
+   material("#222222")
+  );
+
+  brim.position.y=3.04;
+  group.add(brim);
+
+  const top=new THREE.Mesh(
+   new THREE.BoxGeometry(.7,.25,.6),
+   material("#222222")
+  );
+
+  top.position.y=3.18;
+  group.add(top);
+
+ }
+
+ if(type==="crown"){
+
+  const crown=new THREE.Mesh(
+   new THREE.ConeGeometry(.5,.4,5),
+   material("#ffd700")
+  );
+
+  crown.position.y=3.18;
+  group.add(crown);
+
+ }
+
+ if(type==="glasses"){
+
+  const g=material("#111111");
+
+  const a=new THREE.Mesh(
+   new THREE.BoxGeometry(.3,.16,.08),g
+  );
+
+  const b=a.clone();
+
+  a.position.set(-.2,2.7,-.41);
+  b.position.set(.2,2.7,-.41);
+
+  group.add(a,b);
+
+  const bridge=new THREE.Mesh(
+   new THREE.BoxGeometry(.18,.06,.06),g
+  );
+
+  bridge.position.set(0,2.7,-.43);
+
+  group.add(bridge);
+
+ }
+
+ if(type==="backpack"){
+
+  const bag=new THREE.Mesh(
+   new THREE.BoxGeometry(.75,.85,.25),
+   material("#5a3030")
+  );
+
+  bag.position.set(0,1.75,.42);
+  group.add(bag);
+
+ }
+
+}
+
+
+function rebuildAvatarPreview(){
+
+ if(!avatarGroup) return;
+
+ clearGroup(avatarGroup);
+
+ const character=createCharacter(
+  playerData.avatar,
+  1
+ );
+
+ avatarGroup.add(character);
+
+}
+
+
+function makeColorButtons(container,colors,key){
+
+ $(container).innerHTML="";
+
+ colors.forEach(c=>{
+
+  const b=document.createElement("button");
+
+  b.className="color";
+
+  b.style.background=c;
+
+  if(playerData.avatar[key]===c)
+   b.classList.add("selected");
+
+  b.onclick=()=>{
+
+   playerData.avatar[key]=c;
+
+   buildAvatar();
+   rebuildAvatarPreview();
+
+  };
+
+  $(container).appendChild(b);
+
+ });
+
+}
+
+
+function buildAvatar(){
+
+ makeColorButtons(
+  "skinColors",
+  skins,
+  "skin"
+ );
+
+ makeColorButtons(
+  "shirtColors",
+  shirts,
+  "shirt"
+ );
+
+ makeColorButtons(
+  "pantsColors",
+  pants,
+  "pants"
+ );
+
+ $("accessories").innerHTML="";
+
+ accessories.forEach(a=>{
+
+  const b=document.createElement("button");
+
+  b.className="accessory";
+
+  if(playerData.avatar.accessory===a.id)
+   b.classList.add("selected");
+
+  b.textContent=a.name;
+
+  b.onclick=()=>{
+
+   playerData.avatar.accessory=a.id;
+
+   buildAvatar();
+   rebuildAvatarPreview();
+
+  };
+
+  $("accessories").appendChild(b);
+
+ });
+
+}
+
+
+$("shirtTexture").onchange=async event=>{
+
+ const file=event.target.files[0];
+
+ if(!file) return;
+
+ if(file.size>300*1024){
+
+  alert("La textura supera los 300 KB.");
+  event.target.value="";
+  return;
+
+ }
+
+ const reader=new FileReader();
+
+ reader.onload=()=>{
+
+  playerData.avatar.shirtTexture=
+   reader.result;
+
+ };
+
+ reader.readAsDataURL(file);
+
+};
+
+
+$("saveAvatar").onclick=async()=>{
+
+ await savePlayer();
+
+ $("saveAvatar").textContent="✓ GUARDADO";
+
+ setTimeout(()=>{
+  $("saveAvatar").textContent="💾 GUARDAR AVATAR";
+ },1500);
+
+};
+
+
+/* =========================================================
+   FIRESTORE PLAYER
+========================================================= */
+
+async function savePlayer(){
+
+ if(!currentUser)return;
+
+ await setDoc(
+  doc(db,"players",currentUser.uid),
+  playerData,
+  {merge:true}
+ );
+
+}
+
+
+/* =========================================================
+   MARKETPLACE
+========================================================= */
+
+const builtInItems=[
+ {
+  id:"blue_cap",
+  name:"Gorra Azul",
+  type:"accessory",
+  accessory:"cap",
+  color:"#168cff",
+  price:50
+ },
+ {
+  id:"gold_crown",
+  name:"Corona Dorada",
+  type:"accessory",
+  accessory:"crown",
+  color:"#ffd700",
+  price:150
+ },
+ {
+  id:"black_glasses",
+  name:"Gafas",
+  type:"accessory",
+  accessory:"glasses",
+  color:"#111111",
+  price:80
+ },
+ {
+  id:"red_backpack",
+  name:"Mochila Roja",
+  type:"accessory",
+  accessory:"backpack",
+  color:"#d62d45",
+  price:100
+ },
+ {
+  id:"green_shirt",
+  name:"Camisa Verde",
+  type:"shirt",
+  color:"#00c875",
+  price:40
+ },
+ {
+  id:"purple_pants",
+  name:"Pantalón Morado",
+  type:"pants",
+  color:"#6a5cff",
+  price:40
+ }
+];
+
+let customItems=[];
+
+
+async function loadCustomItems(){
+
+ customItems=[];
+
+ try{
+
+  const snap=await getDocs(
+   collection(db,"marketItems")
+  );
+
+  snap.forEach(d=>{
+
+   customItems.push({
+    id:d.id,
+    ...d.data()
+   });
+
+  });
+
+ }catch(e){
+
+  console.warn("Marketplace Firebase:",e);
+
+ }
+
+}
+
+
+async function buildMarketplace(){
+
+ await loadCustomItems();
+
+ const items=[
+  ...builtInItems,
+  ...customItems
+ ];
+
+ $("marketGrid").innerHTML="";
+
+ items.forEach(item=>{
+
+  const owned=
+   playerData.ownedItems.includes(item.id);
+
+  const div=document.createElement("div");
+
+  div.className="item";
+
+  div.innerHTML=`
+   <div class="itemPreview"
+        style="background:${item.color||"#10182a"}">
+     ${
+      item.type==="accessory" ? "👑" :
+      item.type==="shirt" ? "👕" : "👖"
+     }
+   </div>
+
+   <h3>${escapeHTML(item.name||"Objeto")}</h3>
+
+   <small>${item.type}</small>
+
+   <div class="price">
+    🪙 ${Number(item.price)||0}
+   </div>
+
+   <button
+    class="buy ${owned?"owned":""}"
+    ${owned?"disabled":""}>
+    ${owned?"✓ COMPRADO":"COMPRAR"}
+   </button>
+  `;
+
+  div.querySelector(".buy").onclick=()=>{
+   buyItem(item);
+  };
+
+  $("marketGrid").appendChild(div);
+
+ });
+
+}
+
+
+async function buyItem(item){
+
+ if(playerData.ownedItems.includes(item.id)){
+  return;
+ }
+
+ const price=Number(item.price)||0;
+
+ if(playerData.coins<price){
+
+  alert("No tienes suficientes YEIBUX.");
+  return;
+
+ }
+
+ playerData.coins-=price;
+
+ playerData.ownedItems.push(item.id);
+
+ if(item.type==="accessory"){
+  playerData.avatar.accessory=item.accessory||"none";
+ }
+
+ if(item.type==="shirt"){
+  playerData.avatar.shirt=item.color||playerData.avatar.shirt;
+ }
+
+ if(item.type==="pants"){
+  playerData.avatar.pants=item.color||playerData.avatar.pants;
+ }
+
+ await savePlayer();
+
+ updateCoins();
+ buildAvatar();
+ rebuildAvatarPreview();
+ buildMarketplace();
+
+}
+
+
+/* =========================================================
+   CREAR OBJETOS
+========================================================= */
+
+$("publishItem").onclick=async()=>{
+
+ const name=$("itemName").value.trim();
+ const type=$("itemType").value;
+ const price=Math.max(
+  1,
+  Math.min(9999,Number($("itemPrice").value)||1)
+ );
+ const color=$("itemColor").value;
+ const status=$("publishStatus");
+
+ status.textContent="";
+
+ if(name.length<2){
+
+  status.textContent="Ponle un nombre al objeto.";
+  return;
+
+ }
+
+ try{
+
+  const data={
+   name,
+   type,
+   price,
+   color,
+   creatorId:currentUser.uid,
+   creator:playerData.username,
+   createdAt:serverTimestamp()
+  };
+
+  if(type==="accessory"){
+
+   data.accessory="cap";
+
+  }
+
+  const ref=await addDoc(
+   collection(db,"marketItems"),
+   data
+  );
+
+  customItems.push({
+   id:ref.id,
+   ...data
+  });
+
+  status.style.color="#55e6a5";
+  status.textContent="✓ Objeto publicado.";
+
+  $("itemName").value="";
+
+  buildMarketplace();
+
+ }catch(e){
+
+  console.error(e);
+
+  status.style.color="#ff6487";
+  status.textContent="No se pudo publicar.";
+
+ }
+
+};
+
+
+/* =========================================================
+   YEIBUX DIARIOS
+========================================================= */
+
+async function dailyReward(){
+
+ const now=Date.now();
+ const day=86400000;
+
+ if(!playerData.lastClaim ||
+    now-playerData.lastClaim>day){
+
+  playerData.coins+=20;
+  playerData.lastClaim=now;
+
+  await savePlayer();
+
+  updateCoins();
+
+  alert("🎁 Recibiste 20 YEIBUX diarios.");
+
+ }
+
+}
+
+
+/* =========================================================
+   THREE.JS JUEGO
+========================================================= */
+
+function createRenderer(){
+
+ const canvas=$("gameCanvas");
+
+ gameRenderer=new THREE.WebGLRenderer({
+  canvas,
+  antialias:true
+ });
+
+ gameRenderer.setPixelRatio(
+  Math.min(devicePixelRatio,2)
+ );
+
+ gameRenderer.setSize(
+  innerWidth,
+  innerHeight
+ );
+
+}
+
+
+function createGameBase(){
+
+ gameScene=new THREE.Scene();
+
+ gameScene.background=
+  new THREE.Color("#87ceeb");
+
+ gameCamera=new THREE.PerspectiveCamera(
+  70,
+  innerWidth/innerHeight,
+  .1,
+  500
+ );
+
+ gameCamera.position.set(
+  0,5,9
+ );
+
+ const ambient=
+  new THREE.HemisphereLight(
+   0xffffff,
+   0x334455,
+   2
+  );
+
+ gameScene.add(ambient);
+
+ const sun=
+  new THREE.DirectionalLight(
+   0xffffff,
+   2
+  );
+
+ sun.position.set(10,20,10);
+
+ gameScene.add(sun);
+
+ const floor=new THREE.Mesh(
+  new THREE.BoxGeometry(80,1,80),
+  new THREE.MeshStandardMaterial({
+   color:0x38a852
+  })
+ );
+
+ floor.position.y=-.5;
+
+ gameScene.add(floor);
+
+}
+
+
+function box(x,y,z,sx,sy,sz,color){
+
+ const mesh=new THREE.Mesh(
+  new THREE.BoxGeometry(sx,sy,sz),
+  new THREE.MeshStandardMaterial({
+   color
+  })
+ );
+
+ mesh.position.set(x,y,z);
+
+ gameScene.add(mesh);
+
+ return mesh;
+
+}
+
+
+function createParkour(){
+
+ for(let i=0;i<14;i++){
+
+  const x=
+   Math.sin(i*.8)*5;
+
+  const z=
+   -i*4;
+
+  const y=
+   .4+i*.35;
+
+  box(
+   x,y,z,
+   3,0.5,3,
+   0x2798ff
+  );
+
+ }
+
+ box(
+  0,2,-58,
+  7,1,5,
+  0xffd21f
+ );
+
+}
+
+
+function createCoinRush(){
+
+ for(let i=0;i<25;i++){
+
+  const coin=new THREE.Mesh(
+   new THREE.TorusGeometry(
+    .35,.12,10,20
+   ),
+   new THREE.MeshStandardMaterial({
+    color:0xffd700,
+    emissive:0x664400
+   })
+  );
+
+  coin.position.set(
+   (Math.random()-.5)*25,
+   .6+Math.random()*2,
+   -Math.random()*70
+  );
+
+  gameScene.add(coin);
+
+ }
+
+}
+
+
+function createObby(){
+
+ for(let i=0;i<18;i++){
+
+  const z=-i*4;
+
+  box(
+   (i%2===0?3:-3),
+   .5,
+   z,
+   2,
+   1,
+   2,
+   0xff3d7f
+  );
+
+ }
+
+}
+
+
+/* =========================================================
+   PERSONA LOCAL
+========================================================= */
+
+function spawnLocal(){
+
+ localCharacter=createCharacter(
+  playerData.avatar,
+  1
+ );
+
+ localCharacter.position.set(
+  0,
+  0,
+  2
+ );
+
+ gameScene.add(localCharacter);
+
+}
+
+
+function clearGame(){
+
+ if(gameAnimation)
+  cancelAnimationFrame(gameAnimation);
+
+ gameAnimation=null;
+
+ if(gameRenderer){
+
+  gameRenderer.dispose();
+
+  gameRenderer=null;
+
+ }
+
+ remotePlayers={};
+ remoteData={};
+ localCharacter=null;
+ gameScene=null;
+ gameCamera=null;
+
+}
+
+
+/* =========================================================
+   MULTIJUGADOR FIRESTORE
+========================================================= */
+
+function startMultiplayer(){
+
+ if(roomUnsubscribe)
+  roomUnsubscribe();
+
+ const roomRef=collection(
+  db,
+  "rooms",
+  currentGame,
+  "players"
+ );
+
+ roomUnsubscribe=onSnapshot(
+  roomRef,
+  snapshot=>{
+
+   let count=0;
+
+   snapshot.forEach(snap=>{
+
+    const data=snap.data();
+
+    if(snap.id===currentUser.uid)
+     return;
+
+    count++;
+
+    remoteData[snap.id]=data;
+
+    if(!remotePlayers[snap.id]){
+
+     const avatar=createCharacter(
+      data.avatar||playerData.avatar,
+      .85
+     );
+
+     gameScene.add(avatar);
+
+     remotePlayers[snap.id]=avatar;
+
+    }
+
+    const obj=remotePlayers[snap.id];
+
+    obj.position.x=
+     Number(data.x)||0;
+
+    obj.position.y=
+     Number(data.y)||0;
+
+    obj.position.z=
+     Number(data.z)||0;
+
+    obj.rotation.y=
+     Number(data.ry)||0;
+
+   });
+
+   $("hudLeft").textContent=
+    "👥 Jugadores: "+(count+1);
+
+  },
+  error=>{
+   console.warn("Multijugador:",error);
+  }
+ );
+
+}
+
+
+async function sendPosition(){
+
+ if(!currentUser ||
+    !currentGame ||
+    !localCharacter)
+  return;
+
+ const now=Date.now();
+
+ if(now-lastNetworkUpdate<120)
+  return;
+
+ lastNetworkUpdate=now;
+
+ try{
+
+  await setDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   ),
+   {
+    uid:currentUser.uid,
+    username:playerData.username,
+    avatar:playerData.avatar,
+    x:localCharacter.position.x,
+    y:localCharacter.position.y,
+    z:localCharacter.position.z,
+    ry:localCharacter.rotation.y,
+    clientAt:now
+   },
+   {merge:true}
+  );
+
+ }catch(e){
+
+  console.warn(e);
+
+ }
+
+}
+
+
+async function removeFromRoom(){
+
+ if(!currentUser || !currentGame)
+  return;
+
+ try{
+
+  await setDoc(
+   doc(
+    db,
+    "rooms",
+    currentGame,
+    "players",
+    currentUser.uid
+   ),
+   {
+    clientAt:0
+   },
+   {merge:true}
+  );
+
+ }catch(e){}
+
+}
+
+
+/* =========================================================
+   MOVIMIENTO
+========================================================= */
+
+window.addEventListener("keydown",e=>{
+
+ keys[e.code]=true;
+
+ if(
+  ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"]
+  .includes(e.code)
+ ){
+  e.preventDefault();
+ }
+
+});
+
+window.addEventListener("keyup",e=>{
+ keys[e.code]=false;
+});
+
+
+function movement(delta){
+
+ if(!localCharacter)
+  return;
+
+ const speed=7;
+
+ let dx=0;
+ let dz=0;
+
+ if(keys.KeyW||keys.ArrowUp)dz-=1;
+ if(keys.KeyS||keys.ArrowDown)dz+=1;
+ if(keys.KeyA||keys.ArrowLeft)dx-=1;
+ if(keys.KeyD||keys.ArrowRight)dx+=1;
+
+ if(dx||dz){
+
+  const len=Math.hypot(dx,dz);
+
+  dx/=len;
+  dz/=len;
+
+  localCharacter.position.x+=dx*speed*delta;
+  localCharacter.position.z+=dz*speed*delta;
+
+  localCharacter.rotation.y=
+   Math.atan2(dx,dz);
+
+ }
+
+ if(
+  (keys.Space||keys.ArrowUp) &&
+  onGround
+ ){
+
+  velocityY=8;
+  onGround=false;
+
+ }
+
+ velocityY-=20*delta;
+
+ localCharacter.position.y+=velocityY*delta;
+
+ if(localCharacter.position.y<=0){
+
+  localCharacter.position.y=0;
+  velocityY=0;
+  onGround=true;
+
+ }
+
+}
+
+
+function cameraFollow(){
+
+ if(!localCharacter)return;
+
+ const target=new THREE.Vector3(
+  localCharacter.position.x,
+  localCharacter.position.y+3,
+  localCharacter.position.z+7
+ );
+
+ gameCamera.position.lerp(
+  target,
+  .08
+ );
+
+ gameCamera.lookAt(
+  localCharacter.position.x,
+  localCharacter.position.y+1.4,
+  localCharacter.position.z
+ );
+
+}
+
+
+/* =========================================================
+   JUGAR
+========================================================= */
+
+async function startGame(gameId){
+
+ await leaveGame();
+
+ currentGame=gameId;
+
+ showScreen("gameScreen");
+
+ createRenderer();
+ createGameBase();
+
+ if(gameId==="parkour")
+  createParkour();
+
+ if(gameId==="coinrush")
+  createCoinRush();
+
+ if(gameId==="obby")
+  createObby();
+
+ spawnLocal();
+
+ startMultiplayer();
+
+ gameStartTime=Date.now();
+
+ $("roomInfo").textContent=
+  "🌐 Sala: "+gameId+" · Multijugador activo";
+
+ gameLoop();
+
+}
+
+
+function gameLoop(){
+
+ if(!gameRenderer||!gameScene)
+  return;
+
+ gameAnimation=
+  requestAnimationFrame(gameLoop);
+
+ const now=performance.now();
+
+ if(!clock)
+  clock=new THREE.Clock();
+
+ const delta=Math.min(
+  clock.getDelta(),
+  .05
+ );
+
+ movement(delta);
+ cameraFollow();
+
+ if(localCharacter)
+  sendPosition();
+
+ const seconds=Math.floor(
+  (Date.now()-gameStartTime)/1000
+ );
+
+ const min=String(
+  Math.floor(seconds/60)
+ ).padStart(2,"0");
+
+ const sec=String(
+  seconds%60
+ ).padStart(2,"0");
+
+ $("hudRight").textContent=
+  "⏱️ "+min+":"+sec;
+
+ gameRenderer.render(
+  gameScene,
+  gameCamera
+ );
+
+}
+
+
+/* =========================================================
+   SALIR DEL JUEGO
+========================================================= */
+
+$("exitGame").onclick=async()=>{
+
+ await leaveGame();
+
+ showScreen("lobbyScreen");
+
+};
+
+
+async function leaveGame(){
+
+ if(roomUnsubscribe){
+
+  roomUnsubscribe();
+  roomUnsubscribe=null;
+
+ }
+
+ await removeFromRoom();
+
+ currentGame=null;
+
+ if(gameAnimation)
+  cancelAnimationFrame(gameAnimation);
+
+ gameAnimation=null;
+
+ if(gameRenderer){
+
+  gameRenderer.dispose();
+  gameRenderer=null;
+
+ }
+
+ remotePlayers={};
+ remoteData={};
+ localCharacter=null;
+ gameScene=null;
+ gameCamera=null;
+
+ clock=null;
+
+}
+
+
+/* =========================================================
+   BOTONES MÓVILES
+========================================================= */
+
+function mobileKey(id,key){
+
+ const button=$(id);
+
+ button.addEventListener("touchstart",e=>{
+  e.preventDefault();
+  keys[key]=true;
+ });
+
+ button.addEventListener("touchend",e=>{
+  e.preventDefault();
+  keys[key]=false;
+ });
+
+ button.addEventListener("mousedown",()=>{
+  keys[key]=true;
+ });
+
+ button.addEventListener("mouseup",()=>{
+  keys[key]=false;
+ });
+
+ button.addEventListener("mouseleave",()=>{
+  keys[key]=false;
+ });
+
+}
+
+mobileKey("mobileLeft","ArrowLeft");
+mobileKey("mobileRight","ArrowRight");
+mobileKey("mobileJump","Space");
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener("resize",()=>{
+
+ if(gameCamera&&gameRenderer){
+
+  gameCamera.aspect=
+   innerWidth/innerHeight;
+
+  gameCamera.updateProjectionMatrix();
+
+  gameRenderer.setSize(
+   innerWidth,
+   innerHeight
+  );
+
+ }
+
+ if(avatarRenderer&&avatarCamera){
+
+  const canvas=$("avatarCanvas");
+
+  const w=canvas.clientWidth||390;
+  const h=canvas.clientHeight||470;
+
+  avatarCamera.aspect=w/h;
+  avatarCamera.updateProjectionMatrix();
+
+  avatarRenderer.setSize(
+   w,
+   h,
+   false
+  );
+
+ }
+
+});
+
+
+/* =========================================================
+   INICIALIZAR
+========================================================= */
+
+setupAvatarPreview();
+
+dailyReward().catch(()=>{});
+
 </script>
+
+</body>
+</html>
