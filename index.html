@@ -2,522 +2,663 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>XD Social Pro - Salas, Archivos y Juegos</title>
+<title>BLOXVERSE</title>
 <style>
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,sans-serif;
- background:#111;
- color:white;
- height:100vh;
- display:flex;
- justify-content:center;
- align-items:center
-}
-.app{
- width:95%;
- max-width:1050px;
- height:92vh;
- background:#181818;
- border-radius:18px;
- overflow:hidden;
- box-shadow:0 0 30px #000;
- display:flex;
- flex-direction:column;
-}
-.top{
- height:65px;
- background:#202020;
- display:flex;
- align-items:center;
- justify-content:space-between;
- padding:0 20px;
- border-bottom:1px solid #333
-}
-.logo{
- font-size:22px;
- font-weight:bold;
- display:flex;
- gap:15px;
- align-items:center;
-}
-.logo button{
- padding:6px 12px;
- font-size:12px;
- background:#333;
- color:#fff;
-}
-.code{
- background:#292929;
- padding:10px 15px;
- border-radius:10px;
- font-weight:bold
-}
-.screen{
- height:calc(100% - 65px);
- display:flex;
- position:relative;
- overflow:hidden;
-}
-.login{
- width:100%;
- height:100%;
- display:flex;
- flex-direction:column;
- justify-content:center;
- align-items:center;
- gap:15px
-}
-.login h1{
- font-size:35px;
- margin:0
-}
-.login input{
- width:280px;
- padding:14px;
- border:0;
- border-radius:10px;
- background:#292929;
- color:white;
- outline:none
-}
-button{
- border:0;
- border-radius:10px;
- padding:13px 20px;
- cursor:pointer;
- background:#fff;
- color:#111;
- font-weight:bold
-}
-button:hover{opacity:.85}
-.main-chat-area{
- display:none;
- width:100%;
- height:100%;
- display:flex;
-}
-.chat-container{
- flex:1;
- height:100%;
- display:flex;
- flex-direction:column
-}
-.sidebar{
- width:260px;
- background:#1c1c1c;
- border-left:1px solid #333;
- display:flex;
- flex-direction:column;
- padding:15px;
- gap:15px;
- overflow-y:auto;
-}
-.sidebar h3{margin:0 0 5px 0; font-size:14px; opacity:.8;}
-.user-list{
- display:flex;
- flex-direction:column;
- gap:6px;
- font-size:13px;
-}
-.user-item{
- background:#262626;
- padding:8px 10px;
- border-radius:8px;
- display:flex;
- align-items:center;
- gap:8px;
-}
-.dot{width:8px; height:8px; background:#2ecc71; border-radius:50%;}
-.game-box{
- background:#222;
- padding:12px;
- border-radius:10px;
- border:1px solid #333;
- font-size:13px;
- text-align:center;
-}
-.game-box input{
- width:100%;
- padding:8px;
- margin:8px 0;
- background:#111;
- border:1px solid #444;
- color:white;
- border-radius:6px;
- text-align:center;
-}
-.messages{
- flex:1;
- overflow-y:auto;
- padding:20px
-}
-.msg{
- background:#292929;
- padding:10px 14px;
- border-radius:12px;
- margin-bottom:10px;
- max-width:75%;
- word-wrap:break-word
-}
-.me{
- margin-left:auto;
- background:#3a506b
-}
-.name{
- font-size:11px;
- opacity:.6;
- margin-bottom:4px;
- font-weight:bold;
-}
-.msg img{
- max-width:280px;
- border-radius:10px;
- display:block;
- margin-top:6px
-}
-.file-card{
- background:#1b1b1b;
- padding:10px;
- border-radius:8px;
- margin-top:6px;
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:10px;
- border:1px solid #333;
-}
-.file-card a{
- color:#3498db;
- text-decoration:none;
- font-weight:bold;
- font-size:13px;
-}
-.bottom{
- display:flex;
- gap:8px;
- padding:12px;
- background:#202020
-}
-.bottom input[type="text"]{
- flex:1;
- background:#292929;
- color:white;
- border:0;
- outline:none;
- border-radius:10px;
- padding:13px
-}
-.file-btn{
- width:45px;
- background:#292929;
- border-radius:10px;
- display:flex;
- justify-content:center;
- align-items:center;
- cursor:pointer;
- font-size:20px
-}
-#anyFile, #photoInput{display:none}
-.status{
- font-size:12px;
- opacity:.6
-}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;background:#0a0e1a;}
+  #app{position:relative;width:100vw;height:100vh;}
+  .screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;}
+  .screen.active{display:flex;}
+
+  /* LOGIN */
+  #loginScreen{background:linear-gradient(135deg,#1a1f3a 0%,#0a0e1a 100%);align-items:center;justify-content:center;flex-direction:column;}
+  .logo{font-size:52px;font-weight:900;color:#00d9ff;letter-spacing:4px;text-shadow:0 0 30px #00d9ff88;margin-bottom:6px;}
+  .logo span{color:#ff3d7f;}
+  .tagline{color:#8890b0;font-size:14px;margin-bottom:40px;letter-spacing:2px;}
+  .loginCard{background:#151a30;border:1px solid #2a3358;border-radius:16px;padding:36px 40px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+  .loginCard h2{color:#fff;font-size:20px;margin-bottom:20px;text-align:center;}
+  .loginCard input{width:100%;padding:14px;background:#0d1122;border:1px solid #2a3358;border-radius:10px;color:#fff;font-size:15px;margin-bottom:14px;outline:none;transition:border 0.2s;}
+  .loginCard input:focus{border-color:#00d9ff;}
+  .loginCard input::placeholder{color:#5a6288;}
+  .playBtn{width:100%;padding:14px;background:linear-gradient(90deg,#00d9ff,#00a8ff);border:none;border-radius:10px;color:#001420;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:1px;transition:transform 0.15s;}
+  .playBtn:hover{transform:scale(1.02);}
+  .playBtn:active{transform:scale(0.98);}
+  .errMsg{color:#ff5577;font-size:13px;text-align:center;margin-top:10px;height:16px;}
+  .loadingText{color:#00d9ff;font-size:13px;text-align:center;margin-top:10px;height:16px;}
+
+  /* LOBBY */
+  #lobbyScreen{background:linear-gradient(180deg,#0a0e1a 0%,#141a30 100%);flex-direction:column;}
+  #topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;background:rgba(10,14,26,0.8);border-bottom:1px solid #2a3358;}
+  #topbar .logo{font-size:24px;margin:0;}
+  #userBadge{display:flex;align-items:center;gap:10px;color:#c8ceec;font-size:14px;}
+  #avatarCircle{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00d9ff,#ff3d7f);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;}
+  #gameGrid{flex:1;padding:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1000px;margin:0 auto;width:100%;overflow-y:auto;align-content:start;}
+  .gameCard{background:#151a30;border:1px solid #2a3358;border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s, border-color 0.2s;}
+  .gameCard:hover{transform:translateY(-6px);border-color:#00d9ff;}
+  .cardThumb{height:150px;display:flex;align-items:center;justify-content:center;font-size:52px;}
+  .cardBody{padding:16px 18px;}
+  .cardBody h3{color:#fff;font-size:17px;margin-bottom:6px;}
+  .cardBody p{color:#8890b0;font-size:13px;line-height:1.5;}
+  .cardTag{display:inline-block;margin-top:10px;padding:4px 10px;background:#00d9ff22;color:#00d9ff;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:1px;}
+
+  /* GAME */
+  #gameScreen{background:#87ceeb;flex-direction:column;}
+  #gameCanvasWrap{flex:1;position:relative;}
+  canvas{display:block;width:100%;height:100%;}
+  #gameHud{position:absolute;top:0;left:0;width:100%;padding:16px 24px;display:flex;justify-content:space-between;pointer-events:none;}
+  .hudPill{background:rgba(10,14,26,0.75);color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;border:1px solid #2a3358;}
+  #backBtn{position:absolute;top:16px;right:24px;pointer-events:all;background:rgba(10,14,26,0.75);color:#fff;border:1px solid #2a3358;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;}
+  #backBtn:hover{background:#ff3d7f33;border-color:#ff3d7f;}
+  #centerMsg{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;pointer-events:none;text-shadow:0 2px 10px rgba(0,0,0,0.6);}
+  #centerMsg h1{font-size:42px;margin-bottom:8px;}
+  #centerMsg p{font-size:16px;opacity:0.9;}
+  #mobileControls{position:absolute;bottom:24px;left:0;width:100%;display:none;justify-content:space-between;padding:0 24px;pointer-events:none;}
+  .padBtn{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.5);pointer-events:all;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;user-select:none;}
 </style>
 </head>
-
 <body>
+<div id="app">
 
-<div class="app">
+  <div id="loginScreen" class="screen active">
+    <div class="logo">BLOX<span>VERSE</span></div>
+    <div class="tagline">MINIJUEGOS 3D EN TU NAVEGADOR</div>
+    <div class="loginCard">
+      <h2>Elige tu nombre de jugador</h2>
+      <input type="text" id="usernameInput" placeholder="Ej. ShadowRunner99" maxlength="16" autocomplete="off">
+      <button class="playBtn" id="enterBtn">JUGAR AHORA</button>
+      <div class="errMsg" id="errMsg"></div>
+      <div class="loadingText" id="loadingText"></div>
+    </div>
+  </div>
 
-<div class="top">
-<div class="logo">
-  <span>XD Social Pro</span>
-  <button onclick="leaveRoom()" id="leaveBtn" style="display:none;">Salir</button>
-</div>
-<div class="code" id="roomLabel">Sin sala</div>
-</div>
+  <div id="lobbyScreen" class="screen">
+    <div id="topbar">
+      <div class="logo">BLOX<span>VERSE</span></div>
+      <div id="userBadge">
+        <div id="avatarCircle">?</div>
+        <span id="usernameDisplay"></span>
+      </div>
+    </div>
+    <div id="gameGrid"></div>
+  </div>
 
-<div class="screen">
-
-<!-- LOGIN SCREEN -->
-<div class="login" id="login">
-<h1>XD Social Pro</h1>
-<div class="status">Salas P2P con Archivos y Juegos</div>
-<input id="nameInput" placeholder="Tu apodo">
-<input id="roomInput" placeholder="Código: XD-423" maxlength="6">
-<div>
-<button onclick="createRoom()">Crear sala</button>
-<button onclick="joinRoom()">Entrar a sala</button>
-</div>
-</div>
-
-<!-- CHAT & APP SCREEN -->
-<div class="main-chat-area" id="mainChatArea" style="display:none;">
-<div class="chat-container">
-<div class="messages" id="messages"></div>
-<div class="bottom">
-<label class="file-btn" title="Enviar Foto">
-📷
-<input type="file" id="photoInput" accept="image/*">
-</label>
-<label class="file-btn" title="Enviar Archivo (PDF, ZIP, etc.)">
-📎
-<input type="file" id="anyFile">
-</label>
-<input id="textInput" placeholder="Escribe un mensaje...">
-<button onclick="sendMessage()">➤</button>
-</div>
-</div>
-
-<!-- SIDEBAR: USERS & MINI-GAME -->
-<div class="sidebar">
-<div>
-  <h3>Conectados (<span id="userCount">0</span>)</h3>
-  <div class="user-list" id="userList"></div>
-</div>
-
-<div class="game-box">
-  <h3>🎮 Minijuego</h3>
-  <p style="font-size:11px; opacity:0.7; margin:5px 0;">Adivina el número secreto (1 al 50)</p>
-  <input type="number" id="guessInput" placeholder="Tu número">
-  <button onclick="sendGuess()" style="width:100%; padding:8px; font-size:12px; background:#e67e22; color:white;">Probar suerte</button>
-</div>
-</div>
-</div>
+  <div id="gameScreen" class="screen">
+    <div id="gameCanvasWrap">
+      <canvas id="c"></canvas>
+      <div id="gameHud">
+        <div class="hudPill" id="hudLeft">Puntos: 0</div>
+        <div class="hudPill" id="hudRight">00:00</div>
+      </div>
+      <button id="backBtn">← SALIR AL LOBBY</button>
+      <div id="centerMsg"></div>
+      <div id="mobileControls">
+        <div>
+          <div class="padBtn" id="btnLeft" style="position:relative;">◄</div>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <div class="padBtn" id="btnJump">▲</div>
+          <div class="padBtn" id="btnRight">►</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
-</div>
 
-<!-- Firebase SDKs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAcmL4yVG6nlo8An8hbbTGoPfwVfp8yc_I",
-  authDomain: "redsocialxd-a8d91.firebaseapp.com",
-  projectId: "redsocialxd-a8d91",
-  storageBucket: "redsocialxd-a8d91.firebasestorage.app",
-  messagingSenderId: "469773176785",
-  appId: "1:469773176785:web:8d080a707d4b4ebcb99af0",
-  measurementId: "G-DKLKXRVTTF"
+  apiKey: "AIzaSyDAT9zIGnt97ojeL7TA6IRH489rERDVMgI",
+  authDomain: "siano-4d901.firebaseapp.com",
+  projectId: "siano-4d901",
+  storageBucket: "siano-4d901.firebasestorage.app",
+  messagingSenderId: "224378787783",
+  appId: "1:224378787783:web:8cf1ef2409e955e0a62be2",
+  measurementId: "G-8C4QPQRW6H"
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-let currentRoom = "";
-let myName = "";
-let myId = "user_" + Math.random().toString(36).substring(2, 9);
-let unsubMessages = null;
-let unsubUsers = null;
-let secretNum = Math.floor(Math.random() * 50) + 1;
+let currentUser = null;
+let currentUsername = null;
 
-const $ = id => document.getElementById(id);
+const errMsg = document.getElementById('errMsg');
+const loadingText = document.getElementById('loadingText');
+const enterBtn = document.getElementById('enterBtn');
+const usernameInput = document.getElementById('usernameInput');
 
-function randomCode() {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return letters[Math.floor(Math.random() * 26)] + letters[Math.floor(Math.random() * 26)] + "-" + Math.floor(100 + Math.random() * 900);
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-window.createRoom = function() {
-  myName = $("nameInput").value.trim() || "Anónimo";
-  currentRoom = randomCode();
-  startApp();
-};
-
-window.joinRoom = function() {
-  myName = $("nameInput").value.trim() || "Anónimo";
-  let code = $("roomInput").value.trim().toUpperCase();
-  if (!/^[A-Z]{2}-[0-9]{3}$/.test(code)) {
-    alert("El código debe ser formato tipo XD-423");
+enterBtn.addEventListener('click', async ()=>{
+  const name = usernameInput.value.trim();
+  errMsg.textContent = '';
+  if(name.length < 3){
+    errMsg.textContent = 'El nombre debe tener al menos 3 caracteres.';
     return;
   }
-  currentRoom = code;
-  startApp();
-};
+  if(!/^[a-zA-Z0-9_]+$/.test(name)){
+    errMsg.textContent = 'Solo letras, números y guion bajo.';
+    return;
+  }
+  enterBtn.disabled = true;
+  loadingText.textContent = 'Conectando...';
+  try{
+    const cred = await signInAnonymously(auth);
+    currentUser = cred.user;
+    currentUsername = name;
+    await setDoc(doc(db, 'players', currentUser.uid), {
+      username: name,
+      lastLogin: Date.now()
+    }, { merge: true });
+    loadingText.textContent = '';
+    enterLobby(name);
+  }catch(e){
+    console.error(e);
+    errMsg.textContent = 'Error al conectar. Intenta de nuevo.';
+    loadingText.textContent = '';
+    enterBtn.disabled = false;
+  }
+});
 
-async function startApp() {
-  $("roomLabel").textContent = currentRoom;
-  $("login").style.display = "none";
-  $("mainChatArea").style.display = "flex";
-  $("leaveBtn").style.display = "block";
+usernameInput.addEventListener('keydown', e=>{
+  if(e.key === 'Enter') enterBtn.click();
+});
 
-  // Registrar presencia de usuario
-  await setDoc(doc(db, "rooms", currentRoom, "users", myId), { name: myName, active: true });
+function enterLobby(name){
+  document.getElementById('usernameDisplay').textContent = name;
+  document.getElementById('avatarCircle').textContent = name[0].toUpperCase();
+  showScreen('lobbyScreen');
+  buildGameGrid();
+}
 
-  // Escuchar mensajes
-  const qMsg = query(collection(db, "rooms", currentRoom, "messages"), orderBy("timestamp", "asc"));
-  unsubMessages = onSnapshot(qMsg, (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === "added") {
-        renderMessage(change.doc.data());
+const GAMES = [
+  {id:'parkour', icon:'🏔️', title:'Parkour Tower', desc:'Sube la torre saltando plataformas sin caer al vacío.', color:'linear-gradient(135deg,#ff6b6b,#ffa500)'},
+  {id:'coins', icon:'🪙', title:'Coin Rush', desc:'Recolecta todas las monedas del mapa antes de que se acabe el tiempo.', color:'linear-gradient(135deg,#ffd700,#ff8c00)'},
+  {id:'obby', icon:'⚡', title:'Obby Runner', desc:'Esquiva obstáculos giratorios y llega a la meta sin ser golpeado.', color:'linear-gradient(135deg,#00d9ff,#6a5cff)'}
+];
+
+function buildGameGrid(){
+  const grid = document.getElementById('gameGrid');
+  grid.innerHTML = '';
+  GAMES.forEach(g=>{
+    const card = document.createElement('div');
+    card.className = 'gameCard';
+    card.innerHTML = `
+      <div class="cardThumb" style="background:${g.color}">${g.icon}</div>
+      <div class="cardBody">
+        <h3>${g.title}</h3>
+        <p>${g.desc}</p>
+        <span class="cardTag">JUGAR AHORA</span>
+      </div>`;
+    card.onclick = ()=> launchGame(g.id);
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  stopGame();
+  showScreen('lobbyScreen');
+});
+
+// ============ THREE.JS GAME ENGINE ============
+let scene, camera, renderer, clock;
+let animId = null;
+let currentGameId = null;
+let keys = {};
+let mobileMove = {left:false, right:false, jump:false};
+
+const canvas = document.getElementById('c');
+
+function initEngine(){
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87ceeb);
+  scene.fog = new THREE.Fog(0x87ceeb, 30, 90);
+
+  camera = new THREE.PerspectiveCamera(65, canvas.clientWidth/canvas.clientHeight, 0.1, 500);
+
+  renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x444466, 0.9);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(30,50,20);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left = -50;
+  sun.shadow.camera.right = 50;
+  sun.shadow.camera.top = 50;
+  sun.shadow.camera.bottom = -50;
+  scene.add(sun);
+
+  clock = new THREE.Clock();
+}
+
+function clearScene(){
+  if(!scene) return;
+  while(scene.children.length>0) scene.remove(scene.children[0]);
+}
+
+window.addEventListener('resize', ()=>{
+  if(!renderer) return;
+  camera.aspect = canvas.clientWidth/canvas.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+});
+
+document.addEventListener('keydown', e=> keys[e.key.toLowerCase()]=true);
+document.addEventListener('keyup', e=> keys[e.key.toLowerCase()]=false);
+
+function bindMobile(){
+  const bl = document.getElementById('btnLeft');
+  const br = document.getElementById('btnRight');
+  const bj = document.getElementById('btnJump');
+  const set = (el, key, val)=>{
+    ['touchstart','mousedown'].forEach(ev=>el.addEventListener(ev, e=>{e.preventDefault(); mobileMove[key]=val;}));
+    ['touchend','mouseup','mouseleave'].forEach(ev=>el.addEventListener(ev, e=>{e.preventDefault(); mobileMove[key]=false;}));
+  };
+  set(bl,'left',true); set(br,'right',true); set(bj,'jump',true);
+  document.getElementById('mobileControls').style.display = ('ontouchstart' in window) ? 'flex' : 'none';
+}
+bindMobile();
+
+// ---- Humanoid character builder ----
+function buildCharacter(color=0x00a8ff){
+  const group = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({color, roughness:0.6});
+  const skinMat = new THREE.MeshStandardMaterial({color:0xffcc99, roughness:0.7});
+
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.32,0.55,4,8), mat);
+  torso.position.y = 1.0;
+  torso.castShadow = true;
+  group.add(torso);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.28,16,16), skinMat);
+  head.position.y = 1.65;
+  head.castShadow = true;
+  group.add(head);
+
+  function limb(x, isArm){
+    const geo = isArm ? new THREE.CapsuleGeometry(0.09,0.5,4,8) : new THREE.CapsuleGeometry(0.11,0.55,4,8);
+    const m = new THREE.Mesh(geo, isArm?mat:new THREE.MeshStandardMaterial({color:0x2b2b40,roughness:0.6}));
+    m.position.set(x, isArm?1.15:0.4, 0);
+    m.castShadow = true;
+    const pivot = new THREE.Group();
+    pivot.position.set(x, isArm?1.4:0.65,0);
+    m.position.set(0, isArm?-0.28:-0.28, 0);
+    pivot.add(m);
+    return pivot;
+  }
+  const armL = limb(-0.42, true);
+  const armR = limb(0.42, true);
+  const legL = limb(-0.15, false);
+  const legR = limb(0.15, false);
+  group.add(armL, armR, legL, legR);
+
+  group.userData.limbs = {armL, armR, legL, legR};
+  group.userData.walkT = 0;
+  return group;
+}
+
+function animateWalk(char, speed, dt){
+  const {armL,armR,legL,legR} = char.userData.limbs;
+  char.userData.walkT += dt * 8 * Math.min(speed,1.5);
+  const t = char.userData.walkT;
+  const amp = Math.min(speed,1)*0.6;
+  armL.rotation.x = Math.sin(t)*amp;
+  armR.rotation.x = -Math.sin(t)*amp;
+  legL.rotation.x = -Math.sin(t)*amp;
+  legR.rotation.x = Math.sin(t)*amp;
+  if(speed<0.05){
+    armL.rotation.x *= 0.9; armR.rotation.x *= 0.9;
+    legL.rotation.x *= 0.9; legR.rotation.x *= 0.9;
+  }
+}
+
+function stopGame(){
+  if(animId) cancelAnimationFrame(animId);
+  animId = null;
+  currentGameId = null;
+  clearScene();
+}
+
+function launchGame(id){
+  currentGameId = id;
+  showScreen('gameScreen');
+  if(!renderer) initEngine();
+  clearScene();
+  const sun = new THREE.DirectionalLight(0xffffff,1.1);
+  sun.position.set(30,50,20); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-50; sun.shadow.camera.right=50; sun.shadow.camera.top=50; sun.shadow.camera.bottom=-50;
+  scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x444466,0.9));
+
+  document.getElementById('centerMsg').innerHTML = '';
+  if(id==='parkour') setupParkour();
+  else if(id==='coins') setupCoins();
+  else if(id==='obby') setupObby();
+}
+
+// ================= GAME 1: PARKOUR TOWER =================
+function setupParkour(){
+  scene.background = new THREE.Color(0x9fd8ff);
+  scene.fog = new THREE.Fog(0x9fd8ff, 40, 120);
+
+  const platforms = [];
+  const platMat = new THREE.MeshStandardMaterial({color:0xff8c42, roughness:0.7});
+  const groundGeo = new THREE.BoxGeometry(8,1,8);
+  let y = 0;
+  for(let i=0;i<14;i++){
+    const w = 3.2 - i*0.08;
+    const p = new THREE.Mesh(new THREE.BoxGeometry(Math.max(w,1.6),0.6,Math.max(w,1.6)), i%2===0?platMat:new THREE.MeshStandardMaterial({color:0x42a5ff,roughness:0.7}));
+    const angle = i*0.9;
+    p.position.set(Math.sin(angle)*3.5, y, Math.cos(angle)*3.5 - 6);
+    p.receiveShadow = true; p.castShadow = true;
+    scene.add(p);
+    platforms.push(p);
+    y += 1.6;
+  }
+  const goalPlat = platforms[platforms.length-1];
+  const flag = new THREE.Mesh(new THREE.ConeGeometry(0.4,1.2,6), new THREE.MeshStandardMaterial({color:0xffd700}));
+  flag.position.copy(goalPlat.position);
+  flag.position.y += 1;
+  scene.add(flag);
+
+  const player = buildCharacter(0x00d9ff);
+  player.position.set(platforms[0].position.x, platforms[0].position.y+1, platforms[0].position.z);
+  scene.add(player);
+
+  const vel = {y:0};
+  let grounded = true;
+  let score = 0;
+  let won = false;
+  const startTime = performance.now();
+
+  document.getElementById('hudLeft').textContent = 'Altura: 0m';
+  document.getElementById('hudRight').textContent = '00:00';
+
+  function jump(){
+    if(grounded){ vel.y = 0.22; grounded = false; }
+  }
+  const jumpHandler = e=>{ if(e.key===' ') jump(); };
+  document.addEventListener('keydown', jumpHandler);
+
+  function frame(){
+    const dt = clock.getDelta();
+    let moveX=0, moveZ=0;
+    if(keys['w']||keys['arrowup']) moveZ -= 1;
+    if(keys['s']||keys['arrowdown']) moveZ += 1;
+    if(keys['a']||keys['arrowleft']||mobileMove.left) moveX -= 1;
+    if(keys['d']||keys['arrowright']||mobileMove.right) moveX += 1;
+    if(mobileMove.jump) jump();
+
+    const len = Math.hypot(moveX,moveZ);
+    const speed = len>0 ? 1 : 0;
+    if(len>0){ moveX/=len; moveZ/=len; }
+
+    player.position.x += moveX*0.08;
+    player.position.z += moveZ*0.08;
+    if(len>0.1) player.rotation.y = Math.atan2(moveX, moveZ);
+    animateWalk(player, speed, dt);
+
+    vel.y -= 0.012;
+    player.position.y += vel.y;
+
+    grounded = false;
+    for(const p of platforms){
+      const dx = Math.abs(player.position.x - p.position.x);
+      const dz = Math.abs(player.position.z - p.position.z);
+      const halfW = p.geometry.parameters.width/2;
+      if(dx < halfW+0.3 && dz < halfW+0.3){
+        const topY = p.position.y + p.geometry.parameters.height/2;
+        if(player.position.y <= topY+1.0 && player.position.y >= topY - 0.3 && vel.y<=0){
+          player.position.y = topY+1;
+          vel.y = 0;
+          grounded = true;
+        }
+      }
+    }
+
+    const heightM = Math.max(0, Math.round((player.position.y - 1)*2));
+    document.getElementById('hudLeft').textContent = 'Altura: '+heightM+'m';
+    const elapsed = Math.floor((performance.now()-startTime)/1000);
+    document.getElementById('hudRight').textContent = String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0');
+
+    if(player.position.y < -10 && !won){
+      document.getElementById('centerMsg').innerHTML = '<h1>¡CAÍSTE!</h1><p>Presiona para reintentar</p>';
+      setTimeout(()=>{ launchGame('parkour'); }, 1500);
+      document.removeEventListener('keydown', jumpHandler);
+      return;
+    }
+
+    const distToGoal = player.position.distanceTo(new THREE.Vector3(goalPlat.position.x, player.position.y, goalPlat.position.z));
+    if(distToGoal < 1.2 && !won){
+      won = true;
+      document.getElementById('centerMsg').innerHTML = '<h1>🏆 ¡LLEGASTE A LA CIMA!</h1><p>Volviendo al lobby...</p>';
+      setTimeout(()=>{ stopGame(); showScreen('lobbyScreen'); document.removeEventListener('keydown', jumpHandler); }, 2000);
+    }
+
+    const camOffset = new THREE.Vector3(0, 2.5, 6);
+    const desiredCam = player.position.clone().add(camOffset);
+    camera.position.lerp(desiredCam, 0.08);
+    camera.lookAt(player.position.x, player.position.y+0.8, player.position.z);
+
+    renderer.render(scene, camera);
+    if(currentGameId==='parkour') animId = requestAnimationFrame(frame);
+  }
+  animId = requestAnimationFrame(frame);
+}
+
+// ================= GAME 2: COIN RUSH =================
+function setupCoins(){
+  scene.background = new THREE.Color(0x87ceeb);
+  scene.fog = new THREE.Fog(0x87ceeb, 30, 90);
+
+  const groundMat = new THREE.MeshStandardMaterial({color:0x5fbf5f, roughness:0.9});
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(60,60), groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  for(let i=0;i<10;i++){
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.8,1.5,8), new THREE.MeshStandardMaterial({color:0x8b5a2b}));
+    t.position.set((Math.random()-0.5)*50,0.75,(Math.random()-0.5)*50);
+    t.castShadow = true;
+    scene.add(t);
+  }
+
+  const player = buildCharacter(0xff3d7f);
+  player.position.set(0,1,0);
+  scene.add(player);
+
+  const coins = [];
+  const coinGeo = new THREE.CylinderGeometry(0.4,0.4,0.12,16);
+  const coinMat = new THREE.MeshStandardMaterial({color:0xffd700, metalness:0.6, roughness:0.3, emissive:0x554400});
+  const total = 15;
+  for(let i=0;i<total;i++){
+    const c = new THREE.Mesh(coinGeo, coinMat);
+    c.rotation.x = Math.PI/2;
+    c.position.set((Math.random()-0.5)*45, 0.8, (Math.random()-0.5)*45);
+    c.castShadow = true;
+    scene.add(c);
+    coins.push(c);
+  }
+
+  let score = 0;
+  let timeLeft = 45;
+  document.getElementById('hudLeft').textContent = 'Monedas: 0/'+total;
+  document.getElementById('hudRight').textContent = timeLeft+'s';
+
+  const timerInt = setInterval(()=>{
+    if(currentGameId!=='coins'){ clearInterval(timerInt); return; }
+    timeLeft--;
+    document.getElementById('hudRight').textContent = Math.max(0,timeLeft)+'s';
+    if(timeLeft<=0){
+      clearInterval(timerInt);
+      document.getElementById('centerMsg').innerHTML = '<h1>⏰ TIEMPO AGOTADO</h1><p>Conseguiste '+score+'/'+total+' monedas</p>';
+      setTimeout(()=>{ stopGame(); showScreen('lobbyScreen'); }, 2200);
+    }
+  },1000);
+
+  function frame(){
+    const dt = clock.getDelta();
+    let moveX=0, moveZ=0;
+    if(keys['w']||keys['arrowup']) moveZ -= 1;
+    if(keys['s']||keys['arrowdown']) moveZ += 1;
+    if(keys['a']||keys['arrowleft']||mobileMove.left) moveX -= 1;
+    if(keys['d']||keys['arrowright']||mobileMove.right) moveX += 1;
+
+    const len = Math.hypot(moveX,moveZ);
+    const speed = len>0?1:0;
+    if(len>0){ moveX/=len; moveZ/=len; }
+    player.position.x += moveX*0.15;
+    player.position.z += moveZ*0.15;
+    player.position.x = Math.max(-29,Math.min(29,player.position.x));
+    player.position.z = Math.max(-29,Math.min(29,player.position.z));
+    if(len>0.1) player.rotation.y = Math.atan2(moveX,moveZ);
+    animateWalk(player, speed, dt);
+
+    coins.forEach(c=>{ if(c.visible) c.rotation.z += dt*3; });
+
+    coins.forEach(c=>{
+      if(c.visible && player.position.distanceTo(c.position) < 1.1){
+        c.visible = false;
+        score++;
+        document.getElementById('hudLeft').textContent = 'Monedas: '+score+'/'+total;
+        if(score===total){
+          clearInterval(timerInt);
+          document.getElementById('centerMsg').innerHTML = '<h1>🎉 ¡RECOLECTASTE TODO!</h1><p>Volviendo al lobby...</p>';
+          setTimeout(()=>{ stopGame(); showScreen('lobbyScreen'); }, 2000);
+        }
       }
     });
-  });
 
-  // Escuchar usuarios conectados
-  const qUsr = collection(db, "rooms", currentRoom, "users");
-  unsubUsers = onSnapshot(qUsr, (snapshot) => {
-    let usersHTML = "";
-    let count = 0;
-    snapshot.forEach((docSnap) => {
-      let u = docSnap.data();
-      count++;
-      usersHTML += `<div class="user-item"><div class="dot"></div><span>${escapeHTML(u.name)}</span></div>`;
-    });
-    $("userList").innerHTML = usersHTML;
-    $("userCount").textContent = count;
-  });
+    const camOffset = new THREE.Vector3(0, 5, 8);
+    camera.position.lerp(player.position.clone().add(camOffset), 0.08);
+    camera.lookAt(player.position);
 
-  addSystemMsg("Te has unido a la sala: " + currentRoom);
+    renderer.render(scene, camera);
+    if(currentGameId==='coins') animId = requestAnimationFrame(frame);
+  }
+  animId = requestAnimationFrame(frame);
 }
 
-window.sendMessage = async function() {
-  let txt = $("textInput").value.trim();
-  if(!txt) return;
+// ================= GAME 3: OBBY RUNNER =================
+function setupObby(){
+  scene.background = new THREE.Color(0x2b1a4a);
+  scene.fog = new THREE.Fog(0x2b1a4a, 20, 70);
 
-  await addDoc(collection(db, "rooms", currentRoom, "messages"), {
-    type: "text",
-    name: myName,
-    text: txt,
-    timestamp: serverTimestamp()
-  });
-  $("textInput").value = "";
-};
+  const pathMat = new THREE.MeshStandardMaterial({color:0x6a5cff, roughness:0.6});
+  const path = new THREE.Mesh(new THREE.BoxGeometry(6,0.5,80), pathMat);
+  path.position.z = -35;
+  path.receiveShadow = true;
+  scene.add(path);
 
-$("textInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") window.sendMessage();
-});
+  const goal = new THREE.Mesh(new THREE.BoxGeometry(6,0.5,4), new THREE.MeshStandardMaterial({color:0x00ff88, emissive:0x004422}));
+  goal.position.set(0,0,-73);
+  scene.add(goal);
 
-// Enviar Foto
-$("photoInput").addEventListener("change", async e => {
-  let file = e.target.files[0];
-  if(!file) return;
-  if(file.size > 900 * 1024) { alert("La foto pesa más de 900KB. Elige una más ligera."); return; }
-
-  let reader = new FileReader();
-  reader.onload = async () => {
-    await addDoc(collection(db, "rooms", currentRoom, "messages"), {
-      type: "image",
-      name: myName,
-      data: reader.result,
-      timestamp: serverTimestamp()
-    });
-  };
-  reader.readAsDataURL(file);
-  e.target.value = "";
-});
-
-// Enviar cualquier archivo (PDF, DOCX, ZIP, etc.)
-$("anyFile").addEventListener("change", async e => {
-  let file = e.target.files[0];
-  if(!file) return;
-  if(file.size > 900 * 1024) { alert("El archivo pesa más de 900KB. Límite ideal para Firestore."); return; }
-
-  let reader = new FileReader();
-  reader.onload = async () => {
-    await addDoc(collection(db, "rooms", currentRoom, "messages"), {
-      type: "file",
-      name: myName,
-      fileName: file.name,
-      fileData: reader.result,
-      timestamp: serverTimestamp()
-    });
-  };
-  reader.readAsDataURL(file);
-  e.target.value = "";
-});
-
-// Lógica del Minijuego
-window.sendGuess = async function() {
-  let val = parseInt($("guessInput").value);
-  if(isNaN(val)) return;
-
-  let hint = "";
-  if(val === secretNum) {
-    hint = `🎉 ¡${myName} adivino el número secreto (${secretNum})! Se reinicia el juego.`;
-    secretNum = Math.floor(Math.random() * 50) + 1; // Nuevo número
-  } else if(val < secretNum) {
-    hint = `🎮 ${myName} probó con ${val}: El número es MAYOR ⬆️`;
-  } else {
-    hint = `🎮 ${myName} probó con ${val}: El número es MENOR ⬇️`;
+  const obstacles = [];
+  for(let i=0;i<8;i++){
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(5,0.5,0.5), new THREE.MeshStandardMaterial({color:0xff3d7f}));
+    const pivot = new THREE.Group();
+    pivot.position.set(0, 0.6, -8 - i*8);
+    arm.position.x = 2.5;
+    pivot.add(arm);
+    pivot.userData.speed = 0.8 + Math.random()*0.8;
+    scene.add(pivot);
+    obstacles.push(pivot);
   }
 
-  await addDoc(collection(db, "rooms", currentRoom, "messages"), {
-    type: "system",
-    text: hint,
-    timestamp: serverTimestamp()
-  });
-  $("guessInput").value = "";
-};
+  const player = buildCharacter(0xffd700);
+  player.position.set(0,1,0);
+  scene.add(player);
 
-function renderMessage(data) {
-  let box = document.createElement("div");
-  let isMe = (data.name === myName);
+  let hits = 0;
+  let finished = false;
+  const startTime = performance.now();
+  document.getElementById('hudLeft').textContent = 'Golpes: 0';
+  document.getElementById('hudRight').textContent = '00:00';
 
-  if (data.type === "system") {
-    box.style.textAlign = "center";
-    box.style.opacity = ".7";
-    box.style.fontSize = "12px";
-    box.style.margin = "8px 0";
-    box.style.color = "#f1c40f";
-    box.textContent = data.text;
-    $("messages").appendChild(box);
-    $("messages").scrollTop = $("messages").scrollHeight;
-    return;
+  function jump(){
+    if(player.userData.grounded !== false){
+      player.userData.vy = 0.2;
+      player.userData.grounded = false;
+    }
   }
+  player.userData.vy = 0;
+  player.userData.grounded = true;
+  const jumpHandler = e=>{ if(e.key===' ') jump(); };
+  document.addEventListener('keydown', jumpHandler);
 
-  box.className = "msg" + (isMe && data.name ? " me" : "");
-  
-  let nameDiv = document.createElement("div");
-  nameDiv.className = "name";
-  nameDiv.textContent = data.name || "Anónimo";
-  box.appendChild(nameDiv);
+  function frame(){
+    const dt = clock.getDelta();
+    let moveX=0;
+    if(keys['a']||keys['arrowleft']||mobileMove.left) moveX -= 1;
+    if(keys['d']||keys['arrowright']||mobileMove.right) moveX += 1;
+    if(mobileMove.jump) jump();
+    player.position.x += moveX*0.1;
+    player.position.x = Math.max(-2.7,Math.min(2.7,player.position.x));
+    player.position.z -= 0.09;
+    if(moveX!==0) player.rotation.y = moveX>0?Math.PI/2:-Math.PI/2;
+    else player.rotation.y = Math.PI;
+    animateWalk(player, 1, dt);
 
-  if (data.type === "image") {
-    let img = document.createElement("img");
-    img.src = data.data;
-    box.appendChild(img);
-  } else if (data.type === "file") {
-    let card = document.createElement("div");
-    card.className = "file-card";
-    card.innerHTML = `<span>📁 ${escapeHTML(data.fileName)}</span> <a href="${data.fileData}" download="${escapeHTML(data.fileName)}">Descargar</a>`;
-    box.appendChild(card);
-  } else {
-    let txt = document.createTextNode(data.text || "");
-    box.appendChild(txt);
+    player.userData.vy -= 0.012;
+    player.position.y += player.userData.vy;
+    if(player.position.y<=1){ player.position.y=1; player.userData.vy=0; player.userData.grounded=true; }
+
+    obstacles.forEach(o=>{
+      o.rotation.y += dt*o.userData.speed;
+      const armWorldPos = new THREE.Vector3();
+      o.children[0].getWorldPosition(armWorldPos);
+      if(Math.abs(player.position.z - o.position.z) < 0.6 && player.position.y < 1.3){
+        const dx = player.position.x - o.position.x;
+        const dz = player.position.z - o.position.z;
+        const angle = Math.atan2(dz,dx) - o.rotation.y;
+        const localX = Math.cos(o.rotation.y)*dx + Math.sin(o.rotation.y)*dz;
+        if(Math.abs(localX)<2.7 && !o.userData.hitCooldown){
+          hits++;
+          o.userData.hitCooldown = true;
+          setTimeout(()=>o.userData.hitCooldown=false, 800);
+          document.getElementById('hudLeft').textContent = 'Golpes: '+hits;
+          player.position.z += 1.5;
+        }
+      }
+    });
+
+    const elapsed = Math.floor((performance.now()-startTime)/1000);
+    document.getElementById('hudRight').textContent = String(Math.floor(elapsed/60)).padStart(2,'0')+':'+String(elapsed%60).padStart(2,'0');
+
+    if(player.position.z <= -73 && !finished){
+      finished = true;
+      document.getElementById('centerMsg').innerHTML = '<h1>🏁 ¡META!</h1><p>Golpes recibidos: '+hits+'</p>';
+      document.removeEventListener('keydown', jumpHandler);
+      setTimeout(()=>{ stopGame(); showScreen('lobbyScreen'); }, 2200);
+    }
+
+    const camOffset = new THREE.Vector3(0, 3.5, 6);
+    camera.position.lerp(player.position.clone().add(camOffset), 0.1);
+    camera.lookAt(player.position.x, player.position.y+0.5, player.position.z-3);
+
+    renderer.render(scene, camera);
+    if(currentGameId==='obby') animId = requestAnimationFrame(frame);
   }
-
-  $("messages").appendChild(box);
-  $("messages").scrollTop = $("messages").scrollHeight;
+  animId = requestAnimationFrame(frame);
 }
 
-function addSystemMsg(text) {
-  let box = document.createElement("div");
-  box.style.textAlign = "center";
-  box.style.opacity = ".6";
-  box.style.fontSize = "12px";
-  box.style.margin = "10px";
-  box.textContent = text;
-  $("messages").appendChild(box);
-  $("messages").scrollTop = $("messages").scrollHeight;
-}
-
-window.leaveRoom = async function() {
-  try {
-    await deleteDoc(doc(db, "rooms", currentRoom, "users", myId));
-  } catch(e) {}
-  location.reload();
-};
-
-function escapeHTML(text) {
-  return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
 </script>
-
 </body>
 </html>
