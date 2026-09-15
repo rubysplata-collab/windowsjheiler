@@ -631,8 +631,9 @@ function initEngine(){
 
 function resizeRenderer(){
   if(!renderer) return;
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  if(w===0||h===0) return;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const w = Math.max(1, Math.round(rect.width));
+  const h = Math.max(1, Math.round(rect.height));
   camera.aspect = w/h;
   camera.updateProjectionMatrix();
   renderer.setSize(w,h,false);
@@ -728,7 +729,7 @@ function launchGame(id){
   currentGameId = id;
   showScreen('gameScreen');
   if(!renderer) initEngine();
-  requestAnimationFrame(()=>{
+  setTimeout(()=>{
     resizeRenderer();
     clearScene();
     const sun = new THREE.DirectionalLight(0xffffff,1.1);
@@ -741,7 +742,7 @@ function launchGame(id){
     if(id==='parkour') setupParkour();
     else if(id==='coins') setupCoins();
     else if(id==='obby') setupObby();
-  });
+  }, 60);
 }
 
 // ================= GAME 1: PARKOUR TOWER =================
