@@ -41,6 +41,8 @@ footer{display:flex;gap:8px;padding:10px 14px;padding-bottom:max(10px,env(safe-a
 footer #msg{flex:1}
 @media(max-width:520px){header button{padding:9px 10px;font-size:.85rem}#attach{padding:12px}.msg,.file{max-width:90%;width:auto}}
 @media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+details{font-size:.85rem;color:var(--muted)}summary{cursor:pointer}.chatlog{padding:6px 14px;border-bottom:1px solid var(--line)}
+pre.logbox{margin:6px 0 0;max-height:30vh;overflow:auto;white-space:pre-wrap;font-size:.75rem;background:var(--bg);padding:8px;border-radius:8px;border:1px solid var(--line);color:var(--text)}
 </style>
 </head>
 <body>
@@ -54,12 +56,14 @@ footer #msg{flex:1}
   <div class="code-row"><span>xd-</span><input id="code" inputmode="numeric" maxlength="7" placeholder="___" autocomplete="off"></div>
   <button id="join">Conectar</button>
   <div id="homeStatus" class="status" role="status"></div>
+  <details><summary>Diagnóstico</summary><pre class="logbox"></pre></details>
 </div></main>
 <section id="chat" class="screen hidden">
   <header>
     <div class="head-main"><strong>Sala: <span id="roomCode"></span></strong><span id="peer" class="peer"></span><div id="status" class="status" role="status"></div></div>
     <button id="copy">Copiar código</button><button id="leave">Salir</button>
   </header>
+  <details class="chatlog"><summary>Diagnóstico</summary><pre class="logbox"></pre></details>
   <div id="feed" aria-live="polite"></div>
   <footer>
     <input type="file" id="file" multiple hidden>
@@ -77,11 +81,13 @@ footer #msg{flex:1}
    los dos dispositivos se encuentren por el código de sala y negocien WebRTC.
    Mensajes y archivos van directos entre dispositivos y NO pasan por el broker.
    Si algún día falla, cambia/añade brokers aquí. */
-const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
+const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081'];
 /* TURN opcional (redes móviles/firewalls estrictos). Ejemplo:
    const TURN = { urls: 'turn:servidor:3478', username: 'usuario', credential: 'clave' }; */
 const TURN = null;
-const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }].concat(TURN ? [TURN] : []);
+/* TURN público de prueba (puede dejar de funcionar; para uso serio pon el tuyo en TURN) */
+const PUBLIC_TURN = { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' };
+const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, PUBLIC_TURN].concat(TURN ? [TURN] : []);
 /* ===================================================================== */
 
 const $ = (s) => document.querySelector(s);
@@ -90,7 +96,7 @@ const myId = Math.random().toString(36).slice(2, 10) + Math.random().toString(36
 const hostT = (c) => `${NS}/h/${c}`, joinT = (c) => `${NS}/j/${c}`, sigT = (c, id) => `${NS}/s/${c}/${id}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-let client = null, pc = null, dc = null, role = null, room = null, peerId = null, probe = null;
+let brokers = [], pc = null, dc = null, role = null, room = null, peerId = null, probe = null;
 let linked = false, leaving = false, rx = null, connTimer = null, sigQueue = Promise.resolve();
 const sendQueue = []; let sending = false;
 
@@ -127,52 +133,71 @@ function addFileCard(name, size, mine) {
   };
 }
 
-// ---------- Señalización (MQTT) ----------
-function connectBroker(url, timeout = 6000) {
+// ---------- Señalización (MQTT, varios brokers a la vez) ----------
+const LIBERR = 'No se pudo cargar la librería de señalización (mqtt.js) desde internet. Comprueba tu conexión o bloqueadores de contenido, y abre el archivo en una pestaña normal del navegador (no en la vista previa de un chat).';
+const uid = () => Math.random().toString(36).slice(2, 12);
+const seen = new Set(); let pendCand = [];
+function log(t) {
+  const h = new Date().toLocaleTimeString([], { hour12: false });
+  document.querySelectorAll('.logbox').forEach((p) => { p.textContent += `${h} ${t}\n`; p.scrollTop = p.scrollHeight; });
+  console.log('[xd]', t);
+}
+function connectBroker(url, timeout = 5000) {
   return new Promise((resolve, reject) => {
-    if (typeof mqtt === 'undefined') return reject(new Error('lib'));
-    const c = mqtt.connect(url, { clientId: 'xd_' + Math.random().toString(36).slice(2, 10), clean: true, reconnectPeriod: 0, connectTimeout: timeout });
-    const t = setTimeout(() => { try { c.end(true); } catch {} reject(new Error('timeout')); }, timeout + 500);
+    const c = mqtt.connect(url, { clientId: 'xd_' + uid(), clean: true, reconnectPeriod: 0, connectTimeout: timeout });
+    const t = setTimeout(() => { try { c.end(true); } catch {} reject(new Error('sin respuesta')); }, timeout + 500);
     c.once('connect', () => { clearTimeout(t); c.on('error', () => {}); c.on('message', onMsg); resolve(c); });
     c.once('error', (e) => { clearTimeout(t); try { c.end(true); } catch {} reject(e); });
   });
 }
 const sub = (c, topic) => new Promise((res, rej) => c.subscribe(topic, { qos: 1 }, (e) => (e ? rej(e) : res())));
-const pub = (topic, obj, retain = false) => client && client.publish(topic, obj == null ? '' : JSON.stringify(obj), { qos: 1, retain });
-const sendSig = (data) => { if (client && peerId) pub(sigT(room, peerId), { from: myId, data }); };
+const subAll = (topic) => Promise.allSettled(brokers.map((c) => sub(c, topic)));
+function pubAll(topic, obj, retain = false) {
+  const payload = obj == null ? '' : JSON.stringify(obj);
+  brokers.forEach((c) => { try { c.publish(topic, payload, { qos: 1, retain }); } catch {} });
+}
+const sendSig = (data) => { if (brokers.length && peerId) pubAll(sigT(room, peerId), { id: uid(), from: myId, data }); };
 
-async function connectAny() {
-  if (typeof mqtt === 'undefined') throw new Error('No se pudo cargar la librería de señalización (mqtt.js) desde internet. Comprueba tu conexión o bloqueadores de contenido.');
-  for (const url of BROKERS) { try { return await connectBroker(url); } catch {} }
-  throw new Error('No se pudo contactar con ningún servidor de señalización público. Revisa tu Internet, VPN o firewall (necesita WebSocket seguro por el puerto 8084/8884).');
+async function connectAll() {
+  if (typeof mqtt === 'undefined') throw new Error(LIBERR);
+  const res = await Promise.allSettled(BROKERS.map(async (u) => {
+    try { const c = await connectBroker(u); log('✔ broker ' + u); return c; }
+    catch (e) { log('✘ broker ' + u + ' (' + ((e && e.message) || e) + ')'); throw e; }
+  }));
+  brokers = res.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+  if (!brokers.length) throw new Error('No se pudo contactar con ningún servidor de señalización público. Revisa tu Internet, VPN o firewall (necesita WebSocket seguro). Abre "Diagnóstico" para ver el detalle.');
 }
 function onMsg(topic, payload) {
-  if (probe && topic === probe.topic) { try { probe.m = payload.length ? JSON.parse(payload.toString()) : null; } catch { probe.m = null; } return; }
-  let m; try { m = JSON.parse(payload.toString()); } catch { return; }
+  const raw = payload.toString();
+  if (probe && topic === probe.topic) { if (raw) { try { probe.m = JSON.parse(raw); } catch {} } return; }
+  let m; try { m = JSON.parse(raw); } catch { return; }
+  if (m.id) { if (seen.has(m.id)) return; seen.add(m.id); }
   if (role === 'host' && topic === joinT(room)) {
-    if (m.from && !peerId && !linked) { peerId = m.from; setStatus('warn', '🟡 Conectando...'); makePeer(true); }
+    if (m.from && !peerId && !linked) { log('◀ una persona pidió unirse'); peerId = m.from; setStatus('warn', '🟡 Conectando...'); makePeer(true); }
   } else if (topic === sigT(room, myId) && m.from === peerId && m.data) {
-    sigQueue = sigQueue.then(() => handleSignal(m.data)).catch((e) => console.error('signal', e));
+    sigQueue = sigQueue.then(() => handleSignal(m.data)).catch((e) => log('error señal: ' + e.message));
   }
 }
-async function probeHost(c, code, wait) { // ¿existe una sala con ese código?
+async function probeHost(code, wait) { // ¿existe una sala con ese código?
   probe = { topic: hostT(code), m: null };
-  await sub(c, probe.topic); await sleep(wait);
-  const m = probe.m; probe = null; c.unsubscribe(hostT(code)); return m;
+  await subAll(probe.topic);
+  const t0 = Date.now(); while (!probe.m && Date.now() - t0 < wait) await sleep(100);
+  const m = probe.m; probe = null; brokers.forEach((c) => { try { c.unsubscribe(hostT(code)); } catch {} }); return m;
 }
 async function startHost() {
   setStatus('warn', '🟡 Creando sala...');
   try {
-    client = await connectAny();
+    await connectAll();
     let code = null;
     for (let i = 0; i < 10 && !code; i++) {
       const c = 'xd-' + (100 + Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296 * 900));
-      const m = await probeHost(client, c, 1200);
+      const m = await probeHost(c, 1500);
       if (!m || !m.ts || Date.now() - m.ts > 6 * 3600e3) code = c; // libre o abandonada
     }
     if (!code) throw new Error('No se encontró un código libre. Inténtalo de nuevo en unos minutos.');
-    room = code; await sub(client, joinT(room)); await sub(client, sigT(room, myId));
-    pub(hostT(room), { id: myId, ts: Date.now() }, true);
+    room = code; await subAll(joinT(room)); await subAll(sigT(room, myId));
+    pubAll(hostT(room), { id: myId, ts: Date.now() }, true);
+    log('Sala ' + room + ' publicada en ' + brokers.length + ' broker(s)');
     $('#roomCode').textContent = room; showChat(true);
     setStatus('warn', `🟡 Sala creada. Esperando a la otra persona: comparte ${room}`);
     addSystem(`Comparte el código ${room}. Mantén esta pestaña abierta hasta que se conecte.`);
@@ -180,46 +205,50 @@ async function startHost() {
 }
 async function startGuest(code) {
   setStatus('warn', '🟡 Buscando sala...');
-  let found = null, reached = false;
   try {
-    if (typeof mqtt === 'undefined') throw new Error('No se pudo cargar la librería de señalización (mqtt.js) desde internet. Comprueba tu conexión o bloqueadores de contenido.');
-    for (const url of BROKERS) {
-      let c; try { c = await connectBroker(url); } catch { continue; }
-      reached = true; client = c;
-      const m = await probeHost(c, code, 3000);
-      if (m && m.id) { found = m; break; }
-      c.end(true); client = null;
-    }
-    if (!reached) throw new Error('No se pudo contactar con ningún servidor de señalización público. Revisa tu Internet, VPN o firewall.');
-    if (!found) throw new Error(`La sala ${code} no existe o ya se cerró (se cierra al conectarse la otra persona). Pide un código nuevo.`);
-    room = code; role = 'guest'; peerId = found.id;
-    await sub(client, sigT(room, myId));
+    await connectAll();
+    const found = await probeHost(code, 3500);
+    if (!found || !found.id) throw new Error(`La sala ${code} no existe o ya se cerró (se cierra al conectarse la otra persona). Comprueba el código o pide uno nuevo. Si ambos están en redes con bloqueos, mira el Diagnóstico.`);
+    log('Sala encontrada');
+    room = code; peerId = found.id;
+    await subAll(sigT(room, myId));
     $('#roomCode').textContent = room; showChat(true);
     setStatus('warn', '🟡 Conectando...');
     makePeer(false);
-    pub(joinT(room), { from: myId });
+    pubAll(joinT(room), { id: uid(), from: myId }); log('▶ solicitud de unión enviada');
   } catch (e) { fail(e.message); }
 }
 function closeBroker() {
-  if (!client) return;
-  try { if (role === 'host' && room) client.publish(hostT(room), '', { qos: 1, retain: true }); client.end(); } catch {}
-  client = null;
+  if (!brokers.length) return;
+  try { if (role === 'host' && room) pubAll(hostT(room), null, true); } catch {}
+  const bs = brokers; brokers = [];
+  bs.forEach((c) => { try { c.end(); } catch {} });
 }
 async function handleSignal(d) {
   if (!pc) return;
   if (d.description) {
+    log('◀ ' + d.description.type);
     await pc.setRemoteDescription(d.description);
-    if (d.description.type === 'offer') { await pc.setLocalDescription(await pc.createAnswer()); sendSig({ description: pc.localDescription }); }
-  } else if (d.candidate) { try { await pc.addIceCandidate(d.candidate); } catch (e) { console.warn('ICE', e); } }
+    for (const c of pendCand.splice(0)) { try { await pc.addIceCandidate(c); } catch {} }
+    if (d.description.type === 'offer') { await pc.setLocalDescription(await pc.createAnswer()); sendSig({ description: pc.localDescription }); log('▶ answer'); }
+  } else if (d.candidate) {
+    if (!pc.remoteDescription) pendCand.push(d.candidate);
+    else { try { await pc.addIceCandidate(d.candidate); } catch (e) { log('ICE rechazado: ' + e.message); } }
+  }
 }
 
 // ---------- WebRTC ----------
 function makePeer(initiator) {
   closePeer();
   const conn = (pc = new RTCPeerConnection({ iceServers: ICE }));
-  conn.onicecandidate = (e) => { if (e.candidate) sendSig({ candidate: e.candidate }); };
+  const types = {};
+  conn.onicecandidate = (e) => {
+    if (e.candidate) { const ty = (/ typ (\w+)/.exec(e.candidate.candidate) || [])[1] || '?'; types[ty] = (types[ty] || 0) + 1; sendSig({ candidate: e.candidate }); }
+    else log('candidatos ICE: ' + JSON.stringify(types) + (types.srflx || types.relay ? '' : ' ⚠ sin srflx/relay: STUN/TURN no alcanzable'));
+  };
+  conn.oniceconnectionstatechange = () => log('ICE: ' + conn.iceConnectionState);
   conn.onconnectionstatechange = () => {
-    if (conn !== pc) return; const s = conn.connectionState;
+    if (conn !== pc) return; const s = conn.connectionState; log('conexión: ' + s);
     if (s === 'failed') { clearTimeout(connTimer); setInputs(false); setStatus('bad', '❌ Error de conexión: no se pudo abrir el enlace directo (suele pasar con firewalls o redes móviles estrictas). Añade un servidor TURN en la configuración del archivo.'); if (role === 'host') peerId = null; }
     else if (s === 'disconnected') setStatus('warn', '🟡 Conexión inestable, intentando recuperar...');
     else if (s === 'connected' && dc && dc.readyState === 'open') setStatus('ok', '🟢 Conectado');
@@ -227,12 +256,12 @@ function makePeer(initiator) {
   clearTimeout(connTimer);
   connTimer = setTimeout(() => {
     if (linked || pc !== conn) return;
-    setStatus('bad', '❌ Error de conexión: se agotó el tiempo (20 s). La otra persona pudo cerrar la página, o la red bloquea WebRTC.');
+    setStatus('bad', '❌ Error de conexión: se agotó el tiempo (25 s). La otra persona pudo cerrar la página, o la red bloquea WebRTC.');
     if (role === 'host') { peerId = null; closePeer(); setStatus('warn', `🟡 La conexión no se completó. La sala ${room} sigue abierta: la otra persona puede intentarlo de nuevo.`); }
-  }, 20000);
+  }, 25000);
   if (initiator) {
     setupChannel(conn.createDataChannel('xd', { ordered: true }));
-    conn.createOffer().then((o) => conn.setLocalDescription(o)).then(() => sendSig({ description: conn.localDescription }))
+    conn.createOffer().then((o) => conn.setLocalDescription(o)).then(() => { sendSig({ description: conn.localDescription }); log('▶ offer'); })
       .catch((e) => fail('No se pudo iniciar la negociación: ' + e.message));
   } else conn.ondatachannel = (e) => setupChannel(e.channel);
 }
@@ -240,7 +269,7 @@ function setupChannel(ch) {
   dc = ch; ch.binaryType = 'arraybuffer'; ch.bufferedAmountLowThreshold = BUF_LOW;
   ch.onopen = () => {
     if (ch !== dc) return;
-    clearTimeout(connTimer); linked = true; setStatus('ok', '🟢 Conectado'); setInputs(true);
+    clearTimeout(connTimer); log('canal de datos abierto'); linked = true; setStatus('ok', '🟢 Conectado'); setInputs(true);
     addSystem('Conexión directa establecida. La sala ya está cerrada a otras personas.');
     sendJSON({ t: 'hello', name: $('#name').value.trim().slice(0, 24) });
     closeBroker(); // ya no hace falta el servidor de señalización
@@ -259,7 +288,7 @@ function closePeer() {
   if (c) { c.onclose = c.onmessage = c.onopen = c.onerror = null; try { c.close(); } catch {} }
   if (p) { p.onconnectionstatechange = p.onicecandidate = null; try { p.close(); } catch {} }
   if (rx) { rx.card.fail('Conexión cerrada antes de terminar'); rx = null; }
-  sigQueue = Promise.resolve();
+  sigQueue = Promise.resolve(); pendCand = [];
 }
 const sendJSON = (o) => { if (dc && dc.readyState === 'open') dc.send(JSON.stringify(o)); };
 
@@ -326,7 +355,8 @@ async function pumpQueue() { if (sending) return; sending = true; while (sendQue
 
 // ---------- Acciones ----------
 function start(kind, code) {
-  if (client || pc) return;
+  if (brokers.length || pc) return;
+  if (!window.RTCPeerConnection) return setStatus('bad', '❌ Este navegador no soporta WebRTC. Usa Chrome, Edge, Firefox o Safari actualizados.');
   leaving = false; role = kind; setHomeBusy(true);
   return kind === 'host' ? startHost() : startGuest(code);
 }
@@ -357,6 +387,7 @@ $('#copy').onclick = async () => {
   $('#copy').textContent = '¡Copiado!'; setTimeout(() => ($('#copy').textContent = 'Copiar código'), 1500);
 };
 addEventListener('pagehide', () => { if (role === 'host' && !linked) closeBroker(); });
+log('Página: ' + location.protocol + '//' + (location.host || '(archivo local)') + ' · mqtt.js ' + (typeof mqtt !== 'undefined' ? 'cargada' : 'NO cargada') + ' · WebRTC ' + (window.RTCPeerConnection ? 'ok' : 'NO disponible'));
 const pre = new URLSearchParams(location.search).get('room'); if (pre) $('#code').value = normalizeCode(pre);
 </script>
 </body>
