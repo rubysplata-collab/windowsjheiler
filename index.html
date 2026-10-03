@@ -38,11 +38,11 @@ label{font-size:13px;color:var(--mu);display:block;margin-top:6px}
 .tabs{display:flex;gap:8px}
 .ov.c{justify-content:center;align-items:center}
 .md{background:var(--bg);border-radius:16px;padding:20px;width:min(380px,92%);display:flex;flex-direction:column;gap:10px;max-height:90%;overflow:auto}
-</style>
+.sellerbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:12px 14px;background:var(--card);border:1px solid var(--bd);border-radius:14px}.sellerbar .avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--ac) 15%,var(--card));font-size:22px}.sellerbar .info{flex:1}.sellerbar small,.loc{color:var(--mu);display:block}.filters{display:flex;gap:10px;flex-wrap:wrap;margin-top:-8px;margin-bottom:16px}.filters input{min-width:120px;flex:1}.rating{font-size:13px}</style>
 </head>
 <body>
 <header>
-<h1 id="sn">🛍️ Mi Tienda</h1>
+<h1 id="sn">🛍️ Mi Tienda</h1><button class="g" onclick="openP('profile')">👤 Vendedor</button>
 <button onclick="openP('cart')">🛒<span class="badge" id="cc">0</span></button>
 </header>
 <main>
@@ -50,6 +50,8 @@ label{font-size:13px;color:var(--mu);display:block;margin-top:6px}
 <input id="q" placeholder="Buscar productos…" oninput="render()">
 <select id="cat" onchange="render()"></select>
 </div>
+<div class="sellerbar" onclick="openP('profile')" style="cursor:pointer"><div class="avatar" id="sa">👤</div><div class="info"><b id="snamev">Vendedor</b><small id="slocv">Información del vendedor</small><span class="rating" id="srating"></span></div><button class="g">Ver perfil</button></div>
+<div class="filters"><input id="minp" type="number" min="0" placeholder="Precio mínimo" oninput="render()"><input id="maxp" type="number" min="0" placeholder="Precio máximo" oninput="render()"></div>
 <div class="grid" id="grid"></div>
 </main>
 <footer style="text-align:center;padding:28px 16px"><a href="#" onclick="openP('adm');return false" style="color:var(--mu);font-size:12px">Administrar tienda</a></footer>
@@ -67,13 +69,13 @@ label{font-size:13px;color:var(--mu);display:block;margin-top:6px}
 <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:18px">Administrar tienda</b><button class="g" onclick="closeP()">✕</button></div>
 <div style="position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2"><button style="width:100%" onclick="publish()">📢 Publicar cambios (claude.ai)</button><button class="g" style="width:100%;margin-top:6px" onclick="exportHTML()">⬇️ Descargar tienda actualizada (HTML)</button><small style="color:var(--mu)">Tus cambios solo se ven en este navegador hasta que publiques o subas el HTML descargado a tu hosting.</small></div>
 <label>Nombre de la tienda</label><input id="sname">
-<label>WhatsApp para pedidos (con código de país, ej. 573001234567)</label><input id="swa">
+<label>Nombre del vendedor</label><input id="svname"><label>Ubicación del vendedor</label><input id="svloc" placeholder="Ej. Valledupar, Cesar"><label>Descripción del vendedor</label><textarea id="svbio" rows="2" placeholder="Cuéntale algo a los compradores"></textarea><label>Reputación / calificación (opcional)</label><input id="svrating" type="number" min="0" max="5" step="0.1" placeholder="Ej. 4.8"><label>WhatsApp para pedidos (con código de país, ej. 573001234567)</label><input id="swa">
 <button class="g" onclick="saveCfg()">Guardar ajustes</button>
 <hr style="width:100%;border:0;border-top:1px solid var(--bd)">
 <b>Nuevo producto</b>
 <label>Nombre</label><input id="pn1">
 <label>Precio (COP)</label><input id="pp" type="number" min="0">
-<label>Categoría</label><input id="pc">
+<label>Categoría</label><input id="pc"><label>Ubicación del producto</label><input id="ploc" placeholder="Ej. Valledupar, Cesar">
 <label>Foto del producto (cualquier imagen)</label><input id="pf" type="file" accept="image/*" onchange="pickImg(this.files[0])"><div id="prev"></div>
 <label>Descripción</label><textarea id="pd" rows="3"></textarea>
 <button id="sb" onclick="addProd()">Agregar producto</button><button class="g" onclick="resetForm()">Limpiar / cancelar edición</button>
@@ -83,6 +85,7 @@ label{font-size:13px;color:var(--mu);display:block;margin-top:6px}
 </div></div>
 
 <div class="ov c" id="wm" onclick="if(event.target===this)closeP()"><div class="md" id="wmb"></div></div>
+<div class="ov c" id="profile" onclick="if(event.target===this)closeP()"><div class="md"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">Perfil del vendedor</b><button class="g" onclick="closeP()">✕</button></div><div id="profileBody"></div><button id="profileWa" style="background:#25a244">💬 Hablar con el vendedor</button><button class="g" onclick="closeP()">Cerrar</button></div></div>
 
 <script type="application/json" id="data"></script>
 <script>
@@ -90,7 +93,7 @@ const K='tienda_v1';
 // Opcional: escribe aquí el WhatsApp del vendedor con código de país. Ej: '573001234567'
 const NUMERO_VENDEDOR='';
 function norm(n){let d=String(n||'').replace(/\D/g,'');if(d.length===10&&d[0]==='3')d='57'+d;return d}
-const DEF={cfg:{name:'🛍️ Mi Tienda',wa:''},prods:[]};
+const DEF={cfg:{name:'🛍️ Mi Tienda',wa:'',seller:'Vendedor',loc:'',bio:'',rating:''},prods:[]};
 let S=DEF,dirty=false;try{const t=document.getElementById('data').textContent.trim();if(t)S=JSON.parse(t)}catch(e){}
 try{const d=JSON.parse(localStorage.getItem('tienda_draft'));if(d&&d.prods){S=d;dirty=true}}catch(e){}
 let cart={};
@@ -100,13 +103,13 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 function save(){dirty=true;try{localStorage.setItem('tienda_draft',JSON.stringify(S))}catch(e){alert('Sin espacio: usa fotos más pequeñas o menos productos.')}}
 function img(p){return /^(https?:\/\/|data:image)/.test(p.i)?`<img src="${esc(p.i)}" alt="">`:esc(p.i||'📦')}
 function render(){
- $('sn').textContent=S.cfg.name;document.title=S.cfg.name;
+ $('sn').textContent=S.cfg.name;document.title=S.cfg.name;$('snamev').textContent=S.cfg.seller||'Vendedor';$('slocv').textContent=S.cfg.loc||'Ubicación no indicada';$('srating').textContent=S.cfg.rating?'⭐ '+S.cfg.rating+'/5':'';
  const cats=[...new Set(S.prods.map(p=>p.c).filter(Boolean))];
  const cur=$('cat').value;
  $('cat').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option ${c===cur?'selected':''}>${esc(c)}</option>`).join('');
- const t=$('q').value.toLowerCase(),c=$('cat').value;
- const l=S.prods.filter(p=>(!c||p.c===c)&&(p.n+p.d).toLowerCase().includes(t));
- $('grid').innerHTML=l.length?l.map(p=>`<div class="p"><div class="im">${img(p)}</div><div class="pb"><b>${esc(p.n)}</b><small>${esc(p.d||'')}</small><div class="pr">${cop(p.p)}</div><button onclick="buy(${p.id})">Comprar</button></div></div>`).join(''):'<div class="empty">Aún no hay productos. Entra a «Administrar tienda» (al final de la página) para agregar los tuyos.</div>';
+ const t=$('q').value.toLowerCase(),c=$('cat').value,min=parseFloat($('minp').value)||0,max=parseFloat($('maxp').value)||Infinity;
+ const l=S.prods.filter(p=>(!c||p.c===c)&&(p.n+' '+p.d+' '+(p.loc||'')).toLowerCase().includes(t)&&p.p>=min&&p.p<=max);
+ $('grid').innerHTML=l.length?l.map(p=>`<div class="p"><div class="im">${img(p)}</div><div class="pb"><b>${esc(p.n)}</b><small>${esc(p.d||'')}</small>${p.loc?`<span class="loc">📍 ${esc(p.loc)}</span>`:''}<div class="pr">${cop(p.p)}</div><button onclick="buy(${p.id})">Comprar</button></div></div>`).join(''):'<div class="empty">Aún no hay productos. Entra a «Administrar tienda» (al final de la página) para agregar los tuyos.</div>';
  renderCart();renderAdm();
 }
 function add(id){cart[id]=(cart[id]||0)+1;renderCart()}
@@ -135,22 +138,23 @@ function askNum(){$('wmb').innerHTML=`<b>Número del vendedor</b><small style="c
 function saveNum(){const n=norm($('wn').value);if(n.length<10)return alert('Escribe un número válido.');S.cfg.wa=n;save();closeP();const f=pend||checkout;pend=null;f()}
 function askGo(num,msg){const url='https://wa.me/'+num+'?text='+encodeURIComponent(msg);
  $('wmb').innerHTML=`<b>Enviar pedido por WhatsApp</b><small style="color:var(--mu)">Se abrirá WhatsApp con tu pedido ya escrito para enviarlo al vendedor (+${num}). ¿Quieres continuar?</small><pre style="white-space:pre-wrap;font:inherit;font-size:13px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;max-height:160px;overflow:auto;margin:0">${esc(msg)}</pre><a href="${url}" target="_blank" rel="noopener" onclick="setTimeout(()=>{cart={};renderCart();closeP()},300)" style="text-align:center;background:var(--ac);color:#fff;font-weight:600;border-radius:10px;padding:10px;text-decoration:none">Abrir WhatsApp</a><button class="g" onclick="closeP()">Cancelar</button>`;$('wm').classList.add('on')}
-function openP(id){$(id).classList.add('on');if(id==='adm'){$('sname').value=S.cfg.name;$('swa').value=S.cfg.wa}}
+function openP(id){$(id).classList.add('on');if(id==='adm'){$('sname').value=S.cfg.name;$('svname').value=S.cfg.seller||'';$('svloc').value=S.cfg.loc||'';$('svbio').value=S.cfg.bio||'';$('svrating').value=S.cfg.rating||'';$('swa').value=S.cfg.wa}if(id==='profile')renderProfile()}
 function closeP(){document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'))}
-function saveCfg(){S.cfg.name=$('sname').value.trim()||'Mi Tienda';S.cfg.wa=norm($('swa').value);save();render()}
+function saveCfg(){S.cfg.name=$('sname').value.trim()||'Mi Tienda';S.cfg.seller=$('svname').value.trim()||'Vendedor';S.cfg.loc=$('svloc').value.trim();S.cfg.bio=$('svbio').value.trim();S.cfg.rating=$('svrating').value.trim();S.cfg.wa=norm($('swa').value);save();render();renderProfile()}
 let editId=null,curImg='';
 function pickImg(f){if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);curImg=c.toDataURL('image/jpeg',.8);prev()};im.onerror=()=>alert('No se pudo leer esa imagen.');im.src=r.result};r.readAsDataURL(f)}
 function prev(){$('prev').innerHTML=curImg?`<img src="${curImg}" style="width:90px;height:90px;object-fit:cover;border-radius:10px;margin-top:6px">`:''}
-function resetForm(){editId=null;curImg='';['pn1','pp','pc','pd','pf'].forEach(i=>$(i).value='');prev();$('sb').textContent='Agregar producto'}
+function resetForm(){editId=null;curImg='';['pn1','pp','pc','ploc','pd','pf'].forEach(i=>$(i).value='');prev();$('sb').textContent='Agregar producto'}
 function addProd(){
  const n=$('pn1').value.trim(),p=parseFloat($('pp').value);
  if(!n||isNaN(p))return alert('Nombre y precio son obligatorios.');
- const o={id:editId||Date.now(),n,p,c:$('pc').value.trim(),i:curImg,d:$('pd').value.trim()};
+ const o={id:editId||Date.now(),n,p,c:$('pc').value.trim(),loc:$('ploc').value.trim(),i:curImg,d:$('pd').value.trim()};
  if(editId)S.prods=S.prods.map(x=>x.id===editId?o:x);else S.prods.push(o);
  resetForm();save();render();
 }
-function edit(id){const p=S.prods.find(x=>x.id===id);if(!p)return;editId=id;curImg=/^(https?:\/\/|data:image)/.test(p.i||'')?p.i:'';$('pn1').value=p.n;$('pp').value=p.p;$('pc').value=p.c||'';$('pd').value=p.d||'';$('sb').textContent='Guardar cambios';prev()}
+function edit(id){const p=S.prods.find(x=>x.id===id);if(!p)return;editId=id;curImg=/^(https?:\/\/|data:image)/.test(p.i||'')?p.i:'';$('pn1').value=p.n;$('pp').value=p.p;$('pc').value=p.c||'';$('ploc').value=p.loc||'';$('pd').value=p.d||'';$('sb').textContent='Guardar cambios';prev()}
 function del(id){S.prods=S.prods.filter(p=>p.id!==id);delete cart[id];save();render()}
+function renderProfile(){const c=S.cfg||{};const r=c.rating?'<div class="rating">⭐ '+esc(c.rating)+'/5</div>':'';$('profileBody').innerHTML='<div style="text-align:center;padding:12px 0"><div style="font-size:52px">👤</div><b style="font-size:22px">'+esc(c.seller||'Vendedor')+'</b><div class="loc">📍 '+esc(c.loc||'Ubicación no indicada')+'</div>'+r+'<p>'+esc(c.bio||'Este vendedor aún no ha agregado una descripción.')+'</p></div>';const n=norm(c.wa);$('profileWa').onclick=n?()=>{location.href='https://wa.me/'+n+'?text='+encodeURIComponent('Hola, quiero consultar sobre tus productos.')}:()=>{closeP();askNum()}}
 function renderAdm(){$('alist').innerHTML=S.prods.map(p=>`<div class="row"><span class="n">${esc(p.n)} <small>${cop(p.p)}</small></span><button class="g" onclick="edit(${p.id})">Editar</button><button class="g" onclick="del(${p.id})">✕</button></div>`).join('')}
 function buildHTML(){const c=document.documentElement.cloneNode(true);c.querySelector('#data').textContent=JSON.stringify(S).replace(/</g,'\\u003c');['grid','items','alist','prev'].forEach(i=>c.querySelector('#'+i).innerHTML='');c.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));return '<!DOCTYPE html>\n'+c.outerHTML}
 async function publish(){let a=null;try{a=await claude.use('artifact')}catch(e){}
@@ -160,7 +164,7 @@ async function publish(){let a=null;try{a=await claude.use('artifact')}catch(e){
 async function exportHTML(){const h=buildHTML();
  try{const d=await claude.use('downloads');if(d){await d.save({filename:'tienda.html',data:h});return}}catch(e){if(e&&e.code==='declined')return}
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='tienda.html';a.click()}
-render();
+render();renderProfile();
 </script>
 </body>
-</html
+</html>
