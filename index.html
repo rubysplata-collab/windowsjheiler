@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>XD Messenger</title>
+<title>XD Messenger v4</title>
 <style>
 :root{--bg:#0b1020;--card:#121a2d;--card2:#18223a;--text:#eef3ff;--muted:#8e9ab5;--accent:#6c63ff;--accent2:#4f46e5;--border:#26324d;--ok:#27c98a;--danger:#ff5c7a}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#080c18,#10182b);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
@@ -59,6 +59,7 @@ let peer=null,conn=null,myCode='',targetCode='',incoming={},isHost=false;
 
 const $=id=>document.getElementById(id);
 const alphabet='abcdefghijklmnopqrstuvwxyz';
+const APP_VERSION='v4';
 function code(){
   return 'xd-'+Math.floor(100+Math.random()*900);
 }
@@ -77,6 +78,7 @@ function createPeer(id,displayCode,onReady){
   peer=new Peer(id,{debug:2});
   peer.on('open',realId=>{
     myCode=displayCode||realId;
+    console.log('XD Messenger '+APP_VERSION+' peer:',realId);
     showRoom();
     setStatus(isHost?'Esperando conexión…':'Preparando conexión…');
     if(onReady) onReady(realId);
@@ -121,8 +123,9 @@ function joinRoom(){
   const guestId='guest-'+Math.random().toString(36).slice(2,12);
   createPeer(guestId,c,()=>{
     setStatus('Conectando con '+c+'…');
-    const c2=peer.connect(c,{reliable:true,serialization:'json'});
+    const c2=peer.connect(c,{reliable:true,serialization:'json',label:'xd-chat'});
     setupConnection(c2);
+    c2.on('iceStateChanged',()=>{});
     setTimeout(()=>{
       if(!conn||!conn.open){
         setStatus('No responde. Revisa el código y que el otro teléfono siga abierto.');
@@ -131,7 +134,7 @@ function joinRoom(){
   });
 }
 function copyCode(){navigator.clipboard?.writeText(myCode);addMsg('📋 Código copiado: '+myCode)}
-function send(obj){if(!conn||!conn.open)return alert('Todavía no hay conexión.');conn.send(obj)}
+function send(obj){if(!conn||!conn.open)return alert('Todavía no hay conexión. Estado: '+$('status').textContent);conn.send(obj)}
 function sendText(){const v=$('text').value.trim();if(!v)return;send({t:'text',v});addMsg(v,true);$('text').value=''}
 function size(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';if(n<1073741824)return (n/1048576).toFixed(1)+' MB';return (n/1073741824).toFixed(2)+' GB'}
 async function sendFiles(list){
