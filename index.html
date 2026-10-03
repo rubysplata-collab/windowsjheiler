@@ -2,189 +2,362 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>XD Messenger v5 - ACTUALIZADO</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>XD Messenger</title>
 <style>
-:root{--bg:#0b1020;--card:#121a2d;--card2:#18223a;--text:#eef3ff;--muted:#8e9ab5;--accent:#6c63ff;--accent2:#4f46e5;--border:#26324d;--ok:#27c98a;--danger:#ff5c7a}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#080c18,#10182b);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
-button,input{font:inherit}button{border:0;border-radius:11px;padding:11px 15px;cursor:pointer;font-weight:700;background:var(--accent);color:white}button.secondary{background:var(--card2);border:1px solid var(--border)}button:disabled{opacity:.45;cursor:not-allowed}
-.wrap{width:min(1050px,100%);margin:auto;padding:22px}.brand{text-align:center;margin:12px 0 22px}.brand h1{font-size:34px;margin:0}.brand p{color:var(--muted);margin:5px}
-.card{background:rgba(18,26,45,.94);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:0 20px 60px #0005}
-.join{display:grid;grid-template-columns:1fr auto;gap:10px}.join input{min-width:0;background:#0c1325;border:1px solid var(--border);border-radius:11px;color:white;padding:12px;text-align:center;font-size:20px;letter-spacing:2px;text-transform:lowercase}
-.code{font-size:30px;font-weight:900;letter-spacing:3px;text-align:center;background:#0c1325;border:1px dashed #56658c;padding:16px;border-radius:14px;user-select:all}
-.status{display:flex;align-items:center;justify-content:center;gap:8px;margin:13px;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:#68738c}.dot.ok{background:var(--ok);box-shadow:0 0 12px #27c98a}
-.chat{display:none;grid-template-columns:1fr;gap:12px;margin-top:18px}.chat.on{display:grid}
-.messages{height:360px;overflow:auto;background:#0a1120;border:1px solid var(--border);border-radius:14px;padding:14px}.msg{margin:7px 0;padding:9px 12px;border-radius:12px;background:var(--card2);max-width:80%;white-space:pre-wrap;overflow-wrap:anywhere}.msg.me{margin-left:auto;background:#443dc2}
-.send{display:grid;grid-template-columns:1fr auto auto;gap:8px}.send input{background:#0c1325;border:1px solid var(--border);color:white;border-radius:11px;padding:11px}
-.files{display:grid;gap:9px;margin-top:4px}.file{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px}.filetop{display:flex;gap:10px;align-items:center}.filetop span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar{height:7px;background:#0b1020;border-radius:99px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .1s}.hint{font-size:12px;color:var(--muted);line-height:1.45;text-align:center;margin-top:12px}
-.small{font-size:12px;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-@media(max-width:600px){.wrap{padding:12px}.card{padding:14px}.join{grid-template-columns:1fr}.send{grid-template-columns:1fr 1fr}.send input{grid-column:1/-1}.messages{height:300px}.brand h1{font-size:28px}}
+:root{--bg:#10121a;--surface:#181b26;--line:#272b3a;--text:#e8eaf2;--muted:#8a90a6;--accent:#8f9bff;--mine:#4552d6;--theirs:#232738;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.hidden{display:none!important}.screen{height:100dvh}
+#home{display:grid;place-items:center;padding:16px}
+.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:12px}
+h1{margin:0;font-size:2rem;letter-spacing:-.02em}.sub{margin:0 0 8px;color:var(--muted)}
+label{color:var(--muted);font-size:.9rem}
+input{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;min-width:0;width:100%}
+input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{background:var(--theirs);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font:inherit;cursor:pointer;white-space:nowrap}
+button:hover:not(:disabled){border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--mine);border-color:var(--mine);color:#fff;font-weight:600}
+.or{text-align:center;color:var(--muted)}
+.code-row{display:flex;align-items:center;gap:8px}.code-row span{font-size:1.2rem;color:var(--accent);font-weight:600}
+.code-row input{font-size:1.2rem;letter-spacing:.2em}
+.status{font-size:.9rem;min-height:1.3em}
+.status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}
+#chat{display:flex;flex-direction:column;max-width:900px;margin:0 auto;border-inline:1px solid var(--line)}
+header{display:flex;gap:8px;align-items:center;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));background:var(--surface);border-bottom:1px solid var(--line)}
+.head-main{flex:1;min-width:0}.peer{color:var(--muted);margin-left:8px;font-size:.9rem}
+#feed{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:min(80%,520px);padding:9px 12px;border-radius:16px;word-break:break-word;white-space:pre-wrap}
+.msg.me{align-self:flex-end;background:var(--mine);border-bottom-right-radius:4px}
+.msg.them{align-self:flex-start;background:var(--theirs);border-bottom-left-radius:4px}
+.msg time{display:block;font-size:.72rem;opacity:.65;text-align:right;margin-top:2px}
+.sys{align-self:center;color:var(--muted);font-size:.85rem;text-align:center}
+.file{width:min(80%,360px)}.file .fname{font-weight:600;white-space:normal}.file .meta{font-size:.82rem;opacity:.8}
+.bar{height:6px;background:rgba(255,255,255,.18);border-radius:6px;margin:8px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .15s}
+.file a{display:inline-block;margin-top:6px;background:var(--ok);color:#06240f;padding:7px 12px;border-radius:10px;text-decoration:none;font-weight:600}
+.file .err{color:#ffd1d1}
+footer{display:flex;gap:8px;padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
+footer #msg{flex:1}
+@media(max-width:520px){header button{padding:9px 10px;font-size:.85rem}#attach{padding:12px}.msg,.file{max-width:90%;width:auto}}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="brand"><h1>⚡ XD Messenger <small style="font-size:14px;color:#27c98a">V5 ACTUALIZADO</small></h1><p>Mensajes y archivos por un código corto. Sin cuentas.</p></div>
-  <section class="card">
-    <div id="start">
-      <div class="actions"><button onclick="createRoom()">Crear código</button></div>
-      <p class="small" style="text-align:center">O conecta con el código que te pasó la otra persona:</p>
-      <div class="join"><input id="joinCode" maxlength="6" placeholder="xd-343"><button onclick="joinRoom()">Conectar</button></div>
-      <p class="hint">En el primer teléfono pulsa “Crear código”. En el segundo, escribe ese código y pulsa “Conectar”. Los archivos se envían directamente entre los dos navegadores mediante WebRTC.</p>
-    </div>
+<main id="home" class="screen"><div class="card">
+  <h1>XD Messenger</h1>
+  <p class="sub">Chat y archivos directos entre dos dispositivos.</p>
+  <input id="name" placeholder="Tu nombre (opcional)" maxlength="24" autocomplete="nickname">
+  <button id="create" class="primary">Crear sala</button>
+  <div class="or">o</div>
+  <label for="code">Introduce código de sala</label>
+  <div class="code-row"><span>xd-</span><input id="code" inputmode="numeric" maxlength="7" placeholder="___" autocomplete="off"></div>
+  <button id="join">Conectar</button>
+  <div id="homeStatus" class="status" role="status"></div>
+</div></main>
+<section id="chat" class="screen hidden">
+  <header>
+    <div class="head-main"><strong>Sala: <span id="roomCode"></span></strong><span id="peer" class="peer"></span><div id="status" class="status" role="status"></div></div>
+    <button id="copy">Copiar código</button><button id="leave">Salir</button>
+  </header>
+  <div id="feed" aria-live="polite"></div>
+  <footer>
+    <input type="file" id="file" multiple hidden>
+    <button id="attach" title="Enviar archivo" disabled>📎 Archivo</button>
+    <input id="msg" placeholder="Escribe un mensaje" autocomplete="off" disabled>
+    <button id="send" class="primary" disabled>Enviar</button>
+  </footer>
+</section>
 
-    <div id="room" style="display:none">
-      <div class="small" style="text-align:center">TU CÓDIGO</div>
-      <div class="code" id="myCode"></div><div id="versionBadge" style="text-align:center;color:#27c98a;font-weight:800;margin-top:8px">V5 ACTUALIZADO</div>
-      <div class="status"><span id="dot" class="dot"></span><span id="status">Esperando conexión…</span></div>
-      <div class="actions"><button class="secondary" onclick="copyCode()">Copiar código</button><button class="secondary" onclick="location.reload()">Nueva conexión</button></div>
-    </div>
-
-    <div class="chat" id="chat">
-      <div class="messages" id="messages"></div>
-      <div class="send">
-        <input id="text" placeholder="Escribe un mensaje…" maxlength="4000" onkeydown="if(event.key==='Enter')sendText()">
-        <button onclick="sendText()">Enviar</button>
-        <button class="secondary" onclick="document.getElementById('picker').click()">📎 Archivo</button>
-        <input id="picker" type="file" multiple hidden onchange="sendFiles(this.files)">
-      </div>
-      <div class="files" id="files"></div>
-    </div>
-    <div class="hint">⚠️ Para archivos muy grandes, el navegador puede necesitar bastante RAM. No cierres ni recargues la página durante la transferencia.</div>
-  </section>
-</div>
-
-<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
 <script>
-let peer=null,conn=null,myCode='',targetCode='',incoming={},isHost=false;
+'use strict';
+/* ================= CONFIGURACIÓN (única parte editable) =================
+   Señalización: brokers MQTT públicos por WebSocket seguro. Solo sirven para que
+   los dos dispositivos se encuentren por el código de sala y negocien WebRTC.
+   Mensajes y archivos van directos entre dispositivos y NO pasan por el broker.
+   Si algún día falla, cambia/añade brokers aquí. */
+const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
+/* TURN opcional (redes móviles/firewalls estrictos). Ejemplo:
+   const TURN = { urls: 'turn:servidor:3478', username: 'usuario', credential: 'clave' }; */
+const TURN = null;
+const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }].concat(TURN ? [TURN] : []);
+/* ===================================================================== */
 
-const $=id=>document.getElementById(id);
-const alphabet='abcdefghijklmnopqrstuvwxyz';
-const APP_VERSION='v5';
-function code(){
-  return 'xd-'+Math.floor(100+Math.random()*900);
+const $ = (s) => document.querySelector(s);
+const NS = 'xdm1', CHUNK = 16 * 1024, BUF_HIGH = 8 * 1024 * 1024, BUF_LOW = 1024 * 1024, FLUSH = 64 * 1024 * 1024;
+const myId = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
+const hostT = (c) => `${NS}/h/${c}`, joinT = (c) => `${NS}/j/${c}`, sigT = (c, id) => `${NS}/s/${c}/${id}`;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+let client = null, pc = null, dc = null, role = null, room = null, peerId = null, probe = null;
+let linked = false, leaving = false, rx = null, connTimer = null, sigQueue = Promise.resolve();
+const sendQueue = []; let sending = false;
+
+// ---------- UI ----------
+function setStatus(kind, text) { for (const el of [$('#status'), $('#homeStatus')]) { el.className = 'status ' + kind; el.textContent = text; } }
+function showChat(on) { $('#home').classList.toggle('hidden', on); $('#chat').classList.toggle('hidden', !on); }
+function setHomeBusy(b) { for (const id of ['#create', '#join', '#code']) $(id).disabled = b; }
+function setInputs(on) { for (const id of ['#msg', '#send', '#attach']) $(id).disabled = !on; if (on) $('#msg').focus(); }
+const fmtSize = (n) => { const u = ['B', 'KB', 'MB', 'GB', 'TB']; let i = 0; while (n >= 1024 && i < 4) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 2 : 1) : n) + ' ' + u[i]; };
+const fmtTime = (d = new Date()) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const scrollDown = () => { const f = $('#feed'); f.scrollTop = f.scrollHeight; };
+function addMsg(text, mine, ts) {
+  const d = document.createElement('div'); d.className = 'msg ' + (mine ? 'me' : 'them'); d.textContent = text;
+  const t = document.createElement('time'); t.textContent = fmtTime(ts ? new Date(ts) : new Date()); d.appendChild(t);
+  $('#feed').appendChild(d); scrollDown();
 }
-function validCode(v){return /^xd-[0-9]{3}$/.test(v)}
-function setStatus(t,ok=false){$('status').textContent='V5 · '+t;$('dot').className='dot'+(ok?' ok':'')}
-function showRoom(){ $('start').style.display='none';$('room').style.display='block';$('chat').classList.add('on');$('myCode').textContent=myCode;$('versionBadge').textContent='V5 ACTUALIZADO'}
-function addMsg(text,me=false){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.textContent=text;$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight}
-function setupConnection(c){
-  conn=c;
-  conn.on('open',()=>{setStatus('Conectado',true);addMsg('🔗 Conexión establecida. Ya pueden chatear y enviar archivos.');});
-  conn.on('data',handleData);
-  conn.on('close',()=>{setStatus('Conexión cerrada');addMsg('⚠️ La otra persona se desconectó.');conn=null});
-  conn.on('error',e=>{setStatus('Error de conexión');console.error(e)});
+function addSystem(text) { const d = document.createElement('div'); d.className = 'sys'; d.textContent = text; $('#feed').appendChild(d); scrollDown(); }
+function addFileCard(name, size, mine) {
+  const d = document.createElement('div'); d.className = 'msg file ' + (mine ? 'me' : 'them');
+  const n = document.createElement('div'); n.className = 'fname'; n.textContent = '📄 ' + name;
+  const m = document.createElement('div'); m.className = 'meta'; m.textContent = fmtSize(size);
+  const bar = document.createElement('div'); bar.className = 'bar'; const fill = document.createElement('i'); bar.appendChild(fill);
+  const info = document.createElement('div'); info.className = 'meta';
+  d.append(n, m, bar, info); $('#feed').appendChild(d); scrollDown();
+  return {
+    progress(frac, speed) { const p = Math.min(100, Math.floor(frac * 100)); fill.style.width = p + '%'; info.textContent = `${mine ? 'Subiendo' : 'Descargando'} ${p}% · ${fmtSize(speed)}/s`; },
+    done(url) {
+      fill.style.width = '100%';
+      if (mine) { info.textContent = '✅ Enviado'; return; }
+      info.textContent = '✅ Recibido';
+      const a = document.createElement('a'); a.href = url; a.download = name; a.textContent = 'Descargar'; d.appendChild(a);
+    },
+    fail(msg) { info.className = 'meta err'; info.textContent = '❌ ' + msg; }
+  };
 }
-function createPeer(id,displayCode,onReady){
-  peer=new Peer(id,{debug:2});
-  peer.on('open',realId=>{
-    myCode=displayCode||realId;
-    console.log('XD Messenger '+APP_VERSION+' peer:',realId);
-    showRoom();
-    setStatus(isHost?'Esperando conexión…':'Preparando conexión…');
-    if(onReady) onReady(realId);
+
+// ---------- Señalización (MQTT) ----------
+function connectBroker(url, timeout = 6000) {
+  return new Promise((resolve, reject) => {
+    if (typeof mqtt === 'undefined') return reject(new Error('lib'));
+    const c = mqtt.connect(url, { clientId: 'xd_' + Math.random().toString(36).slice(2, 10), clean: true, reconnectPeriod: 0, connectTimeout: timeout });
+    const t = setTimeout(() => { try { c.end(true); } catch {} reject(new Error('timeout')); }, timeout + 500);
+    c.once('connect', () => { clearTimeout(t); c.on('error', () => {}); c.on('message', onMsg); resolve(c); });
+    c.once('error', (e) => { clearTimeout(t); try { c.end(true); } catch {} reject(e); });
   });
-  peer.on('connection',c=>{
-    if(conn&&conn.open){c.close();return}
-    setupConnection(c);
-  });
-  peer.on('error',e=>{
-    console.error('PeerJS:',e);
-    if(e.type==='unavailable-id' && isHost){
-      const fresh=code();
-      myCode=fresh;
-      createPeer(fresh,fresh,onReady);
-      return;
+}
+const sub = (c, topic) => new Promise((res, rej) => c.subscribe(topic, { qos: 1 }, (e) => (e ? rej(e) : res())));
+const pub = (topic, obj, retain = false) => client && client.publish(topic, obj == null ? '' : JSON.stringify(obj), { qos: 1, retain });
+const sendSig = (data) => { if (client && peerId) pub(sigT(room, peerId), { from: myId, data }); };
+
+async function connectAny() {
+  if (typeof mqtt === 'undefined') throw new Error('No se pudo cargar la librería de señalización (mqtt.js) desde internet. Comprueba tu conexión o bloqueadores de contenido.');
+  for (const url of BROKERS) { try { return await connectBroker(url); } catch {} }
+  throw new Error('No se pudo contactar con ningún servidor de señalización público. Revisa tu Internet, VPN o firewall (necesita WebSocket seguro por el puerto 8084/8884).');
+}
+function onMsg(topic, payload) {
+  if (probe && topic === probe.topic) { try { probe.m = payload.length ? JSON.parse(payload.toString()) : null; } catch { probe.m = null; } return; }
+  let m; try { m = JSON.parse(payload.toString()); } catch { return; }
+  if (role === 'host' && topic === joinT(room)) {
+    if (m.from && !peerId && !linked) { peerId = m.from; setStatus('warn', '🟡 Conectando...'); makePeer(true); }
+  } else if (topic === sigT(room, myId) && m.from === peerId && m.data) {
+    sigQueue = sigQueue.then(() => handleSignal(m.data)).catch((e) => console.error('signal', e));
+  }
+}
+async function probeHost(c, code, wait) { // ¿existe una sala con ese código?
+  probe = { topic: hostT(code), m: null };
+  await sub(c, probe.topic); await sleep(wait);
+  const m = probe.m; probe = null; c.unsubscribe(hostT(code)); return m;
+}
+async function startHost() {
+  setStatus('warn', '🟡 Creando sala...');
+  try {
+    client = await connectAny();
+    let code = null;
+    for (let i = 0; i < 10 && !code; i++) {
+      const c = 'xd-' + (100 + Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296 * 900));
+      const m = await probeHost(client, c, 1200);
+      if (!m || !m.ts || Date.now() - m.ts > 6 * 3600e3) code = c; // libre o abandonada
     }
-    const messages={
-      'peer-unavailable':'El código no existe o el otro teléfono todavía no está conectado.',
-      'network':'No se pudo conectar al servidor de señalización.',
-      'server-error':'El servidor de conexión rechazó la conexión.',
-      'browser-incompatible':'Este navegador no permite WebRTC.'
-    };
-    setStatus(messages[e.type]||('Error: '+e.type));
-    alert(messages[e.type]||('Error de conexión: '+e.type));
-  });
-  peer.on('disconnected',()=>{
-    setStatus('Se perdió la conexión de señalización. Reintentando…');
-    try{peer.reconnect()}catch(_){}
-  });
+    if (!code) throw new Error('No se encontró un código libre. Inténtalo de nuevo en unos minutos.');
+    room = code; await sub(client, joinT(room)); await sub(client, sigT(room, myId));
+    pub(hostT(room), { id: myId, ts: Date.now() }, true);
+    $('#roomCode').textContent = room; showChat(true);
+    setStatus('warn', `🟡 Sala creada. Esperando a la otra persona: comparte ${room}`);
+    addSystem(`Comparte el código ${room}. Mantén esta pestaña abierta hasta que se conecte.`);
+  } catch (e) { fail(e.message); }
 }
-function createRoom(){
-  isHost=true;
-  const c=code();
-  myCode=c;
-  createPeer(c,c);
-}
-function joinRoom(){
-  const c=$('joinCode').value.trim().toLowerCase();
-  if(!validCode(c))return alert('Usa un código como xd-343.');
-  isHost=false;
-  targetCode=c;
-  const guestId='guest-'+Math.random().toString(36).slice(2,12);
-  createPeer(guestId,c,()=>{
-    setStatus('Conectando con '+c+'…');
-    const c2=peer.connect(c,{reliable:true,serialization:'json',label:'xd-chat'});
-    setupConnection(c2);
-    c2.on('iceStateChanged',()=>{});
-    setTimeout(()=>{
-      if(!conn||!conn.open){
-        setStatus('No responde. Revisa el código y que el otro teléfono siga abierto.');
-      }
-    },15000);
-  });
-}
-function copyCode(){navigator.clipboard?.writeText(myCode);addMsg('📋 Código copiado: '+myCode)}
-function send(obj){if(!conn||!conn.open)return alert('Todavía no hay conexión. Estado: '+$('status').textContent);conn.send(obj)}
-function sendText(){const v=$('text').value.trim();if(!v)return;send({t:'text',v});addMsg(v,true);$('text').value=''}
-function size(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';if(n<1073741824)return (n/1048576).toFixed(1)+' MB';return (n/1073741824).toFixed(2)+' GB'}
-async function sendFiles(list){
-  for(const f of list){
-    const id=crypto.randomUUID();
-    send({t:'file-start',id,name:f.name,size:f.size,type:f.type||'application/octet-stream'});
-    const chunk=64*1024;
-    let sent=0;
-    const ui=fileUI(id,f.name,f.size,true);
-    while(sent<f.size){
-      const ab=await f.slice(sent,sent+chunk).arrayBuffer();
-      send({t:'file-chunk',id,data:ab});
-      sent+=ab.byteLength;
-      ui.bar.style.width=(sent/f.size*100)+'%';
-      await new Promise(r=>setTimeout(r,0));
+async function startGuest(code) {
+  setStatus('warn', '🟡 Buscando sala...');
+  let found = null, reached = false;
+  try {
+    if (typeof mqtt === 'undefined') throw new Error('No se pudo cargar la librería de señalización (mqtt.js) desde internet. Comprueba tu conexión o bloqueadores de contenido.');
+    for (const url of BROKERS) {
+      let c; try { c = await connectBroker(url); } catch { continue; }
+      reached = true; client = c;
+      const m = await probeHost(c, code, 3000);
+      if (m && m.id) { found = m; break; }
+      c.end(true); client = null;
     }
-    send({t:'file-end',id});
-    ui.label.textContent='✓ '+f.name+' · enviado';
-  }
-  $('picker').value='';
+    if (!reached) throw new Error('No se pudo contactar con ningún servidor de señalización público. Revisa tu Internet, VPN o firewall.');
+    if (!found) throw new Error(`La sala ${code} no existe o ya se cerró (se cierra al conectarse la otra persona). Pide un código nuevo.`);
+    room = code; role = 'guest'; peerId = found.id;
+    await sub(client, sigT(room, myId));
+    $('#roomCode').textContent = room; showChat(true);
+    setStatus('warn', '🟡 Conectando...');
+    makePeer(false);
+    pub(joinT(room), { from: myId });
+  } catch (e) { fail(e.message); }
 }
-function fileUI(id,name,total,me){
-  const d=document.createElement('div');d.className='file';
-  d.innerHTML='<div class="filetop"><span></span><b class="pct">0%</b></div><div class="bar"><i></i></div>';
-  d.querySelector('span').textContent=(me?'📤 ':'📥 ')+name+' · '+size(total);
-  $('files').appendChild(d);
-  return {root:d,bar:d.querySelector('i'),pct:d.querySelector('.pct'),label:d.querySelector('span')}
+function closeBroker() {
+  if (!client) return;
+  try { if (role === 'host' && room) client.publish(hostT(room), '', { qos: 1, retain: true }); client.end(); } catch {}
+  client = null;
 }
-function handleData(m){
-  if(m.t==='text'){addMsg(m.v,false);return}
-  if(m.t==='file-start'){
-    incoming[m.id]={name:m.name,size:m.size,type:m.type,chunks:[],got:0,ui:fileUI(m.id,m.name,m.size,false)};
-    return;
-  }
-  if(m.t==='file-chunk'){
-    const x=incoming[m.id];if(!x)return;
-    x.chunks.push(m.data);x.got+=m.data.byteLength;
-    x.ui.bar.style.width=(x.got/x.size*100)+'%';x.ui.pct.textContent=Math.floor(x.got/x.size*100)+'%';
-    return;
-  }
-  if(m.t==='file-end'){
-    const x=incoming[m.id];if(!x)return;
-    const blob=new Blob(x.chunks,{type:x.type});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=x.name;a.textContent='⬇️ Descargar '+x.name;
-    a.style.display='inline-block';a.style.marginTop='8px';a.style.color='#fff';a.style.textDecoration='none';
-    a.style.background='var(--accent2)';a.style.padding='8px 10px';a.style.borderRadius='9px';
-    x.ui.root.appendChild(a);x.ui.pct.textContent='100%';delete incoming[m.id];
+async function handleSignal(d) {
+  if (!pc) return;
+  if (d.description) {
+    await pc.setRemoteDescription(d.description);
+    if (d.description.type === 'offer') { await pc.setLocalDescription(await pc.createAnswer()); sendSig({ description: pc.localDescription }); }
+  } else if (d.candidate) { try { await pc.addIceCandidate(d.candidate); } catch (e) { console.warn('ICE', e); } }
+}
+
+// ---------- WebRTC ----------
+function makePeer(initiator) {
+  closePeer();
+  const conn = (pc = new RTCPeerConnection({ iceServers: ICE }));
+  conn.onicecandidate = (e) => { if (e.candidate) sendSig({ candidate: e.candidate }); };
+  conn.onconnectionstatechange = () => {
+    if (conn !== pc) return; const s = conn.connectionState;
+    if (s === 'failed') { clearTimeout(connTimer); setInputs(false); setStatus('bad', '❌ Error de conexión: no se pudo abrir el enlace directo (suele pasar con firewalls o redes móviles estrictas). Añade un servidor TURN en la configuración del archivo.'); if (role === 'host') peerId = null; }
+    else if (s === 'disconnected') setStatus('warn', '🟡 Conexión inestable, intentando recuperar...');
+    else if (s === 'connected' && dc && dc.readyState === 'open') setStatus('ok', '🟢 Conectado');
+  };
+  clearTimeout(connTimer);
+  connTimer = setTimeout(() => {
+    if (linked || pc !== conn) return;
+    setStatus('bad', '❌ Error de conexión: se agotó el tiempo (20 s). La otra persona pudo cerrar la página, o la red bloquea WebRTC.');
+    if (role === 'host') { peerId = null; closePeer(); setStatus('warn', `🟡 La conexión no se completó. La sala ${room} sigue abierta: la otra persona puede intentarlo de nuevo.`); }
+  }, 20000);
+  if (initiator) {
+    setupChannel(conn.createDataChannel('xd', { ordered: true }));
+    conn.createOffer().then((o) => conn.setLocalDescription(o)).then(() => sendSig({ description: conn.localDescription }))
+      .catch((e) => fail('No se pudo iniciar la negociación: ' + e.message));
+  } else conn.ondatachannel = (e) => setupChannel(e.channel);
+}
+function setupChannel(ch) {
+  dc = ch; ch.binaryType = 'arraybuffer'; ch.bufferedAmountLowThreshold = BUF_LOW;
+  ch.onopen = () => {
+    if (ch !== dc) return;
+    clearTimeout(connTimer); linked = true; setStatus('ok', '🟢 Conectado'); setInputs(true);
+    addSystem('Conexión directa establecida. La sala ya está cerrada a otras personas.');
+    sendJSON({ t: 'hello', name: $('#name').value.trim().slice(0, 24) });
+    closeBroker(); // ya no hace falta el servidor de señalización
+  };
+  ch.onclose = () => {
+    if (ch !== dc) return;
+    if (rx) { rx.card.fail('Conexión cerrada antes de terminar'); rx = null; }
+    if (linked) { linked = false; setInputs(false); if (!leaving) { setStatus('bad', '🔴 Desconectado: la otra persona se fue o se perdió la red. Pulsa Salir y crea una sala nueva.'); addSystem('Se perdió la conexión.'); } }
+  };
+  ch.onerror = () => { if (ch === dc && linked) setStatus('bad', '❌ Error en el canal de datos. Comprueba la conexión.'); };
+  ch.onmessage = (e) => (typeof e.data === 'string' ? onControl(JSON.parse(e.data)) : onChunk(e.data));
+}
+function closePeer() {
+  clearTimeout(connTimer);
+  const c = dc, p = pc; dc = null; pc = null; linked = false;
+  if (c) { c.onclose = c.onmessage = c.onopen = c.onerror = null; try { c.close(); } catch {} }
+  if (p) { p.onconnectionstatechange = p.onicecandidate = null; try { p.close(); } catch {} }
+  if (rx) { rx.card.fail('Conexión cerrada antes de terminar'); rx = null; }
+  sigQueue = Promise.resolve();
+}
+const sendJSON = (o) => { if (dc && dc.readyState === 'open') dc.send(JSON.stringify(o)); };
+
+// ---------- Mensajes ----------
+function onControl(m) {
+  if (m.t === 'hello') { const n = String(m.name || '').slice(0, 24); $('#peer').textContent = n ? 'con ' + n : ''; if (n) addSystem(n + ' se unió.'); }
+  else if (m.t === 'msg') addMsg(String(m.text), false, m.ts);
+  else if (m.t === 'fs') {
+    if (rx) rx.card.fail('Interrumpido por otro archivo');
+    rx = { id: m.id, name: String(m.name), size: m.size, type: m.mime || 'application/octet-stream', got: 0, parts: [], blobs: [], pend: 0, card: addFileCard(String(m.name), m.size, false), tl: 0, lastB: 0 };
+    rx.card.progress(0, 0);
+  } else if (m.t === 'fe') {
+    if (!rx || rx.id !== m.id) return;
+    const r = rx; rx = null;
+    if (r.got !== r.size) return r.card.fail(`Archivo incompleto (${fmtSize(r.got)} de ${fmtSize(r.size)})`);
+    r.card.done(URL.createObjectURL(new Blob([...r.blobs, ...r.parts], { type: r.type })));
   }
 }
+function onChunk(buf) {
+  if (!rx) return;
+  rx.parts.push(buf); rx.got += buf.byteLength; rx.pend += buf.byteLength;
+  if (rx.pend >= FLUSH) { rx.blobs.push(new Blob(rx.parts)); rx.parts = []; rx.pend = 0; }
+  const now = performance.now();
+  if (now - rx.tl > 250) {
+    const dt = rx.tl ? now - rx.tl : 250;
+    rx.card.progress(rx.size ? rx.got / rx.size : 1, ((rx.got - rx.lastB) / dt) * 1000); rx.tl = now; rx.lastB = rx.got;
+  }
+}
+function sendMessage() {
+  const el = $('#msg'), text = el.value.trim(); if (!text || !linked) return;
+  const ts = Date.now(); sendJSON({ t: 'msg', text, ts }); addMsg(text, true, ts); el.value = '';
+}
+
+// ---------- Archivos por fragmentos con contrapresión ----------
+function waitDrain() {
+  return new Promise((res) => {
+    const ch = dc; if (!ch) return res();
+    const done = () => { ch.removeEventListener('bufferedamountlow', done); ch.removeEventListener('close', done); res(); };
+    ch.addEventListener('bufferedamountlow', done); ch.addEventListener('close', done);
+  });
+}
+async function sendFile(file) {
+  const card = addFileCard(file.name, file.size, true);
+  const id = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random());
+  const open = () => dc && dc.readyState === 'open';
+  try {
+    sendJSON({ t: 'fs', id, name: file.name, size: file.size, mime: file.type });
+    let off = 0, tl = performance.now(), lastSent = 0;
+    while (off < file.size) {
+      if (!open()) throw new Error('La conexión se cerró durante el envío');
+      if (dc.bufferedAmount > BUF_HIGH) await waitDrain();
+      if (!open()) throw new Error('La conexión se cerró durante el envío');
+      const buf = await file.slice(off, off + CHUNK).arrayBuffer();
+      dc.send(buf); off += buf.byteLength;
+      const now = performance.now();
+      if (now - tl > 250) { const sent = off - dc.bufferedAmount; card.progress(sent / file.size, Math.max(0, ((sent - lastSent) / (now - tl)) * 1000)); tl = now; lastSent = sent; }
+    }
+    while (open() && dc.bufferedAmount > 0) await sleep(50);
+    if (!open()) throw new Error('La conexión se cerró antes de terminar');
+    sendJSON({ t: 'fe', id }); card.done();
+  } catch (e) { card.fail(e.message || 'Error al enviar'); }
+}
+async function pumpQueue() { if (sending) return; sending = true; while (sendQueue.length) await sendFile(sendQueue.shift()); sending = false; }
+
+// ---------- Acciones ----------
+function start(kind, code) {
+  if (client || pc) return;
+  leaving = false; role = kind; setHomeBusy(true);
+  return kind === 'host' ? startHost() : startGuest(code);
+}
+function fail(msg) {
+  setStatus('bad', '❌ ' + msg);
+  if ($('#chat').classList.contains('hidden')) { closeBroker(); closePeer(); room = peerId = null; setHomeBusy(false); } else setInputs(false);
+}
+function leaveRoom() {
+  leaving = true; closeBroker(); closePeer(); sendQueue.length = 0; room = peerId = null;
+  $('#feed').textContent = ''; $('#peer').textContent = ''; setInputs(false); setHomeBusy(false); showChat(false); setStatus('', '');
+}
+const normalizeCode = (v) => v.replace(/^\s*xd-?/i, '').replace(/\D/g, '').slice(0, 3);
+$('#create').onclick = () => start('host');
+$('#join').onclick = () => {
+  const d = normalizeCode($('#code').value);
+  if (d.length !== 3) return setStatus('bad', '❌ Escribe los 3 dígitos del código, por ejemplo xd-483.');
+  start('guest', 'xd-' + d);
+};
+$('#code').oninput = (e) => { e.target.value = normalizeCode(e.target.value); };
+$('#code').onkeydown = (e) => { if (e.key === 'Enter') $('#join').click(); };
+$('#send').onclick = sendMessage;
+$('#msg').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+$('#attach').onclick = () => $('#file').click();
+$('#file').onchange = (e) => { for (const f of e.target.files) sendQueue.push(f); e.target.value = ''; if (linked) pumpQueue(); };
+$('#leave').onclick = leaveRoom;
+$('#copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(room); } catch { const t = document.createElement('textarea'); t.value = room; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  $('#copy').textContent = '¡Copiado!'; setTimeout(() => ($('#copy').textContent = 'Copiar código'), 1500);
+};
+addEventListener('pagehide', () => { if (role === 'host' && !linked) closeBroker(); });
+const pre = new URLSearchParams(location.search).get('room'); if (pre) $('#code').value = normalizeCode(pre);
 </script>
 </body>
 </html>
