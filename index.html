@@ -53,9 +53,9 @@ button,input{font:inherit}button{border:0;border-radius:11px;padding:11px 15px;c
   </section>
 </div>
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <script>
-let peer=null,conn=null,myCode='',targetCode='',incoming={};
+let peer=null,conn=null,myCode='',targetCode='',incoming={},isHost=false;
 
 const $=id=>document.getElementById(id);
 const alphabet='abcdefghijklmnopqrstuvwxyz';
@@ -73,32 +73,61 @@ function setupConnection(c){
   conn.on('close',()=>{setStatus('Conexión cerrada');addMsg('⚠️ La otra persona se desconectó.');conn=null});
   conn.on('error',e=>{setStatus('Error de conexión');console.error(e)});
 }
-function createPeer(id,displayCode=id){
-  peer=new Peer(id,{debug:1,config:{iceServers:[
-    {urls:'stun:stun.l.google.com:19302'},
-    {urls:'stun:stun1.l.google.com:19302'}
-  ]}});
-  peer.on('open',()=>{myCode=displayCode;showRoom();setStatus('Esperando conexión…')});
-  peer.on('open',id=>{console.log('Peer listo:',id)});
-  peer.on('connection',c=>{if(conn){c.close();return}setupConnection(c)});
-  peer.on('error',e=>{
-    console.error(e);
-    if(e.type==='unavailable-id' && displayCode===id){myCode=code();createPeer(myCode)}
-    else {setStatus('No se pudo crear/conectar');alert('No se pudo usar este código. Intenta crear otro.')}
+function createPeer(id,displayCode,onReady){
+  peer=new Peer(id,{debug:2});
+  peer.on('open',realId=>{
+    myCode=displayCode||realId;
+    showRoom();
+    setStatus(isHost?'Esperando conexión…':'Preparando conexión…');
+    if(onReady) onReady(realId);
   });
-  peer.on('disconnected',()=>setStatus('Conexión de señalización perdida'));
+  peer.on('connection',c=>{
+    if(conn&&conn.open){c.close();return}
+    setupConnection(c);
+  });
+  peer.on('error',e=>{
+    console.error('PeerJS:',e);
+    if(e.type==='unavailable-id' && isHost){
+      const fresh=code();
+      myCode=fresh;
+      createPeer(fresh,fresh,onReady);
+      return;
+    }
+    const messages={
+      'peer-unavailable':'El código no existe o el otro teléfono todavía no está conectado.',
+      'network':'No se pudo conectar al servidor de señalización.',
+      'server-error':'El servidor de conexión rechazó la conexión.',
+      'browser-incompatible':'Este navegador no permite WebRTC.'
+    };
+    setStatus(messages[e.type]||('Error: '+e.type));
+    alert(messages[e.type]||('Error de conexión: '+e.type));
+  });
+  peer.on('disconnected',()=>{
+    setStatus('Se perdió la conexión de señalización. Reintentando…');
+    try{peer.reconnect()}catch(_){}
+  });
 }
-function createRoom(){const c=code();myCode=c;createPeer(c,c)}
+function createRoom(){
+  isHost=true;
+  const c=code();
+  myCode=c;
+  createPeer(c,c);
+}
 function joinRoom(){
   const c=$('joinCode').value.trim().toLowerCase();
   if(!validCode(c))return alert('Usa un código como xd-343.');
+  isHost=false;
   targetCode=c;
   const guestId='guest-'+Math.random().toString(36).slice(2,12);
-  createPeer(guestId,c);
-  peer.on('open',()=>{
+  createPeer(guestId,c,()=>{
     setStatus('Conectando con '+c+'…');
-    conn=peer.connect(c,{reliable:true,serialization:'json'});
-    setupConnection(conn);
+    const c2=peer.connect(c,{reliable:true,serialization:'json'});
+    setupConnection(c2);
+    setTimeout(()=>{
+      if(!conn||!conn.open){
+        setStatus('No responde. Revisa el código y que el otro teléfono siga abierto.');
+      }
+    },15000);
   });
 }
 function copyCode(){navigator.clipboard?.writeText(myCode);addMsg('📋 Código copiado: '+myCode)}
