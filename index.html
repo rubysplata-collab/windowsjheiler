@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>XD Messenger v4</title>
+<title>XD Messenger v5 - ACTUALIZADO</title>
 <style>
 :root{--bg:#0b1020;--card:#121a2d;--card2:#18223a;--text:#eef3ff;--muted:#8e9ab5;--accent:#6c63ff;--accent2:#4f46e5;--border:#26324d;--ok:#27c98a;--danger:#ff5c7a}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#080c18,#10182b);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
@@ -23,7 +23,7 @@ button,input{font:inherit}button{border:0;border-radius:11px;padding:11px 15px;c
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><h1>⚡ XD Messenger</h1><p>Mensajes y archivos por un código corto. Sin cuentas.</p></div>
+  <div class="brand"><h1>⚡ XD Messenger <small style="font-size:14px;color:#27c98a">V5 ACTUALIZADO</small></h1><p>Mensajes y archivos por un código corto. Sin cuentas.</p></div>
   <section class="card">
     <div id="start">
       <div class="actions"><button onclick="createRoom()">Crear código</button></div>
@@ -34,7 +34,7 @@ button,input{font:inherit}button{border:0;border-radius:11px;padding:11px 15px;c
 
     <div id="room" style="display:none">
       <div class="small" style="text-align:center">TU CÓDIGO</div>
-      <div class="code" id="myCode"></div>
+      <div class="code" id="myCode"></div><div id="versionBadge" style="text-align:center;color:#27c98a;font-weight:800;margin-top:8px">V5 ACTUALIZADO</div>
       <div class="status"><span id="dot" class="dot"></span><span id="status">Esperando conexión…</span></div>
       <div class="actions"><button class="secondary" onclick="copyCode()">Copiar código</button><button class="secondary" onclick="location.reload()">Nueva conexión</button></div>
     </div>
@@ -59,13 +59,13 @@ let peer=null,conn=null,myCode='',targetCode='',incoming={},isHost=false;
 
 const $=id=>document.getElementById(id);
 const alphabet='abcdefghijklmnopqrstuvwxyz';
-const APP_VERSION='v4';
+const APP_VERSION='v5';
 function code(){
   return 'xd-'+Math.floor(100+Math.random()*900);
 }
 function validCode(v){return /^xd-[0-9]{3}$/.test(v)}
-function setStatus(t,ok=false){$('status').textContent=t;$('dot').className='dot'+(ok?' ok':'')}
-function showRoom(){ $('start').style.display='none';$('room').style.display='block';$('chat').classList.add('on');$('myCode').textContent=myCode }
+function setStatus(t,ok=false){$('status').textContent='V5 · '+t;$('dot').className='dot'+(ok?' ok':'')}
+function showRoom(){ $('start').style.display='none';$('room').style.display='block';$('chat').classList.add('on');$('myCode').textContent=myCode;$('versionBadge').textContent='V5 ACTUALIZADO'}
 function addMsg(text,me=false){const d=document.createElement('div');d.className='msg'+(me?' me':'');d.textContent=text;$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight}
 function setupConnection(c){
   conn=c;
