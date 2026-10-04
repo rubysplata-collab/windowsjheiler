@@ -175,11 +175,22 @@ r.T=+s.T||0;
 if(typeof s.t=='string'&&s.t!==r.rt){r.rt=s.t;r.trail=dect(s.t)}}
 for(const p of ch.left){const r=peers.get(p.peer);if(r){S.remove(r.m);peers.delete(p.peer)}}
 dirty=true}
-let lobby=null,code='',why='';(async()=>{try{if(window.claude&&claude.use)lobby=await claude.use('room')}catch(e){}})();
+let lobby=null,code='',why='';
+// Fuera de Claude (GitHub Pages, etc.) las salas usan WebRTC directo entre jugadores, sin servidor propio
+const P2P='https://esm.run/trystero@0.25.4',snd=(a,d,o)=>{try{Promise.resolve(a.send(d,o)).catch(()=>{})}catch(e){}};
+const p2pLobby={join:async name=>{const {joinRoom}=await import(P2P);const r=joinRoom({appId:'territorio3d-rellena-v1'},name);
+const pa=r.makeAction('pres'),ca=r.makeAction('chat'),hs=[],ch=[],seen=new Map();let my={};
+const fire=c=>hs.forEach(h=>h(c));
+pa.onMessage=(d,{peerId})=>{const had=seen.has(peerId),p={peer:peerId,isMe:false,kind:'viewer',presence:d};seen.set(peerId,p);fire({joined:had?[]:[p],updated:had?[p]:[],left:[]})};
+ca.onMessage=(d,{peerId})=>ch.forEach(h=>h({data:d,peer:peerId}));
+r.onPeerJoin=id=>snd(pa,my,{target:id});
+r.onPeerLeave=id=>{const p=seen.get(id);if(p){seen.delete(id);fire({joined:[],updated:[],left:[p]})}};
+return{presence:async patch=>{Object.assign(my,patch);snd(pa,my)},emit:async(t,d)=>{if(t=='chat'){snd(ca,d);ch.forEach(h=>h({data:d,peer:'yo'}))}},on:(t,f)=>{if(t=='chat')ch.push(f);return()=>{}},onPeers:f=>{hs.push(f);return()=>{}}}}};
+(async()=>{try{if(window.claude&&claude.use)lobby=await claude.use('room')}catch(e){}if(!lobby)lobby=p2pLobby})();
 async function joinRoom(c){if(!lobby){why='esta página no tiene conexión en línea (¿abriste el archivo suelto o no tienes acceso al enlace?)';return}
-try{room=await Promise.race([lobby.join(c.toLowerCase()),new Promise((_,j)=>setTimeout(()=>j({code:'tiempo agotado'}),6000))]);room.onPeers(sync,()=>{});setInterval(()=>push(false),70);
+try{room=await Promise.race([lobby.join(c.toLowerCase()),new Promise((_,j)=>setTimeout(()=>j({code:'tiempo agotado'}),12000))]);room.onPeers(sync,()=>{});setInterval(()=>push(false),70);
 room.on('chat',m=>{const d=m.data;if(d&&typeof d.t=='string')chatLine(String(d.n||'?').slice(0,12),d.t.slice(0,100))},()=>{});
-document.body.classList.add('chat');chatLine('Sala','Comparte el código '+c.toUpperCase()+' con tus amigos')}catch(e){room=null;why='no se pudo entrar a la sala ('+((e&&e.code)||'error')+')'}}
+document.body.classList.add('chat');chatLine('Sala','Comparte el código '+c.toUpperCase()+' con tus amigos')}catch(e){room=null;why='no se pudo entrar a la sala ('+((e&&(e.code||e.message))||'error')+')'}}
 
 function chatLine(n,t){const d=document.createElement('div'),b=document.createElement('b');b.textContent=n+': ';d.append(b,document.createTextNode(t));const l=$('log');l.append(d);
 while(l.children.length>6)l.firstChild.remove();setTimeout(()=>{if(d.parentNode&&!$('chat').classList.contains('open'))d.remove()},15000)}
@@ -210,7 +221,7 @@ async function begin(c){me.name=($('nm').value.trim()||'Jugador').slice(0,12);
 code=c||(['ASMR','LAVA','NOVA','ZETA','KIWI','PIXEL','COCO','TURBO'][Math.random()*8|0]+'-'+(100+Math.random()*900|0));
 $('start').style.display='none';await joinRoom(code);document.body.classList.add('play','chat');
 $('rcode').textContent='Sala '+code+' 📋'+(room?'':' · sin conexión');$('rcode').style.display='block';
-if(!room)chatLine('Aviso','Sin conexión: '+why+'. Los otros jugadores y el chat solo funcionan con el enlace publicado.');else msg('Sala '+code+': pasa el código a tus amigos');
+if(!room)chatLine('Aviso','Sin conexión: '+why+'. Revisa tu internet y vuelve a intentarlo.');else msg('Sala '+code+': pasa el código a tus amigos');
 msg('Mantén el clic, o usa WASD / joystick para moverte')
 playing=true;me.m.visible=true;$('coins').style.display='block';$('shb').style.display='block';upd();spawn();C.position.set(me.x-N/2,10.5,me.z-N/2+8.5)}
 $('go').onclick=()=>begin($('rc').value.trim().toUpperCase().replace(/[\s_]+/g,'-').replace(/[^A-Z0-9-]/g,'').replace(/^-+/,'').slice(0,20));
