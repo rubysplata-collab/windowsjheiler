@@ -1,394 +1,232 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>XD Messenger</title>
+<title>Rellena el mapa 3D</title>
 <style>
-:root{--bg:#10121a;--surface:#181b26;--line:#272b3a;--text:#e8eaf2;--muted:#8a90a6;--accent:#8f9bff;--mine:#4552d6;--theirs:#232738;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
-*{box-sizing:border-box}html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.hidden{display:none!important}.screen{height:100dvh}
-#home{display:grid;place-items:center;padding:16px}
-.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:12px}
-h1{margin:0;font-size:2rem;letter-spacing:-.02em}.sub{margin:0 0 8px;color:var(--muted)}
-label{color:var(--muted);font-size:.9rem}
-input{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;min-width:0;width:100%}
-input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-button{background:var(--theirs);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font:inherit;cursor:pointer;white-space:nowrap}
-button:hover:not(:disabled){border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
-button.primary{background:var(--mine);border-color:var(--mine);color:#fff;font-weight:600}
-.or{text-align:center;color:var(--muted)}
-.code-row{display:flex;align-items:center;gap:8px}.code-row span{font-size:1.2rem;color:var(--accent);font-weight:600}
-.code-row input{font-size:1.2rem;letter-spacing:.2em}
-.status{font-size:.9rem;min-height:1.3em}
-.status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}
-#chat{display:flex;flex-direction:column;max-width:900px;margin:0 auto;border-inline:1px solid var(--line)}
-header{display:flex;gap:8px;align-items:center;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));background:var(--surface);border-bottom:1px solid var(--line)}
-.head-main{flex:1;min-width:0}.peer{color:var(--muted);margin-left:8px;font-size:.9rem}
-#feed{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:min(80%,520px);padding:9px 12px;border-radius:16px;word-break:break-word;white-space:pre-wrap}
-.msg.me{align-self:flex-end;background:var(--mine);border-bottom-right-radius:4px}
-.msg.them{align-self:flex-start;background:var(--theirs);border-bottom-left-radius:4px}
-.msg time{display:block;font-size:.72rem;opacity:.65;text-align:right;margin-top:2px}
-.sys{align-self:center;color:var(--muted);font-size:.85rem;text-align:center}
-.file{width:min(80%,360px)}.file .fname{font-weight:600;white-space:normal}.file .meta{font-size:.82rem;opacity:.8}
-.bar{height:6px;background:rgba(255,255,255,.18);border-radius:6px;margin:8px 0 4px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .15s}
-.file a{display:inline-block;margin-top:6px;background:var(--ok);color:#06240f;padding:7px 12px;border-radius:10px;text-decoration:none;font-weight:600}
-.file .err{color:#ffd1d1}
-footer{display:flex;gap:8px;padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
-footer #msg{flex:1}
-@media(max-width:520px){header button{padding:9px 10px;font-size:.85rem}#attach{padding:12px}.msg,.file{max-width:90%;width:auto}}
-@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
-details{font-size:.85rem;color:var(--muted)}summary{cursor:pointer}.chatlog{padding:6px 14px;border-bottom:1px solid var(--line)}
-pre.logbox{margin:6px 0 0;max-height:30vh;overflow:auto;white-space:pre-wrap;font-size:.75rem;background:var(--bg);padding:8px;border-radius:8px;border:1px solid var(--line);color:var(--text)}
-</style>
-</head>
-<body>
-<main id="home" class="screen"><div class="card">
-  <h1>XD Messenger</h1>
-  <p class="sub">Chat y archivos directos entre dos dispositivos.</p>
-  <input id="name" placeholder="Tu nombre (opcional)" maxlength="24" autocomplete="nickname">
-  <button id="create" class="primary">Crear sala</button>
-  <div class="or">o</div>
-  <label for="code">Introduce código de sala</label>
-  <div class="code-row"><span>xd-</span><input id="code" inputmode="numeric" maxlength="7" placeholder="___" autocomplete="off"></div>
-  <button id="join">Conectar</button>
-  <div id="homeStatus" class="status" role="status"></div>
-  <details><summary>Diagnóstico</summary><pre class="logbox"></pre></details>
-</div></main>
-<section id="chat" class="screen hidden">
-  <header>
-    <div class="head-main"><strong>Sala: <span id="roomCode"></span></strong><span id="peer" class="peer"></span><div id="status" class="status" role="status"></div></div>
-    <button id="copy">Copiar código</button><button id="leave">Salir</button>
-  </header>
-  <details class="chatlog"><summary>Diagnóstico</summary><pre class="logbox"></pre></details>
-  <div id="feed" aria-live="polite"></div>
-  <footer>
-    <input type="file" id="file" multiple hidden>
-    <button id="attach" title="Enviar archivo" disabled>📎 Archivo</button>
-    <input id="msg" placeholder="Escribe un mensaje" autocomplete="off" disabled>
-    <button id="send" class="primary" disabled>Enviar</button>
-  </footer>
-</section>
-
-<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
+html,body{height:100%;margin:0;background:#0a1a8a;overflow:hidden;font-family:"Trebuchet MS",system-ui,sans-serif;touch-action:none;user-select:none}
+canvas{display:block}
+#bar{position:fixed;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);width:min(92vw,820px);height:48px;display:flex;border:3px solid #1c2350;border-top:0;border-radius:0 0 14px 14px;overflow:hidden;background:#fff}
+.seg{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;overflow:hidden;color:#fff;font-weight:800;font-size:14px;text-shadow:0 1px 3px #0008;transition:flex .3s}
+.seg b{width:26px;height:26px;border-radius:50%;background:#0005;display:grid;place-items:center;font-size:13px;flex:none}
+.seg.me{box-shadow:inset 0 0 0 3px #fff}
+#msg,#start{position:fixed;left:50%;color:#fff;text-align:center;background:#10153acc;border-radius:14px;padding:14px 20px;font-weight:700}
+#msg{top:76px;transform:translateX(-50%);opacity:0;transition:opacity .3s}
+#start{top:50%;transform:translate(-50%,-50%);width:min(86vw,360px);line-height:1.45}
+#start small{display:block;font-weight:400;margin:6px 0 12px;opacity:.85}
+#start input{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:10px;border:0;margin-bottom:10px;text-align:center}
+#start button+button{background:#fff}#start button{font:inherit;font-weight:800;padding:10px 26px;border:0;border-radius:10px;background:#2fd0ff;color:#10153a;cursor:pointer}
+#hint{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#fffa;font-size:13px;pointer-events:none}
+#coins{position:fixed;top:calc(60px + env(safe-area-inset-top,0px));left:10px;color:#fff;font-weight:800;background:#10153acc;border-radius:12px;padding:8px 12px;display:none}
+#shb{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));font:inherit;font-weight:800;border:0;border-radius:12px;padding:10px 14px;background:#ffd23f;color:#10153a;cursor:pointer;display:none}
+#shop{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(90vw,380px);max-height:80vh;overflow:auto;background:#10153af2;color:#fff;border-radius:16px;padding:14px;display:none;box-sizing:border-box}
+.it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #fff2}
+.it small{opacity:.75}.it i{opacity:.7;font-style:normal;font-size:12px}
+.it button,#shx{font:inherit;font-weight:800;border:0;border-radius:10px;padding:8px 12px;background:#2fd0ff;color:#10153a;cursor:pointer;white-space:nowrap}
+.it button:disabled{background:#fff3;color:#fff8;cursor:default}
+#rcode{position:fixed;top:calc(60px + env(safe-area-inset-top,0px));right:10px;color:#fff;font-weight:800;background:#10153acc;border-radius:12px;padding:8px 12px;display:none;cursor:pointer}
+#cam{position:fixed;right:10px;bottom:calc(62px + env(safe-area-inset-bottom,0px));gap:6px;display:none}
+#cam button{font:inherit;width:44px;height:44px;border:0;border-radius:50%;background:#10153acc;color:#fff;font-size:20px;cursor:pointer;touch-action:none}
+#chatb{display:none}
+#joy{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:130px;height:130px;border-radius:50%;background:#10153a88;border:2px solid #fff5;display:none;touch-action:none}
+#kn{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;background:#fffd;transform:translate(-50%,-50%);pointer-events:none}
+#chat{position:fixed;left:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:min(60vw,300px);display:none;color:#fff;font-size:14px}
+#log{max-height:140px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;text-shadow:0 1px 3px #000;pointer-events:none}
+#log div{background:#10153a99;border-radius:8px;padding:3px 8px;word-break:break-word}
+#cin{display:none;margin-top:6px}#cin input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border-radius:10px;border:0}
+.play #cam{display:flex}.chat #chat{display:block}.chat #chatb{display:block}#chat.open #cin{display:block}
+@media (pointer:coarse){.play #joy{display:block}#chat{bottom:calc(160px + env(safe-area-inset-bottom,0px))}}
+</style></head><body>
+<div id="bar"></div><div id="msg"></div>
+<div id="start">Rodea un área y vuelve a tu color para rellenarla.<small>Escribe un código para unirte a una sala, o crea una nueva y pásale el código a tus amigos. Mantén el clic para avanzar hacia el mouse, o usa WASD o el joystick táctil. Cámara: clic derecho y arrastrar, rueda para zoom, Q/E para girar, Enter para chatear.</small>
+<input id="nm" maxlength="12" placeholder="Tu nombre"><input id="rc" maxlength="20" placeholder="Código de sala (ej. ASMR-456)"><button id="go">Unirme</button> <button id="nw">Crear sala</button></div>
+<div id="hint"></div><div id="coins"></div><div id="rcode"></div><button id="shb">🛒 Tienda (B)</button>
+<div id="cam"><button data-h="yl" title="Girar cámara">⟲</button><button data-h="yr" title="Girar cámara">⟳</button><button data-h="zi" title="Acercar">＋</button><button data-h="zo" title="Alejar">－</button><button id="autob" title="Movimiento automático (avanzar sin parar)">⏸</button><button id="chatb" title="Chat">💬</button></div>
+<div id="joy"><div id="kn"></div></div>
+<div id="chat"><div id="log"></div><div id="cin"><input id="ci" maxlength="100" placeholder="Escribe y pulsa Enter"></div></div>
+<div id="shop"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b>Tienda de mejoras</b><button id="shx">Cerrar</button></div><div id="shl"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-'use strict';
-/* ================= CONFIGURACIÓN (única parte editable) =================
-   Señalización: brokers MQTT públicos por WebSocket seguro. Solo sirven para que
-   los dos dispositivos se encuentren por el código de sala y negocien WebRTC.
-   Mensajes y archivos van directos entre dispositivos y NO pasan por el broker.
-   Si algún día falla, cambia/añade brokers aquí. */
-const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081'];
-/* TURN opcional (redes móviles/firewalls estrictos). Ejemplo:
-   const TURN = { urls: 'turn:servidor:3478', username: 'usuario', credential: 'clave' }; */
-const TURN = null;
-/* TURN público de prueba (puede dejar de funcionar; para uso serio pon el tuyo en TURN) */
-const PUBLIC_TURN = { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' };
-const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, PUBLIC_TURN].concat(TURN ? [TURN] : []);
-/* ===================================================================== */
+const N=48,SP=5.2,PAL=[0x2fd0ff,0x2f6bff,0x7ac943,0xff6fb5,0xff9a3c,0xb06bff,0xffd23f,0xff5252];
+const B64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',NN=N*N;
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));document.body.appendChild(R.domElement);
+const S=new THREE.Scene();S.background=new THREE.Color(0x0a1a8a);S.fog=new THREE.Fog(0x0a1a8a,24,52);
+const C=new THREE.PerspectiveCamera(50,1,.1,100);
+S.add(new THREE.AmbientLight(0xffffff,.8));const DL=new THREE.DirectionalLight(0xffffff,.6);DL.position.set(-5,10,6);S.add(DL);
+function rs(){R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}addEventListener('resize',rs);rs();
 
-const $ = (s) => document.querySelector(s);
-const NS = 'xdm1', CHUNK = 16 * 1024, BUF_HIGH = 8 * 1024 * 1024, BUF_LOW = 1024 * 1024, FLUSH = 64 * 1024 * 1024;
-const myId = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
-const hostT = (c) => `${NS}/h/${c}`, joinT = (c) => `${NS}/j/${c}`, sigT = (c, id) => `${NS}/s/${c}/${id}`;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// tablero
+const g=new THREE.BoxGeometry(.92,1,.92);g.translate(0,.5,0);
+const M=new THREE.InstancedMesh(g,new THREE.MeshLambertMaterial(),NN);M.frustumCulled=false;S.add(M);
+const cv=document.createElement('canvas');cv.width=512;cv.height=256;const cx=cv.getContext('2d');
+cx.font='bold 46px Arial,sans-serif';cx.textAlign='center';cx.textBaseline='middle';
+for(let i=0;i<26;i++)cx.fillText(String.fromCharCode(65+i),(i%8)*64+32,(i/8|0)*64+35);
+const tex=new THREE.CanvasTexture(cv);tex.anisotropy=4;
+const pg=new THREE.PlaneGeometry(.7,.7);pg.rotateX(-Math.PI/2);
+const al=new Float32Array(NN*2);for(let i=0;i<NN;i++){const k=(i*7919+(i>>3)*31)%26;al[i*2]=k%8;al[i*2+1]=k/8|0}
+pg.setAttribute('aLet',new THREE.InstancedBufferAttribute(al,2));
+const LT=new THREE.InstancedMesh(pg,new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{t:{value:tex}},
+vertexShader:'attribute vec2 aLet;varying vec2 v;void main(){v=vec2((aLet.x+uv.x)/8.,(3.-aLet.y+uv.y)/4.);gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}',
+fragmentShader:'uniform sampler2D t;varying vec2 v;void main(){gl_FragColor=vec4(.07,.08,.16,texture2D(t,v).a*.9);}'}),NN);
+LT.frustumCulled=false;S.add(LT);
+const dm=new THREE.Object3D(),col=new THREE.Color(),WH=new THREE.Color(1,1,1),H=[.4,.8,.62];
+const oc=new Int32Array(NN),tc=new Int32Array(NN);
+function paint(i){const h=tc[i]?H[2]:oc[i]?H[1]:H[0];
+dm.position.set(i%N-N/2,0,(i/N|0)-N/2);dm.scale.set(1,h,1);dm.updateMatrix();M.setMatrixAt(i,dm.matrix);
+col.set(0xdfe6fb);if(oc[i])col.set(oc[i]);if(tc[i])col.set(tc[i]).lerp(WH,.45);M.setColorAt(i,col);
+dm.position.y=h+.01;dm.scale.set(1,1,1);dm.updateMatrix();LT.setMatrixAt(i,dm.matrix)}
+function flush(){for(let i=0;i<NN;i++)paint(i);M.instanceMatrix.needsUpdate=M.instanceColor.needsUpdate=LT.instanceMatrix.needsUpdate=true}
+function fig(c){const g=new THREE.Group();
+const b=new THREE.Mesh(new THREE.CylinderGeometry(.22,.3,.6,10),new THREE.MeshLambertMaterial({color:c}));b.position.y=.3;
+const h=new THREE.Mesh(new THREE.SphereGeometry(.24,12,10),new THREE.MeshLambertMaterial({color:0xffe3c4}));h.position.y=.85;
+g.add(b,h);S.add(g);return g}
 
-let brokers = [], pc = null, dc = null, role = null, room = null, peerId = null, probe = null;
-let linked = false, leaving = false, rx = null, connTimer = null, sigQueue = Promise.resolve();
-const sendQueue = []; let sending = false;
+// estado
+const UP={vel:{n:'Velocidad',d:'Corres más rápido',max:5,c:l=>40*(l+1)},agi:{n:'Agilidad',d:'Giras más rápido',max:4,c:l=>30*(l+1)},mon:{n:'Imán de monedas',d:'+25% de monedas al capturar',max:3,c:l=>60*(l+1)},area:{n:'Base grande',d:'Empiezas con más territorio',max:2,c:l=>100*(l+1)},sh:{n:'Escudo',d:'Sobrevives a un corte de estela',max:3,cons:1,c:()=>80}};
+const st={coins:0,vel:0,agi:0,mon:0,area:0,sh:0,ci:null};
+try{Object.assign(st,JSON.parse(localStorage.getItem('t3d')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('t3d',JSON.stringify(st))}catch(e){}};
+const me={name:'Tú',ci:st.ci!=null?st.ci%PAL.length:Math.random()*PAL.length|0,x:N/2,z:N/2,a:0,ta:0,cell:-1,bits:new Uint8Array(NN),T:0,trail:[]};
+const myTr=new Uint8Array(NN),peers=new Map();let dirty=true,playing=false,started=false,room=null;
+me.m=fig(PAL[me.ci]);me.m.visible=false;
+const $=id=>document.getElementById(id),bar=$('bar'),mg=$('msg'),hint=$('hint');
+let mt;function msg(t){mg.textContent=t;mg.style.opacity=1;clearTimeout(mt);mt=setTimeout(()=>mg.style.opacity=0,2200)}
 
-// ---------- UI ----------
-function setStatus(kind, text) { for (const el of [$('#status'), $('#homeStatus')]) { el.className = 'status ' + kind; el.textContent = text; } }
-function showChat(on) { $('#home').classList.toggle('hidden', on); $('#chat').classList.toggle('hidden', !on); }
-function setHomeBusy(b) { for (const id of ['#create', '#join', '#code']) $(id).disabled = b; }
-function setInputs(on) { for (const id of ['#msg', '#send', '#attach']) $(id).disabled = !on; if (on) $('#msg').focus(); }
-const fmtSize = (n) => { const u = ['B', 'KB', 'MB', 'GB', 'TB']; let i = 0; while (n >= 1024 && i < 4) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 2 : 1) : n) + ' ' + u[i]; };
-const fmtTime = (d = new Date()) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-const scrollDown = () => { const f = $('#feed'); f.scrollTop = f.scrollHeight; };
-function addMsg(text, mine, ts) {
-  const d = document.createElement('div'); d.className = 'msg ' + (mine ? 'me' : 'them'); d.textContent = text;
-  const t = document.createElement('time'); t.textContent = fmtTime(ts ? new Date(ts) : new Date()); d.appendChild(t);
-  $('#feed').appendChild(d); scrollDown();
-}
-function addSystem(text) { const d = document.createElement('div'); d.className = 'sys'; d.textContent = text; $('#feed').appendChild(d); scrollDown(); }
-function addFileCard(name, size, mine) {
-  const d = document.createElement('div'); d.className = 'msg file ' + (mine ? 'me' : 'them');
-  const n = document.createElement('div'); n.className = 'fname'; n.textContent = '📄 ' + name;
-  const m = document.createElement('div'); m.className = 'meta'; m.textContent = fmtSize(size);
-  const bar = document.createElement('div'); bar.className = 'bar'; const fill = document.createElement('i'); bar.appendChild(fill);
-  const info = document.createElement('div'); info.className = 'meta';
-  d.append(n, m, bar, info); $('#feed').appendChild(d); scrollDown();
-  return {
-    progress(frac, speed) { const p = Math.min(100, Math.floor(frac * 100)); fill.style.width = p + '%'; info.textContent = `${mine ? 'Subiendo' : 'Descargando'} ${p}% · ${fmtSize(speed)}/s`; },
-    done(url) {
-      fill.style.width = '100%';
-      if (mine) { info.textContent = '✅ Enviado'; return; }
-      info.textContent = '✅ Recibido';
-      const a = document.createElement('a'); a.href = url; a.download = name; a.textContent = 'Descargar'; d.appendChild(a);
-    },
-    fail(msg) { info.className = 'meta err'; info.textContent = '❌ ' + msg; }
-  };
-}
+// codificación para presence
+function enc(a){const u=new Uint8Array(NN+7>>3);for(let i=0;i<NN;i++)if(a[i])u[i>>3]|=1<<(i&7);return btoa(String.fromCharCode.apply(null,u))}
+function dec(s){const a=new Uint8Array(NN);try{const u=atob(s);for(let i=0;i<NN;i++)a[i]=(u.charCodeAt(i>>3)>>(i&7))&1}catch(e){}return a}
+const enct=l=>l.slice(-480).map(i=>B64[i>>6]+B64[i&63]).join('');
+function dect(s){const l=[];for(let i=0;i+1<s.length;i+=2){const v=B64.indexOf(s[i])*64+B64.indexOf(s[i+1]);if(v>=0&&v<NN)l.push(v)}return l}
+function push(full){if(!room)return;const o={x:+me.x.toFixed(2),z:+me.z.toFixed(2),a:+me.a.toFixed(2)};
+if(full){o.n=me.name;o.c=me.ci;o.b=enc(me.bits);o.T=me.T;o.t=enct(me.trail)}room.presence(o).catch(()=>{})}
 
-// ---------- Señalización (MQTT, varios brokers a la vez) ----------
-const LIBERR = 'No se pudo cargar la librería de señalización (mqtt.js) desde internet. Comprueba tu conexión o bloqueadores de contenido, y abre el archivo en una pestaña normal del navegador (no en la vista previa de un chat).';
-const uid = () => Math.random().toString(36).slice(2, 12);
-const seen = new Set(); let pendCand = [];
-function log(t) {
-  const h = new Date().toLocaleTimeString([], { hour12: false });
-  document.querySelectorAll('.logbox').forEach((p) => { p.textContent += `${h} ${t}\n`; p.scrollTop = p.scrollHeight; });
-  console.log('[xd]', t);
-}
-function connectBroker(url, timeout = 5000) {
-  return new Promise((resolve, reject) => {
-    const c = mqtt.connect(url, { clientId: 'xd_' + uid(), clean: true, reconnectPeriod: 0, connectTimeout: timeout });
-    const t = setTimeout(() => { try { c.end(true); } catch {} reject(new Error('sin respuesta')); }, timeout + 500);
-    c.once('connect', () => { clearTimeout(t); c.on('error', () => {}); c.on('message', onMsg); resolve(c); });
-    c.once('error', (e) => { clearTimeout(t); try { c.end(true); } catch {} reject(e); });
-  });
-}
-const sub = (c, topic) => new Promise((res, rej) => c.subscribe(topic, { qos: 1 }, (e) => (e ? rej(e) : res())));
-const subAll = (topic) => Promise.allSettled(brokers.map((c) => sub(c, topic)));
-function pubAll(topic, obj, retain = false) {
-  const payload = obj == null ? '' : JSON.stringify(obj);
-  brokers.forEach((c) => { try { c.publish(topic, payload, { qos: 1, retain }); } catch {} });
-}
-const sendSig = (data) => { if (brokers.length && peerId) pubAll(sigT(room, peerId), { id: uid(), from: myId, data }); };
+// quién es dueño de cada celda: gana la captura más reciente
+function resolve(){const own=new Int16Array(NN).fill(-1),best=new Float64Array(NN),L=[me,...peers.values()];
+L.forEach((c,k)=>{for(let i=0;i<NN;i++)if(c.bits[i]&&c.T>best[i]){best[i]=c.T;own[i]=k}});
+let lost=false;for(let i=0;i<NN;i++)if(me.bits[i]&&own[i]!==0){me.bits[i]=0;lost=true}
+tc.fill(0);const cnt=new Array(L.length).fill(0);
+for(let i=0;i<NN;i++){oc[i]=own[i]<0?0:PAL[L[own[i]].ci];if(own[i]>=0)cnt[own[i]]++}
+for(const c of L)for(const i of c.trail)tc[i]=PAL[c.ci];
+if(lost)push(true);
+bar.innerHTML=L.map((c,k)=>({c,k,v:cnt[k]*100/NN})).sort((a,b)=>a.v-b.v).map(({c,k,v})=>
+`<div class="seg${k?'':' me'}" style="flex:${Math.max(v,8)};background:#${PAL[c.ci].toString(16).padStart(6,'0')}"><b>${esc((c.name||'?')[0])}</b><span>${v.toFixed(1)}%</span></div>`).join('');
+hint.textContent=!code?'':!room?'Sin conexión: '+why:`Sala ${code}`+(peers.size?` · ${peers.size+1} jugadores`:' · comparte el código para jugar con otros');
+flush()}
+const esc=s=>String(s).replace(/[&<>"]/g,'');
 
-async function connectAll() {
-  if (typeof mqtt === 'undefined') throw new Error(LIBERR);
-  const res = await Promise.allSettled(BROKERS.map(async (u) => {
-    try { const c = await connectBroker(u); log('✔ broker ' + u); return c; }
-    catch (e) { log('✘ broker ' + u + ' (' + ((e && e.message) || e) + ')'); throw e; }
-  }));
-  brokers = res.filter((r) => r.status === 'fulfilled').map((r) => r.value);
-  if (!brokers.length) throw new Error('No se pudo contactar con ningún servidor de señalización público. Revisa tu Internet, VPN o firewall (necesita WebSocket seguro). Abre "Diagnóstico" para ver el detalle.');
-}
-function onMsg(topic, payload) {
-  const raw = payload.toString();
-  if (probe && topic === probe.topic) { if (raw) { try { probe.m = JSON.parse(raw); } catch {} } return; }
-  let m; try { m = JSON.parse(raw); } catch { return; }
-  if (m.id) { if (seen.has(m.id)) return; seen.add(m.id); }
-  if (role === 'host' && topic === joinT(room)) {
-    if (m.from && !peerId && !linked) { log('◀ una persona pidió unirse'); peerId = m.from; setStatus('warn', '🟡 Conectando...'); makePeer(true); }
-  } else if (topic === sigT(room, myId) && m.from === peerId && m.data) {
-    sigQueue = sigQueue.then(() => handleSignal(m.data)).catch((e) => log('error señal: ' + e.message));
-  }
-}
-async function probeHost(code, wait) { // ¿existe una sala con ese código?
-  probe = { topic: hostT(code), m: null };
-  await subAll(probe.topic);
-  const t0 = Date.now(); while (!probe.m && Date.now() - t0 < wait) await sleep(100);
-  const m = probe.m; probe = null; brokers.forEach((c) => { try { c.unsubscribe(hostT(code)); } catch {} }); return m;
-}
-async function startHost() {
-  setStatus('warn', '🟡 Creando sala...');
-  try {
-    await connectAll();
-    let code = null;
-    for (let i = 0; i < 10 && !code; i++) {
-      const c = 'xd-' + (100 + Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296 * 900));
-      const m = await probeHost(c, 1500);
-      if (!m || !m.ts || Date.now() - m.ts > 6 * 3600e3) code = c; // libre o abandonada
-    }
-    if (!code) throw new Error('No se encontró un código libre. Inténtalo de nuevo en unos minutos.');
-    room = code; await subAll(joinT(room)); await subAll(sigT(room, myId));
-    pubAll(hostT(room), { id: myId, ts: Date.now() }, true);
-    log('Sala ' + room + ' publicada en ' + brokers.length + ' broker(s)');
-    $('#roomCode').textContent = room; showChat(true);
-    setStatus('warn', `🟡 Sala creada. Esperando a la otra persona: comparte ${room}`);
-    addSystem(`Comparte el código ${room}. Mantén esta pestaña abierta hasta que se conecte.`);
-  } catch (e) { fail(e.message); }
-}
-async function startGuest(code) {
-  setStatus('warn', '🟡 Buscando sala...');
-  try {
-    await connectAll();
-    const found = await probeHost(code, 3500);
-    if (!found || !found.id) throw new Error(`La sala ${code} no existe o ya se cerró (se cierra al conectarse la otra persona). Comprueba el código o pide uno nuevo. Si ambos están en redes con bloqueos, mira el Diagnóstico.`);
-    log('Sala encontrada');
-    room = code; peerId = found.id;
-    await subAll(sigT(room, myId));
-    $('#roomCode').textContent = room; showChat(true);
-    setStatus('warn', '🟡 Conectando...');
-    makePeer(false);
-    pubAll(joinT(room), { id: uid(), from: myId }); log('▶ solicitud de unión enviada');
-  } catch (e) { fail(e.message); }
-}
-function closeBroker() {
-  if (!brokers.length) return;
-  try { if (role === 'host' && room) pubAll(hostT(room), null, true); } catch {}
-  const bs = brokers; brokers = [];
-  bs.forEach((c) => { try { c.end(); } catch {} });
-}
-async function handleSignal(d) {
-  if (!pc) return;
-  if (d.description) {
-    log('◀ ' + d.description.type);
-    await pc.setRemoteDescription(d.description);
-    for (const c of pendCand.splice(0)) { try { await pc.addIceCandidate(c); } catch {} }
-    if (d.description.type === 'offer') { await pc.setLocalDescription(await pc.createAnswer()); sendSig({ description: pc.localDescription }); log('▶ answer'); }
-  } else if (d.candidate) {
-    if (!pc.remoteDescription) pendCand.push(d.candidate);
-    else { try { await pc.addIceCandidate(d.candidate); } catch (e) { log('ICE rechazado: ' + e.message); } }
-  }
-}
+function spawn(){resolve();let x=N>>1,z=N>>1;
+for(let n=0;n<300;n++){const a=5+Math.random()*(N-10)|0,c=5+Math.random()*(N-10)|0;let ok=true;
+for(let i=-5;i<=5&&ok;i++)for(let j=-5;j<=5;j++){const k=(c+j)*N+a+i;if(oc[k]||tc[k]){ok=false;break}}
+if(ok){x=a;z=c;break}}
+const r=2+st.area;for(let i=-r;i<=r;i++)for(let j=-r;j<=r;j++)me.bits[(z+j)*N+x+i]=1;
+P.moved=false;me.T=Date.now();me.x=x;me.z=z;me.cell=z*N+x;me.a=me.ta=Math.random()*6.28;started=false;dirty=true;push(true)}
+function die(){if(st.sh>0&&me.bits.indexOf(1)>=0){st.sh--;save();myTr.fill(0);me.trail=[];const i=me.bits.indexOf(1);me.x=i%N;me.z=i/N|0;me.cell=i;dirty=true;push(true);upd();msg('¡Escudo usado! Te salvaste');return true}
+me.bits.fill(0);myTr.fill(0);me.trail=[];spawn();msg('Te cortaron. Muévete para volver a empezar')}
+function capture(){const B=new Uint8Array(NN),q=[];const push_=i=>{if(!B[i]&&!me.bits[i]&&!myTr[i]){B[i]=1;q.push(i)}};
+for(let k=0;k<N;k++){push_(k);push_((N-1)*N+k);push_(k*N);push_(k*N+N-1)}
+while(q.length){const i=q.pop(),x=i%N,z=i/N|0;if(x>0)push_(i-1);if(x<N-1)push_(i+1);if(z>0)push_(i-N);if(z<N-1)push_(i+N)}
+let gn=0;for(let i=0;i<NN;i++)if(!B[i]){if(!me.bits[i])gn++;me.bits[i]=1}
+if(gn){const c=Math.round(gn*(1+.25*st.mon));st.coins+=c;save();upd();msg('+'+c+' 🪙')}
+myTr.fill(0);me.trail=[];me.T=Date.now();dirty=true;push(true)}
+function enter(c){const p=me.cell;me.cell=c;
+if(myTr[c]&&me.trail.slice(-3).indexOf(c)<0){die();return true}
+if(me.bits[c]){if(me.trail.length)capture();return false}
+if(!myTr[c]){const lx=p%N,lz=p/N|0,cx2=c%N,cz=c/N|0;
+if(lx!=cx2&&lz!=cz){const e=lz*N+cx2;if(!me.bits[e]&&!myTr[e]){myTr[e]=1;me.trail.push(e)}}
+myTr[c]=1;me.trail.push(c);dirty=true;push(true)}
+return false}
 
-// ---------- WebRTC ----------
-function makePeer(initiator) {
-  closePeer();
-  const conn = (pc = new RTCPeerConnection({ iceServers: ICE }));
-  const types = {};
-  conn.onicecandidate = (e) => {
-    if (e.candidate) { const ty = (/ typ (\w+)/.exec(e.candidate.candidate) || [])[1] || '?'; types[ty] = (types[ty] || 0) + 1; sendSig({ candidate: e.candidate }); }
-    else log('candidatos ICE: ' + JSON.stringify(types) + (types.srflx || types.relay ? '' : ' ⚠ sin srflx/relay: STUN/TURN no alcanzable'));
-  };
-  conn.oniceconnectionstatechange = () => log('ICE: ' + conn.iceConnectionState);
-  conn.onconnectionstatechange = () => {
-    if (conn !== pc) return; const s = conn.connectionState; log('conexión: ' + s);
-    if (s === 'failed') { clearTimeout(connTimer); setInputs(false); setStatus('bad', '❌ Error de conexión: no se pudo abrir el enlace directo (suele pasar con firewalls o redes móviles estrictas). Añade un servidor TURN en la configuración del archivo.'); if (role === 'host') peerId = null; }
-    else if (s === 'disconnected') setStatus('warn', '🟡 Conexión inestable, intentando recuperar...');
-    else if (s === 'connected' && dc && dc.readyState === 'open') setStatus('ok', '🟢 Conectado');
-  };
-  clearTimeout(connTimer);
-  connTimer = setTimeout(() => {
-    if (linked || pc !== conn) return;
-    setStatus('bad', '❌ Error de conexión: se agotó el tiempo (25 s). La otra persona pudo cerrar la página, o la red bloquea WebRTC.');
-    if (role === 'host') { peerId = null; closePeer(); setStatus('warn', `🟡 La conexión no se completó. La sala ${room} sigue abierta: la otra persona puede intentarlo de nuevo.`); }
-  }, 25000);
-  if (initiator) {
-    setupChannel(conn.createDataChannel('xd', { ordered: true }));
-    conn.createOffer().then((o) => conn.setLocalDescription(o)).then(() => { sendSig({ description: conn.localDescription }); log('▶ offer'); })
-      .catch((e) => fail('No se pudo iniciar la negociación: ' + e.message));
-  } else conn.ondatachannel = (e) => setupChannel(e.channel);
-}
-function setupChannel(ch) {
-  dc = ch; ch.binaryType = 'arraybuffer'; ch.bufferedAmountLowThreshold = BUF_LOW;
-  ch.onopen = () => {
-    if (ch !== dc) return;
-    clearTimeout(connTimer); log('canal de datos abierto'); linked = true; setStatus('ok', '🟢 Conectado'); setInputs(true);
-    addSystem('Conexión directa establecida. La sala ya está cerrada a otras personas.');
-    sendJSON({ t: 'hello', name: $('#name').value.trim().slice(0, 24) });
-    closeBroker(); // ya no hace falta el servidor de señalización
-  };
-  ch.onclose = () => {
-    if (ch !== dc) return;
-    if (rx) { rx.card.fail('Conexión cerrada antes de terminar'); rx = null; }
-    if (linked) { linked = false; setInputs(false); if (!leaving) { setStatus('bad', '🔴 Desconectado: la otra persona se fue o se perdió la red. Pulsa Salir y crea una sala nueva.'); addSystem('Se perdió la conexión.'); } }
-  };
-  ch.onerror = () => { if (ch === dc && linked) setStatus('bad', '❌ Error en el canal de datos. Comprueba la conexión.'); };
-  ch.onmessage = (e) => (typeof e.data === 'string' ? onControl(JSON.parse(e.data)) : onChunk(e.data));
-}
-function closePeer() {
-  clearTimeout(connTimer);
-  const c = dc, p = pc; dc = null; pc = null; linked = false;
-  if (c) { c.onclose = c.onmessage = c.onopen = c.onerror = null; try { c.close(); } catch {} }
-  if (p) { p.onconnectionstatechange = p.onicecandidate = null; try { p.close(); } catch {} }
-  if (rx) { rx.card.fail('Conexión cerrada antes de terminar'); rx = null; }
-  sigQueue = Promise.resolve(); pendCand = [];
-}
-const sendJSON = (o) => { if (dc && dc.readyState === 'open') dc.send(JSON.stringify(o)); };
+// controles: mouse, teclado o dedo
+const keys=new Set(),P={mx:0,my:0,tx:0,ty:0,ox:0,oy:0,touch:false,moved:false};
+function inputAngle(){let vx=0,vz=0;
+if(keys.has('w')||keys.has('arrowup'))vz--;if(keys.has('s')||keys.has('arrowdown'))vz++;
+if(keys.has('a')||keys.has('arrowleft'))vx--;if(keys.has('d')||keys.has('arrowright'))vx++;
+if(vx||vz)return Math.atan2(vz,vx)-yaw;
+if(P.touch){const dx=P.tx-P.ox,dy=P.ty-P.oy;return Math.hypot(dx,dy)>12?Math.atan2(dy,dx)-yaw:null}
+if(P.moved){const dx=P.mx-innerWidth/2,dy=P.my-innerHeight*.6;if(Math.hypot(dx,dy)>30)return Math.atan2(dy,dx)-yaw}
+return null}
+addEventListener('keydown',e=>{if(e.target.tagName=='INPUT'){if(e.key=='Enter'&&e.target.id=='ci')sendChat();if(e.key=='Escape')e.target.blur();return}
+const k=e.key.toLowerCase();if(k=='enter'&&room&&playing){openChat();return}if(k=='b'&&playing){shop(!shopOpen);return}if(k.length>1&&!k.startsWith('arrow'))return;if(playing&&('wasdqe'.includes(k)||k.startsWith('arrow'))){e.preventDefault();keys.add(k)}});
+addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+let orb=false,ox0=0,oy0=0,yaw=0,pit=.89,cd=1;const hold={};
+addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('pointerdown',e=>{if(e.pointerType=='mouse'&&e.button==2){orb=true;ox0=e.clientX;oy0=e.clientY}
+if(e.pointerType=='mouse'&&e.button==0&&playing&&!shopOpen&&!(e.target.closest&&e.target.closest('#shop,#shb,#chat,#cam,#rcode'))){P.mx=e.clientX;P.my=e.clientY;P.moved=true}});
+let auto=false;
+addEventListener('pointerup',()=>{orb=false;if(!auto)P.moved=false});
+addEventListener('blur',()=>{keys.clear();P.moved=false;P.touch=false});
+addEventListener('pointermove',e=>{if(e.pointerType!='mouse')return;
+if(orb){yaw-=(e.clientX-ox0)*.006;pit=Math.max(.35,Math.min(1.35,pit+(e.clientY-oy0)*.004));ox0=e.clientX;oy0=e.clientY;return}
+if(e.target.closest&&e.target.closest('#shop,#shb,#chat,#cam,#rcode'))return;P.mx=e.clientX;P.my=e.clientY});
+addEventListener('wheel',e=>{cd=Math.max(.6,Math.min(2.2,cd*Math.exp(e.deltaY*.001)))},{passive:true});
 
-// ---------- Mensajes ----------
-function onControl(m) {
-  if (m.t === 'hello') { const n = String(m.name || '').slice(0, 24); $('#peer').textContent = n ? 'con ' + n : ''; if (n) addSystem(n + ' se unió.'); }
-  else if (m.t === 'msg') addMsg(String(m.text), false, m.ts);
-  else if (m.t === 'fs') {
-    if (rx) rx.card.fail('Interrumpido por otro archivo');
-    rx = { id: m.id, name: String(m.name), size: m.size, type: m.mime || 'application/octet-stream', got: 0, parts: [], blobs: [], pend: 0, card: addFileCard(String(m.name), m.size, false), tl: 0, lastB: 0 };
-    rx.card.progress(0, 0);
-  } else if (m.t === 'fe') {
-    if (!rx || rx.id !== m.id) return;
-    const r = rx; rx = null;
-    if (r.got !== r.size) return r.card.fail(`Archivo incompleto (${fmtSize(r.got)} de ${fmtSize(r.size)})`);
-    r.card.done(URL.createObjectURL(new Blob([...r.blobs, ...r.parts], { type: r.type })));
-  }
-}
-function onChunk(buf) {
-  if (!rx) return;
-  rx.parts.push(buf); rx.got += buf.byteLength; rx.pend += buf.byteLength;
-  if (rx.pend >= FLUSH) { rx.blobs.push(new Blob(rx.parts)); rx.parts = []; rx.pend = 0; }
-  const now = performance.now();
-  if (now - rx.tl > 250) {
-    const dt = rx.tl ? now - rx.tl : 250;
-    rx.card.progress(rx.size ? rx.got / rx.size : 1, ((rx.got - rx.lastB) / dt) * 1000); rx.tl = now; rx.lastB = rx.got;
-  }
-}
-function sendMessage() {
-  const el = $('#msg'), text = el.value.trim(); if (!text || !linked) return;
-  const ts = Date.now(); sendJSON({ t: 'msg', text, ts }); addMsg(text, true, ts); el.value = '';
-}
+function move(dt){if(!playing||shopOpen)return;const t=inputAngle();if(t!=null){me.ta=t;started=true}
+if(!started||(!auto&&t==null))return;
+const d=((me.ta-me.a+Math.PI*3)%(Math.PI*2))-Math.PI,m=(9+2.5*st.agi)*dt;me.a+=Math.max(-m,Math.min(m,d));
+const dist=(SP+.45*st.vel)*dt,n=Math.ceil(dist/.3);
+for(let k=0;k<n;k++){me.x=Math.max(0,Math.min(N-1,me.x+Math.cos(me.a)*dist/n));me.z=Math.max(0,Math.min(N-1,me.z+Math.sin(me.a)*dist/n));
+const c=Math.round(me.z)*N+Math.round(me.x);if(c!==me.cell&&enter(c))break}}
 
-// ---------- Archivos por fragmentos con contrapresión ----------
-function waitDrain() {
-  return new Promise((res) => {
-    const ch = dc; if (!ch) return res();
-    const done = () => { ch.removeEventListener('bufferedamountlow', done); ch.removeEventListener('close', done); res(); };
-    ch.addEventListener('bufferedamountlow', done); ch.addEventListener('close', done);
-  });
-}
-async function sendFile(file) {
-  const card = addFileCard(file.name, file.size, true);
-  const id = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random());
-  const open = () => dc && dc.readyState === 'open';
-  try {
-    sendJSON({ t: 'fs', id, name: file.name, size: file.size, mime: file.type });
-    let off = 0, tl = performance.now(), lastSent = 0;
-    while (off < file.size) {
-      if (!open()) throw new Error('La conexión se cerró durante el envío');
-      if (dc.bufferedAmount > BUF_HIGH) await waitDrain();
-      if (!open()) throw new Error('La conexión se cerró durante el envío');
-      const buf = await file.slice(off, off + CHUNK).arrayBuffer();
-      dc.send(buf); off += buf.byteLength;
-      const now = performance.now();
-      if (now - tl > 250) { const sent = off - dc.bufferedAmount; card.progress(sent / file.size, Math.max(0, ((sent - lastSent) / (now - tl)) * 1000)); tl = now; lastSent = sent; }
-    }
-    while (open() && dc.bufferedAmount > 0) await sleep(50);
-    if (!open()) throw new Error('La conexión se cerró antes de terminar');
-    sendJSON({ t: 'fe', id }); card.done();
-  } catch (e) { card.fail(e.message || 'Error al enviar'); }
-}
-async function pumpQueue() { if (sending) return; sending = true; while (sendQueue.length) await sendFile(sendQueue.shift()); sending = false; }
+// multijugador
+function sync(ch){for(const p of [...ch.joined,...ch.updated]){if(p.isMe||p.kind!='viewer')continue;const s=p.presence;if(!s||s.n==null)continue;
+let r=peers.get(p.peer);if(!r){r={bits:new Uint8Array(NN),T:0,trail:[],ci:(s.c|0)%PAL.length,vx:+s.x||0,vz:+s.z||0};r.m=fig(PAL[r.ci]);peers.set(p.peer,r)}
+r.name=String(s.n).slice(0,12);r.x=+s.x||0;r.z=+s.z||0;
+if(typeof s.b=='string'&&s.b!==r.rb){r.rb=s.b;r.bits=dec(s.b)}
+r.T=+s.T||0;
+if(typeof s.t=='string'&&s.t!==r.rt){r.rt=s.t;r.trail=dect(s.t)}}
+for(const p of ch.left){const r=peers.get(p.peer);if(r){S.remove(r.m);peers.delete(p.peer)}}
+dirty=true}
+let lobby=null,code='',why='';(async()=>{try{if(window.claude&&claude.use)lobby=await claude.use('room')}catch(e){}})();
+async function joinRoom(c){if(!lobby){why='esta página no tiene conexión en línea (¿abriste el archivo suelto o no tienes acceso al enlace?)';return}
+try{room=await Promise.race([lobby.join(c.toLowerCase()),new Promise((_,j)=>setTimeout(()=>j({code:'tiempo agotado'}),6000))]);room.onPeers(sync,()=>{});setInterval(()=>push(false),70);
+room.on('chat',m=>{const d=m.data;if(d&&typeof d.t=='string')chatLine(String(d.n||'?').slice(0,12),d.t.slice(0,100))},()=>{});
+document.body.classList.add('chat');chatLine('Sala','Comparte el código '+c.toUpperCase()+' con tus amigos')}catch(e){room=null;why='no se pudo entrar a la sala ('+((e&&e.code)||'error')+')'}}
 
-// ---------- Acciones ----------
-function start(kind, code) {
-  if (brokers.length || pc) return;
-  if (!window.RTCPeerConnection) return setStatus('bad', '❌ Este navegador no soporta WebRTC. Usa Chrome, Edge, Firefox o Safari actualizados.');
-  leaving = false; role = kind; setHomeBusy(true);
-  return kind === 'host' ? startHost() : startGuest(code);
-}
-function fail(msg) {
-  setStatus('bad', '❌ ' + msg);
-  if ($('#chat').classList.contains('hidden')) { closeBroker(); closePeer(); room = peerId = null; setHomeBusy(false); } else setInputs(false);
-}
-function leaveRoom() {
-  leaving = true; closeBroker(); closePeer(); sendQueue.length = 0; room = peerId = null;
-  $('#feed').textContent = ''; $('#peer').textContent = ''; setInputs(false); setHomeBusy(false); showChat(false); setStatus('', '');
-}
-const normalizeCode = (v) => v.replace(/^\s*xd-?/i, '').replace(/\D/g, '').slice(0, 3);
-$('#create').onclick = () => start('host');
-$('#join').onclick = () => {
-  const d = normalizeCode($('#code').value);
-  if (d.length !== 3) return setStatus('bad', '❌ Escribe los 3 dígitos del código, por ejemplo xd-483.');
-  start('guest', 'xd-' + d);
-};
-$('#code').oninput = (e) => { e.target.value = normalizeCode(e.target.value); };
-$('#code').onkeydown = (e) => { if (e.key === 'Enter') $('#join').click(); };
-$('#send').onclick = sendMessage;
-$('#msg').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
-$('#attach').onclick = () => $('#file').click();
-$('#file').onchange = (e) => { for (const f of e.target.files) sendQueue.push(f); e.target.value = ''; if (linked) pumpQueue(); };
-$('#leave').onclick = leaveRoom;
-$('#copy').onclick = async () => {
-  try { await navigator.clipboard.writeText(room); } catch { const t = document.createElement('textarea'); t.value = room; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
-  $('#copy').textContent = '¡Copiado!'; setTimeout(() => ($('#copy').textContent = 'Copiar código'), 1500);
-};
-addEventListener('pagehide', () => { if (role === 'host' && !linked) closeBroker(); });
-log('Página: ' + location.protocol + '//' + (location.host || '(archivo local)') + ' · mqtt.js ' + (typeof mqtt !== 'undefined' ? 'cargada' : 'NO cargada') + ' · WebRTC ' + (window.RTCPeerConnection ? 'ok' : 'NO disponible'));
-const pre = new URLSearchParams(location.search).get('room'); if (pre) $('#code').value = normalizeCode(pre);
-</script>
-</body>
-</html>
+function chatLine(n,t){const d=document.createElement('div'),b=document.createElement('b');b.textContent=n+': ';d.append(b,document.createTextNode(t));const l=$('log');l.append(d);
+while(l.children.length>6)l.firstChild.remove();setTimeout(()=>{if(d.parentNode&&!$('chat').classList.contains('open'))d.remove()},15000)}
+function openChat(){$('chat').classList.add('open');$('ci').focus()}
+function sendChat(){const i=$('ci'),t=i.value.trim().slice(0,100);i.value='';$('chat').classList.remove('open');i.blur();if(t){if(room)room.emit('chat',{n:me.name,t}).catch(()=>{});else chatLine(me.name,t)}}
+$('autob').onclick=()=>{auto=!auto;if(!auto)P.moved=false;$('autob').textContent=auto?'▶':'⏸';msg(auto?'Avance automático: ACTIVADO':'Avance automático: DESACTIVADO (solo te mueves mientras controlas)')};
+$('chatb').onclick=()=>{$('chat').classList.contains('open')?sendChat():openChat()};
+$('rcode').onclick=()=>{try{navigator.clipboard.writeText(code)}catch(e){}msg('Código copiado: '+code)};
+document.querySelectorAll('[data-h]').forEach(b=>{const k=b.dataset.h;b.addEventListener('pointerdown',e=>{e.preventDefault();hold[k]=1});
+['pointerup','pointercancel','pointerleave'].forEach(t=>b.addEventListener(t,()=>hold[k]=0))});
+const joy=$('joy'),kn=$('kn');let jid=null;
+function jmove(e){const r=joy.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const m=Math.hypot(dx,dy),R2=r.width/2-14;
+if(m>R2){dx*=R2/m;dy*=R2/m}kn.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;P.touch=true;P.ox=0;P.oy=0;P.tx=dx;P.ty=dy}
+joy.addEventListener('pointerdown',e=>{jid=e.pointerId;joy.setPointerCapture(e.pointerId);jmove(e)});
+joy.addEventListener('pointermove',e=>{if(e.pointerId==jid)jmove(e)});
+const jend=e=>{if(e.pointerId==jid){jid=null;P.touch=false;kn.style.transform='translate(-50%,-50%)'}};
+joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
+let shopOpen=false;
+function shopHTML(){return Object.entries(UP).map(([k,u])=>{const l=st[k],mx=l>=u.max;return `<div class="it"><div><b>${u.n}</b> <i>${u.cons?l+'/'+u.max+' cargas':'nivel '+l+'/'+u.max}</i><br><small>${u.d}</small></div><button data-k="${k}" ${mx||st.coins<u.c(l)?'disabled':''}>${mx?'Máx.':u.c(l)+' 🪙'}</button></div>`}).join('')+`<div class="it"><div><b>Color</b><br><small>Cambia el color de tu personaje</small></div><button data-k="col" ${st.coins<25?'disabled':''}>25 🪙</button></div>`}
+function upd(){$('coins').textContent='🪙 '+st.coins;if(shopOpen)$('shl').innerHTML=shopHTML()}
+function shop(o){shopOpen=o;keys.clear();$('shop').style.display=o?'block':'none';upd()}
+function buy(k){if(k=='col'){if(st.coins<25)return;st.coins-=25;me.ci=(me.ci+1)%PAL.length;st.ci=me.ci;me.m.children[0].material.color.set(PAL[me.ci]);push(true);dirty=true}
+else{const u=UP[k],l=st[k];if(!u||l>=u.max||st.coins<u.c(l))return;st.coins-=u.c(l);st[k]++}
+save();upd()}
+$('shb').onclick=()=>shop(!shopOpen);$('shx').onclick=()=>shop(false);
+$('shl').onclick=e=>{const k=e.target.dataset&&e.target.dataset.k;if(k)buy(k)};
+async function begin(c){me.name=($('nm').value.trim()||'Jugador').slice(0,12);
+code=c||(['ASMR','LAVA','NOVA','ZETA','KIWI','PIXEL','COCO','TURBO'][Math.random()*8|0]+'-'+(100+Math.random()*900|0));
+$('start').style.display='none';await joinRoom(code);document.body.classList.add('play','chat');
+$('rcode').textContent='Sala '+code+' 📋'+(room?'':' · sin conexión');$('rcode').style.display='block';
+if(!room)chatLine('Aviso','Sin conexión: '+why+'. Los otros jugadores y el chat solo funcionan con el enlace publicado.');else msg('Sala '+code+': pasa el código a tus amigos');
+msg('Mantén el clic, o usa WASD / joystick para moverte')
+playing=true;me.m.visible=true;$('coins').style.display='block';$('shb').style.display='block';upd();spawn();C.position.set(me.x-N/2,10.5,me.z-N/2+8.5)}
+$('go').onclick=()=>begin($('rc').value.trim().toUpperCase().replace(/[\s_]+/g,'-').replace(/[^A-Z0-9-]/g,'').replace(/^-+/,'').slice(0,20));
+$('nw').onclick=()=>begin('');
+
+flush();resolve();
+const tmp=new THREE.Vector3();let last=performance.now(),lr=0;
+function loop(now){const dt=Math.min((now-last)/1000,.1);last=now;move(dt);
+for(const r of peers.values()){r.vx+=(r.x-r.vx)*.3;r.vz+=(r.z-r.vz)*.3;r.m.position.set(r.vx-N/2,.6,r.vz-N/2);
+if(playing){const c=Math.round(r.z)*N+Math.round(r.x);if(myTr[c]){die();break}}}
+me.m.position.set(me.x-N/2,.6,me.z-N/2);me.m.rotation.y=Math.atan2(Math.cos(me.a),Math.sin(me.a));
+if(dirty&&now-lr>90){dirty=false;lr=now;resolve()}
+const ry=((hold.yl||keys.has('q'))?1:0)-((hold.yr||keys.has('e'))?1:0);yaw+=ry*dt*1.8;
+cd=Math.max(.6,Math.min(2.2,cd*Math.exp(((hold.zo?1:0)-(hold.zi?1:0))*dt*1.2)));
+const q=me.m.position,hz=13.5*Math.cos(pit)*cd,vt=13.5*Math.sin(pit)*cd;
+C.position.lerp(tmp.set(q.x+Math.sin(yaw)*hz,vt,q.z+Math.cos(yaw)*hz),.12);C.lookAt(q.x-Math.sin(yaw),0,q.z-Math.cos(yaw));
+R.render(S,C);requestAnimationFrame(loop)}
+C.position.set(0,16,14);requestAnimationFrame(loop);
+</script></body></html>
